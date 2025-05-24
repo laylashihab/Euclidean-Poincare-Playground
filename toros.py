@@ -10,6 +10,9 @@ Parameters:
 numPoints: the number of steps (includes the start and end)
 start: two dimensional array containing the starting matrix
 end: two dimensional array containing the ending matrix
+
+Returns:
+A 3 dimensional array where each element is a surface between the start and end surface (inclusive)
 """
 def interpolate(numPoints, start, end):
     interpolatedArrays = [[] for _ in range(numPoints)]
@@ -32,6 +35,30 @@ def interpolate(numPoints, start, end):
             interpolatedArrays[k].append(tempArray[k])
 
     return np.array(interpolatedArrays, dtype=np.float64)
+
+"""
+Combines multiple transformations between a number of surfaces for one dimension (X, Y,Z)
+
+Parameters:
+surfaces: a list of all the surfaces to transform between (len >= 2)
+numPoints: the number of steps to take between any two surfaces
+
+Returns:
+A 3 dimensional array that smoothly transitions between each provided surface for one dimension
+"""
+def combineSurfaceTransformations(surfaces, numPoints):
+    if (len(surfaces) < 2):
+        raise Exception("Please provide at least two shapes")
+    
+    final = interpolate(numPoints, surfaces[0], surfaces[1])
+
+    for i in range(1,len(surfaces)-1):
+        # interpolates between two figures
+        temp = interpolate(numPoints, surfaces[i], surfaces[i+1])
+
+        final = np.concatenate((final,temp), axis = 0)
+
+    return final
 
 #variables 
 radius = 3 / (2 * np.pi)
@@ -66,34 +93,25 @@ torusX = (c + radius*np.cos(theta)) * np.cos(phi)
 torusY = (c + radius*np.cos(theta)) * np.sin(phi)
 torusZ = radius * np.sin(theta)
 
-# interpolates between two figures
-i1X = interpolate(numPoints, planeX, cylX)
-i1Y = interpolate(numPoints, planeY, cylY)
-i1Z = interpolate(numPoints, planeZ, cylZ)
-
-i2X = interpolate(numPoints, cylX, torusX)
-i2Y = interpolate(numPoints, cylY, torusY)
-i2Z = interpolate(numPoints, cylZ, torusZ)
-
-iX = np.concatenate((i1X, i2X), axis = 0)
-iY = np.concatenate((i1Y, i2Y), axis = 0)
-iZ = np.concatenate((i1Z, i2Z), axis = 0)
+#combines the shapes together
+XArray = combineSurfaceTransformations([planeX,cylX,torusX,planeX], 30)
+YArray = combineSurfaceTransformations([planeY,cylY,torusY,planeY], 30)
+ZArray = combineSurfaceTransformations([planeZ,cylZ,torusZ,planeZ], 30)
 
 #animation
 metadata = dict(title='Movie',artist="me")
 writer = PillowWriter(fps = 15, metadata=metadata)
 
-
 with writer.saving(fig, "animations/torus.gif", 100):
-    for i in range(0,len(iX)):
+    for i in range(0,len(XArray)):
         # sets scope
         ax.set_xlim(-scope,scope)
         ax.set_ylim(-scope,scope)
         ax.set_zlim(-scope,scope)
 
-        X = iX[i]
-        Y = iY[i]
-        Z = iZ[i]
+        X = XArray[i]
+        Y = YArray[i]
+        Z = ZArray[i]
 
         ax.plot_surface(X,Y,Z) # coloring the surface, other color maps available
 
