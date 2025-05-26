@@ -4,37 +4,24 @@ from matplotlib.animation import PillowWriter
 import pandas as pd
 
 """
-Creates a 3 dimensional array containing arrays that smoothly transition from the start matrix to the end
+provides an array of surface plots that linearly interpolate between two plots
 
-Parameters:
-numPoints: the number of steps (includes the start and end)
-start: two dimensional array containing the starting matrix
-end: two dimensional array containing the ending matrix
+parameters:
+numPoints: the number of arrays to get from start to end (inclusive)
+start: the start plot
+end: the end plot
 
-Returns:
-A 3 dimensional array where each element is a surface between the start and end surface (inclusive)
+returns:
+an array of surface plots
 """
-def interpolate(numPoints, start, end):
-    interpolatedArrays = [[] for _ in range(numPoints)]
+def linearInterpolation(numPoints,start,end):
+    interpolatedArrays = []
 
-    # iterates through each line in startY
-    for i in range(len(start)):
-        tempArray = []
+    t_range = np.linspace(0,1,numPoints)
+    for t in t_range:
+        interpolatedArrays.append((1-t) * start + t*end)
+    return interpolatedArrays
 
-        # iterates through each point in the line
-        for j in range(len(start[i])):
-            tempArray.append(np.linspace(start[i][j], end[i][j],numPoints))
-
-        # tempArray stores a list of lists with the innermost list being points
-        tempArray = np.array(tempArray, dtype=np.float64)
-        df = pd.DataFrame(tempArray)
-        df = df.T
-        tempArray = df.to_numpy()
-
-        for k in range(numPoints):
-            interpolatedArrays[k].append(tempArray[k])
-
-    return np.array(interpolatedArrays, dtype=np.float64)
 
 """
 Combines multiple transformations between a number of surfaces for one dimension (X, Y,Z)
@@ -50,11 +37,11 @@ def combineSurfaceTransformations(surfaces, numPoints):
     if (len(surfaces) < 2):
         raise Exception("Please provide at least two shapes")
     
-    final = interpolate(numPoints, surfaces[0], surfaces[1])
+    final = linearInterpolation(numPoints, surfaces[0], surfaces[1])
 
     for i in range(1,len(surfaces)-1):
         # interpolates between two figures
-        temp = interpolate(numPoints, surfaces[i], surfaces[i+1])
+        temp = linearInterpolation(numPoints, surfaces[i], surfaces[i+1])
 
         final = np.concatenate((final,temp), axis = 0)
 
@@ -102,7 +89,7 @@ ZArray = combineSurfaceTransformations([planeZ,cylZ,torusZ,planeZ], 30)
 metadata = dict(title='Movie',artist="me")
 writer = PillowWriter(fps = 15, metadata=metadata)
 
-with writer.saving(fig, "animations/torus.gif", 100):
+with writer.saving(fig, "animations/LinearTransformationTorus.gif", 100):
     for i in range(0,len(XArray)):
         # sets scope
         ax.set_xlim(-scope,scope)
