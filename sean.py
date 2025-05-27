@@ -30,12 +30,13 @@ hyperbolicPlaneX = X
 hyperbolicPlaneY = Y
 hyperbolicPlaneZ = f(X,Y)
 
-"""ax.plot_surface(flatPlaneX,flatPlaneY,flatPlaneZ)
-ax.plot(X,1,0*X)
-ax.plot_surface(hyperbolicPlaneX,hyperbolicPlaneY,hyperbolicPlaneZ)
+for y_val in y:
+    ax.plot(X,y_val,f(X,y_val))
+
+ax.plot_surface(hyperbolicPlaneX,hyperbolicPlaneY,hyperbolicPlaneZ, alpha=0.4)
 
 plt.show()
-"""
+
 xArrays = linearInterpolation(20, flatPlaneX, hyperbolicPlaneX)
 yArrays = linearInterpolation(20, flatPlaneY, hyperbolicPlaneY)
 zArrays = linearInterpolation(20, flatPlaneZ, hyperbolicPlaneZ)
@@ -45,7 +46,7 @@ writer = PillowWriter(fps = 15, metadata=metadata)
 
 scope = 5
 
-with writer.saving(fig, "animations/sean.gif", 100):
+"""with writer.saving(fig, "animations/sean.gif", 100):
     for i in range(0,len(xArrays)):
         X = xArrays[i]
         Y = yArrays[i]
@@ -61,4 +62,4 @@ with writer.saving(fig, "animations/sean.gif", 100):
 
         writer.grab_frame()
     
-        ax.cla() # clears the previous frame
+        ax.cla() # clears the previous frame"""
