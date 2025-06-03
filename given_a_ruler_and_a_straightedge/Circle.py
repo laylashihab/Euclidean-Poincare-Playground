@@ -22,11 +22,11 @@ class Circle:
     # plots the circle and center point in a given plot and updates canvas
     def plotShape(self, plot, canvas):
         if self.__centerPoint != None:
-            self.__circle = patches.Circle((self.__centerPoint.getX(), self.__centerPoint.getY()), radius=self.__radius, edgecolor='blue', facecolor = 'None')
+            self.__circle = patches.Circle((self.__centerPoint.getX(), self.__centerPoint.getY()), radius=self.__radius, edgecolor='black', facecolor = 'None')
 
             #plots circle and radius point
             plot.add_patch(self.__circle)
-            self.__centerPointPlot, = plot.plot(self.__centerPoint.getX(),self.__centerPoint.getY(), "o")
+            self.__centerPointPlot, = plot.plot(self.__centerPoint.getX(),self.__centerPoint.getY(), "o", color = "blue")
             canvas.draw()
 
     # removes circle and center point associated with the plotted circle
@@ -35,6 +35,7 @@ class Circle:
             # removes line and endPoint
             self.__circle.remove()
             self.__centerPointPlot.remove()
+
             canvas.draw()
 
 
@@ -61,14 +62,20 @@ class Circle:
     def getShape(self):
         return self.__circle
     
+    def getEndPoint(self):
+        return self.__centerPoint
+    
     # checks if a given point is the center point
     # if so, marks that the center will be move (radius will not be adjusted)
     def containsPoint(self, point):
         if point.equals(self.__centerPoint):
-            self.__moveCenter = True
+            self.__moveCenter = True #implies that circle is fully drawn and can only be moved now (radius will not change)
             return True
         else: 
             return False
+        
+    def getLength(self):
+        return self.getCircumference()
         
     # returns the euclidean distance around the circle
     def getCircumference(self):
@@ -78,3 +85,7 @@ class Circle:
     def getArea(self):
         return math.pi * (self.__radius ** 2)
     
+    # annotates various measurements on the circle
+    def measure(self):
+        label = "Radius: {0}\nCircumference: {1}\nArea: {2}".format(round(self.getRadius(), 3), round(self.getCircumference(),3),round(self.getArea(),3))
+        return label

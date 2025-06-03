@@ -23,15 +23,30 @@ def click_handler(event):
     currentPoint = Point(event.xdata, event.ydata)
     mouseDown = True
 
+    # checks if the point where the user clicked is a point in a shape
     for shape in shapeList:
         if shape.containsPoint(currentPoint):
-            movePoint = currentPoint
-            currentShape = shape
-            return
 
-    currentShape = Line() if mode == "Line" else Circle()
-    currentShape.setStartPoint(currentPoint)
-    shapeList.append(currentShape)
+            if toolMode == "Move":
+                movePoint = currentPoint
+                currentShape = shape
+            elif toolMode == "Draw":
+                currentPoint = shape.getEndPoint()
+            elif toolMode == "Delete":
+                shape.removeShape(canvas)
+                dataDisplay.config(text="")
+                dataDisplay.update()
+                return
+            elif toolMode == "Select":
+                currentShape = shape   
+
+        dataDisplay.config(text=currentShape.measure())
+        dataDisplay.update()
+         
+    if (toolMode == "Draw"):
+        currentShape = Line() if shapeType == "Line" else Circle()
+        currentShape.setStartPoint(currentPoint)
+        shapeList.append(currentShape)
 
 def drag_handler(event):
     if event.inaxes and mouseDown:
@@ -43,18 +58,29 @@ def drag_handler(event):
             movePoint = currentPoint
 
         #removes the current drawing of the line
-        currentShape.removeShape(canvas)
-        currentShape.setEndPoint(currentPoint)
-        currentShape.plotShape(plot1, canvas)
+        if (toolMode == "Draw" or toolMode == "Move"):
+            currentShape.removeShape(canvas)
+            currentShape.setEndPoint(currentPoint)
+            currentShape.plotShape(plot1, canvas)
+
+            dataDisplay.config(text=currentShape.measure())
+            dataDisplay.update()
+
 
 def unclick_handler(event):
     global mouseDown
     mouseDown = False
 
 # changes type of shape plot
-def changeMode(newMode):
-    global mode
-    mode = newMode
+def changeShape(newShape):
+    global shapeType
+    global toolMode
+    shapeType = newShape
+    toolMode = "Draw"
+
+def changeToolMode(newTool):
+    global toolMode
+    toolMode = newTool
 
 # clears the plot
 def clear():
@@ -68,7 +94,8 @@ def clear():
 
 # variables
 startPoint = [0,0]
-mode = "Line"
+shapeType = "Line" #Line or Circle
+toolMode = "Draw" #Draw (when creating new lines or circles) or Delete or Move
 plot_size = 400
 currentShape = None
 movePoint = None
@@ -78,12 +105,16 @@ Point.setEpsilon(10)
 # store various graph objects
 shapeList = [] 
 
+# frame/window settings
+padx = 10
+pady = 5
+
 # the figure that will contain the plot
 fig = Figure(figsize = (5, 5), dpi = 100, constrained_layout=True)
 
 #main window setup
 root = Tk()
-root.geometry("500x500")
+root.geometry("600x700")
 root.title('Euclidean Playground')
 
 # description setup
@@ -91,13 +122,35 @@ descriptLabel = Label(root, text="You have been given a straightedge and a compa
 descriptLabel.pack()
 
 # tool setup
-toolLabel = Label(root, text="Tools:")
-lineButton = Button(root, command=lambda: changeMode("Line"), height = 2, width = 10, text = "Line")
-lineButton.pack()
-circleButton = Button(root, command =lambda: changeMode("Circle"), height = 2, width = 10, text = "Circle")
-circleButton.pack()
-clearButton = Button(root,command=clear,height = 2, width = 10, text = "Clear")
-clearButton.pack()
+toolbar = Frame(root)
+toolLabel = Label(toolbar, text="Toolbar")
+shapeLabel = Label(toolbar, text="Shape Library")
+operationLabel = Label(toolbar, text="Operations")
+lineButton = Button(toolbar, command=lambda: changeShape("Line"), height = 2, width = 10, text = "Line")
+circleButton = Button(toolbar, command =lambda: changeShape("Circle"), height = 2, width = 10, text = "Circle")
+clearButton = Button(toolbar,command=clear,height = 2, width = 10, text = "Clear")
+moveButton = Button(toolbar,command =lambda: changeToolMode("Move"),height = 2, width = 10, text = "Move Point")
+deleteButton = Button(toolbar,command =lambda: changeToolMode("Delete"),height = 2, width = 10, text = "Delete Object")
+selectButton = Button(toolbar,command =lambda: changeToolMode("Select"),height = 2, width = 10, text = "Select Object")
+
+row = 0
+# increments row and returns new incremented val
+def rowplus():
+    global row
+    row = row + 1
+    return row
+toolLabel.grid(row=row, column=1, padx=padx, pady=pady)
+shapeLabel.grid(row=rowplus(), column=1, padx=padx, pady=pady)
+lineButton.grid(row=rowplus(),column=0, padx=padx, pady=pady)
+circleButton.grid(row=row,column=2, padx=padx, pady=pady)
+
+operationLabel.grid(row=rowplus(), column = 1, padx=padx, pady=pady)
+clearButton.grid(row=rowplus(),column=0, padx=padx, pady=pady)
+moveButton.grid(row=row,column=1, padx=padx, pady=pady)
+deleteButton.grid(row=row,column=2, padx=padx, pady=pady)
+selectButton.grid(row=row, column = 3, padx=padx, pady=pady)
+toolbar.pack()
+
 
 # creating the Tkinter canvas containing the Matplotlib figure
 canvas = FigureCanvasTkAgg(fig, master = root)  
@@ -114,11 +167,15 @@ plot1.set_ylim(0,plot_size)
 plot1.set_axis_off()
 
 # creating the Matplotlib toolbar
-toolbar = NavigationToolbar2Tk(canvas, root)
-toolbar.update()
+tb = NavigationToolbar2Tk(canvas, root)
+tb.update()
 
 # placing the toolbar on the Tkinter window
 canvas.get_tk_widget().pack()
+
+# data display setup
+dataDisplay = Label(root, text="")
+dataDisplay.pack()
 
 # bindings
 canvas.mpl_connect("button_press_event", click_handler)
