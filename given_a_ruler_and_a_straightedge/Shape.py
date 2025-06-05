@@ -25,7 +25,7 @@ class Shape():
     def movePoint(self, point, newPoint):
         for component in self.__components:
             if (component.containsPoint(point)):
-                component.movePoint(newPoint)
+                component.movePoint(point, newPoint)
 
     def containsPoint(self,point):
         for component in self.__components:

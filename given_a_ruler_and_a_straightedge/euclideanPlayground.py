@@ -161,7 +161,7 @@ currentShape = None
 currentPoint = None
 movePoint = None
 mouseDown = False
-Point.setEpsilon(10)
+Point.setEpsilon(20)
 
 # store various graph objects
 shapeList = [] 
