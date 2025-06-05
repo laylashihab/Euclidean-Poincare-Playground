@@ -30,10 +30,12 @@ def click_handler(event):
         if shape.containsPoint(currentPoint):
 
             if toolMode == "Move":
+                # sets the point to move as the shape's point
                 movePoint = currentPoint
                 currentShape = shape
             elif toolMode == "Draw":
-                currentPoint = shape.getEndPoint()
+                # sets the currentPoint to the point the user is clicking on
+                currentPoint = shape.getPoint(currentPoint)
                 currentShape = Line() if shapeType == "Line" else Circle()
                 currentShape.setStartPoint(currentPoint)
                 numComponents = 1 + shape.getNumComponents()
@@ -65,20 +67,30 @@ def drag_handler(event):
         global currentPoint
         lastPoint = currentPoint.copy()
         currentPoint = Point(event.xdata,event.ydata)
-        if (movePoint != None):
-            movePoint = currentPoint
 
-        if (toolMode == "Draw" or toolMode == "Move"):
+        if toolMode == "Draw":
+            currentShape.removeShape(canvas)
+            currentShape.setEndPoint(currentPoint)
+            currentShape.plotShape(plot1,canvas)
+
+            # updates data display
+            dataDisplay.config(text=currentShape.measure())
+            dataDisplay.update()
+
+        elif toolMode == "Move":
             # removes the current drawing of the line
             currentShape.removeShape(canvas)
 
             # moves the point to the current point
-            currentShape.setEndPoint(currentPoint)
+            currentShape.movePoint(movePoint, currentPoint)
+            movePoint = currentPoint
             currentShape.plotShape(plot1, canvas)
 
             # updates data display
             dataDisplay.config(text=currentShape.measure())
             dataDisplay.update()
+
+
 
         # moves the entire shape
         elif (toolMode == "Select"):

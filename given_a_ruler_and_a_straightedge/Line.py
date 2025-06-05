@@ -50,6 +50,9 @@ class Line:
         self.setEndPoint(newEnd)
         self.setStartPoint(newStart)
 
+    def movePoint(self,newPoint):
+        self.setEndPoint(newPoint)
+
     # mutators and accessors
     def setStartPoint(self, startPoint):
         self.__startPoint = startPoint
@@ -72,6 +75,8 @@ class Line:
     # checks if either endpoint equals a given point
     # if so, forces the endPoint to be the given point (line itself doesn't change)
     def containsPoint(self, point):
+        if point == None:
+            return False
         if point.equals(self.__startPoint):
             # flips start and end points
             temp = self.getStartPoint()
@@ -82,6 +87,12 @@ class Line:
             return True
         else:
             return False
+        
+    # returns the exact point on the shape that is very close to the given point
+    def getPoint(self,point):
+        if (self.containsPoint(point)):
+            return self.getEndPoint()
+
     
     # returns the euclidean distance between two endpoints using Euclid's fifth postulate (Pythagorean thm)
     def getLength(self):

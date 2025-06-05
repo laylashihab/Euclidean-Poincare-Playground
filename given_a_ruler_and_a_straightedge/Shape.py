@@ -18,10 +18,14 @@ class Shape():
         for component in self.__components:
             component.removeShape(canvas)
 
-
     def moveShape(self, deltaX,deltaY):
         for component in self.__components:
             component.moveShape(deltaX,deltaY)
+
+    def movePoint(self, point, newPoint):
+        for component in self.__components:
+            if (component.containsPoint(point)):
+                component.movePoint(newPoint)
 
     def containsPoint(self,point):
         for component in self.__components:
@@ -29,6 +33,12 @@ class Shape():
                 return True
         
         return False
+    
+    def getPoint(self,point):
+        for component in self.__components:
+            p =component.getPoint(point)
+            if (p != None):
+                return p
     
     def getLength(self):
         totalLength = 0

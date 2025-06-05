@@ -45,6 +45,9 @@ class Circle:
 
     def setStartPoint(self, centerPoint):
         self.__centerPoint = centerPoint
+    
+    def movePoint(self, newPoint):
+        self.setEndPoint(newPoint)
 
     # updates the part of the circle that moves (either radius or center point)
     def setEndPoint(self, endPoint):
@@ -82,6 +85,11 @@ class Circle:
             return True
         else: 
             return False
+        
+    def getPoint(self,point):
+        if (self.containsPoint(point)):
+            return self.getEndPoint()
+
         
     def getLength(self):
         return self.getCircumference()
