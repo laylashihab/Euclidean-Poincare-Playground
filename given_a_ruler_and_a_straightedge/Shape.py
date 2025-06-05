@@ -2,12 +2,13 @@
 Class to define compound shapes
 
 """
-
-class Shape:
+class Shape():
     __components = []
+    __numComponents = 0
 
-    def __init__(self, components):
+    def __init__(self, components, numComponents):
         self.__components = components
+        self.__numComponents = numComponents
 
     def plotShape(self,plot,canvas):
         for component in self.__components:
@@ -16,6 +17,11 @@ class Shape:
     def removeShape(self,canvas):
         for component in self.__components:
             component.removeShape(canvas)
+
+
+    def moveShape(self, deltaX,deltaY):
+        for component in self.__components:
+            component.moveShape(deltaX,deltaY)
 
     def containsPoint(self,point):
         for component in self.__components:
@@ -32,5 +38,17 @@ class Shape:
         return totalLength
     
     def measure(self):
-        returnString = "Num Components: {0}\n Total Length: {1}".format(len(self.__components), self.getLength())
+        returnString = "Num Components: {0}\n Total Length: {1}".format(self.__numComponents, round(self.getLength(),3))
         return returnString
+    
+    def setEndPoint(self, endPoint):
+        self.__components[-1].setEndPoint(endPoint)
+
+    def getEndPoint(self):
+        return self.__components[-1].getEndPoint()
+    
+    def getNumComponents(self):
+        return self.__numComponents
+    
+    def setNumComponents(self, numComponents):
+        self.__numComponents = numComponents

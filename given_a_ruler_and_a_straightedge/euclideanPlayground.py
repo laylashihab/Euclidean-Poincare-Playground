@@ -7,6 +7,7 @@ from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationTool
 from Point import *
 from Line import *
 from Circle import *
+from Shape import *
 
 """
 Series of functions to deal with mouseEvents
@@ -20,6 +21,7 @@ def click_handler(event):
     global mouseDown
     global currentShape
     global movePoint
+    global currentPoint
     currentPoint = Point(event.xdata, event.ydata)
     mouseDown = True
 
@@ -32,6 +34,14 @@ def click_handler(event):
                 currentShape = shape
             elif toolMode == "Draw":
                 currentPoint = shape.getEndPoint()
+                currentShape = Line() if shapeType == "Line" else Circle()
+                currentShape.setStartPoint(currentPoint)
+                numComponents = 1 + shape.getNumComponents()
+                shapes = [shape, currentShape]
+                shapeList.remove(shape)
+                currentShape = Shape(shapes, numComponents)
+                shapeList.append(currentShape)
+                return
             elif toolMode == "Delete":
                 shape.removeShape(canvas)
                 dataDisplay.config(text="")
@@ -52,20 +62,35 @@ def drag_handler(event):
     if event.inaxes and mouseDown:
         global movePoint
         global currentShape
+        global currentPoint
+        lastPoint = currentPoint.copy()
         currentPoint = Point(event.xdata,event.ydata)
-
         if (movePoint != None):
             movePoint = currentPoint
 
-        #removes the current drawing of the line
         if (toolMode == "Draw" or toolMode == "Move"):
+            # removes the current drawing of the line
             currentShape.removeShape(canvas)
+
+            # moves the point to the current point
             currentShape.setEndPoint(currentPoint)
             currentShape.plotShape(plot1, canvas)
 
+            # updates data display
             dataDisplay.config(text=currentShape.measure())
             dataDisplay.update()
 
+        # moves the entire shape
+        elif (toolMode == "Select"):
+            currentShape.removeShape(canvas)
+            deltaX = currentPoint.getX() - lastPoint.getX()
+            deltaY = currentPoint.getY() - lastPoint.getY()
+            currentShape.moveShape(deltaX, deltaY)
+            currentShape.plotShape(plot1, canvas)
+
+            # updates data display
+            dataDisplay.config(text=currentShape.measure())
+            dataDisplay.update()
 
 def unclick_handler(event):
     global mouseDown
@@ -98,6 +123,7 @@ shapeType = "Line" #Line or Circle
 toolMode = "Draw" #Draw (when creating new lines or circles) or Delete or Move
 plot_size = 400
 currentShape = None
+currentPoint = None
 movePoint = None
 mouseDown = False
 Point.setEpsilon(10)

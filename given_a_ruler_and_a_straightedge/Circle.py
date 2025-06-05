@@ -7,6 +7,8 @@ class to create Euclidean Circle objects
 Cirles are defined by a center point and radius
 """
 
+from Point import *
+
 class Circle:
     __circle = None
     __centerPoint = None
@@ -48,10 +50,14 @@ class Circle:
     def setEndPoint(self, endPoint):
         # if setting radius for first time, set radius. Else move the center point
         if (self.__moveCenter):
-            self.__centerPoint = endPoint
-            self.__circle = None
+            self.moveShape(endPoint)
         else:
             self.__radius = math.sqrt(((self.__centerPoint.getX()-endPoint.getX()))**2+(self.__centerPoint.getY()-endPoint.getY())**2)
+
+    def moveShape(self, deltaX, deltaY):
+        newPoint = Point(self.getCenterPoint().getX()+deltaX, self.getCenterPoint().getY() + deltaY)
+        self.__centerPoint = newPoint
+        #self.__circle = None
 
     def getCenterPoint(self):
         return self.__centerPoint
@@ -64,6 +70,9 @@ class Circle:
     
     def getEndPoint(self):
         return self.__centerPoint
+    
+    def getNumComponents(self):
+        return 1
     
     # checks if a given point is the center point
     # if so, marks that the center will be move (radius will not be adjusted)

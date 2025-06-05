@@ -29,3 +29,6 @@ class Point:
         
     def setEpsilon(newEpsilon):
         Point.epsilon = newEpsilon
+
+    def copy(self):
+        return Point(self.getX(), self.getY())

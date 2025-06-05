@@ -40,8 +40,15 @@ class Line:
             self.__line.remove()
             self.__startPointPlot.remove()
             self.__endPointPlot.remove()
+            self.__line = None
 
             canvas.draw()
+    
+    def moveShape(self, deltaX,deltaY):
+        newStart = Point(self.getStartPoint().getX() + deltaX, self.getStartPoint().getY() + deltaY)
+        newEnd = Point(self.getEndPoint().getX() + deltaX, self.getEndPoint().getY() + deltaY)
+        self.setEndPoint(newEnd)
+        self.setStartPoint(newStart)
 
     # mutators and accessors
     def setStartPoint(self, startPoint):
@@ -58,6 +65,9 @@ class Line:
     
     def getShape(self):
         return self.__line
+    
+    def getNumComponents(self):
+        return 1
     
     # checks if either endpoint equals a given point
     # if so, forces the endPoint to be the given point (line itself doesn't change)
@@ -78,7 +88,10 @@ class Line:
         return math.sqrt(((self.getStartPoint().getX()-self.getEndPoint().getX()))**2+(self.getStartPoint().getY()-self.getEndPoint().getY())**2)
     
     def getSlope(self):
-        return (self.getEndPoint().getY() - self.getStartPoint().getY())/(self.getEndPoint().getX() - self.getStartPoint().getX())
+        denom = (self.getEndPoint().getX() - self.getStartPoint().getX())
+        if (denom == 0):
+            return np.inf
+        return (self.getEndPoint().getY() - self.getStartPoint().getY())/denom
     
     def getAngle(self, line2slope):
         s1 = self.getSlope()
