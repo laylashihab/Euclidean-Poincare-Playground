@@ -105,8 +105,31 @@ def drag_handler(event):
             dataDisplay.update()
 
 def unclick_handler(event):
+    # checks if the user is connecting two shapes
+    global currentPoint
+    global currentShape
     global mouseDown
     mouseDown = False
+
+    currentPoint = Point(event.xdata,event.ydata)
+    if (toolMode == "Draw" or toolMode == "Move" or toolMode == "Select"):
+        for shape in shapeList:
+            if (shape != currentShape and shape.containsPoint(currentPoint)):
+                currentShape.setEndPoint(shape.getPoint(currentPoint))
+                shapeList.remove(shape)
+                shapes = [shape, currentShape]
+                currentShape = Shape(shapes, shape.getNumComponents() + currentShape.getNumComponents())
+                shapeList.append(currentShape)
+
+                #redraw figures so they connect smoothly at point
+                currentShape.removeShape(canvas)
+                currentShape.plotShape(plot1, canvas)
+
+                # updates data display
+                dataDisplay.config(text=currentShape.measure())
+                dataDisplay.update()
+
+                return
 
 # changes type of shape plot
 def changeShape(newShape):

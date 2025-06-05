@@ -50,7 +50,7 @@ class Line:
         self.setEndPoint(newEnd)
         self.setStartPoint(newStart)
 
-    def movePoint(self,newPoint):
+    def movePoint(self,point, newPoint):
         self.setEndPoint(newPoint)
 
     # mutators and accessors

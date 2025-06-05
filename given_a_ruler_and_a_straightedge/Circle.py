@@ -46,7 +46,7 @@ class Circle:
     def setStartPoint(self, centerPoint):
         self.__centerPoint = centerPoint
     
-    def movePoint(self, newPoint):
+    def movePoint(self, point, newPoint):
         self.setEndPoint(newPoint)
 
     # updates the part of the circle that moves (either radius or center point)
