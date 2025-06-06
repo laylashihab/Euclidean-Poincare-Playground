@@ -43,13 +43,21 @@ class Line:
             self.__line = None
 
             canvas.draw()
-    
+
+    # updates the plot of the shape to a new endpoint
+    def draw(self,plot,canvas,endPoint):
+        self.removeShape(canvas)
+        self.setEndPoint(endPoint)
+        self.plotShape(plot,canvas)
+
+    # moves the entire line by a given amount
     def moveShape(self, deltaX,deltaY):
         newStart = Point(self.getStartPoint().getX() + deltaX, self.getStartPoint().getY() + deltaY)
         newEnd = Point(self.getEndPoint().getX() + deltaX, self.getEndPoint().getY() + deltaY)
         self.setEndPoint(newEnd)
         self.setStartPoint(newStart)
 
+    # moves the endPoint to a new location
     def movePoint(self,point, newPoint):
         self.setEndPoint(newPoint)
 
@@ -98,12 +106,14 @@ class Line:
     def getLength(self):
         return math.sqrt(((self.getStartPoint().getX()-self.getEndPoint().getX()))**2+(self.getStartPoint().getY()-self.getEndPoint().getY())**2)
     
+    # returns the slope of the line
     def getSlope(self):
         denom = (self.getEndPoint().getX() - self.getStartPoint().getX())
         if (denom == 0):
             return np.inf
         return (self.getEndPoint().getY() - self.getStartPoint().getY())/denom
     
+    # returns the angle betweeen the line and another line
     def getAngle(self, line2slope):
         s1 = self.getSlope()
         s2 = line2slope
@@ -111,6 +121,7 @@ class Line:
         angle = -1 * angle if s1<0 else angle
         return angle
     
+    # returns details about the line
     def measure(self):
         returnString = "Length: {0}\nSlope: {1}".format(round(self.getLength(),3),round(self.getSlope(),3))
         return returnString

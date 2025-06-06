@@ -36,13 +36,24 @@ class Circle:
         if self.__circle != None:
             # removes line and endPoint
             self.__circle.remove()
+            self.__circle = None
             self.__centerPointPlot.remove()
 
             canvas.draw()
 
+    # updates the plot of the circle with a new endpoint
+    def draw(self, plot,canvas, endPoint):
+        self.removeShape(canvas)
+        self.setEndPoint(endPoint)
+        self.plotShape(plot,canvas)
+
+    # moves the entire shape by a given amount
+    def moveShape(self, deltaX, deltaY):
+        newPoint = Point(self.getCenterPoint().getX()+deltaX, self.getCenterPoint().getY() + deltaY)
+        self.__centerPoint = newPoint
+        #self.__circle = None
 
     # mutators and accessors
-
     def setStartPoint(self, centerPoint):
         self.__centerPoint = centerPoint
     
@@ -53,14 +64,9 @@ class Circle:
     def setEndPoint(self, endPoint):
         # if setting radius for first time, set radius. Else move the center point
         if (self.__moveCenter):
-            self.moveShape(endPoint)
+            self.__centerPoint = endPoint
         else:
             self.__radius = math.sqrt(((self.__centerPoint.getX()-endPoint.getX()))**2+(self.__centerPoint.getY()-endPoint.getY())**2)
-
-    def moveShape(self, deltaX, deltaY):
-        newPoint = Point(self.getCenterPoint().getX()+deltaX, self.getCenterPoint().getY() + deltaY)
-        self.__centerPoint = newPoint
-        #self.__circle = None
 
     def getCenterPoint(self):
         return self.__centerPoint
@@ -86,11 +92,13 @@ class Circle:
         else: 
             return False
         
+    # gets the exact point associated with the circle given the point is contained in the circle
+    # essentially removes the epsilon value associated with a contained point for smoother joining of shapes
     def getPoint(self,point):
         if (self.containsPoint(point)):
             return self.getEndPoint()
 
-        
+    # returns the circumference
     def getLength(self):
         return self.getCircumference()
         
