@@ -24,12 +24,13 @@ class Line:
         if self.__endPoint != None:
             x_data = np.linspace(self.__startPoint.getX(), self.__endPoint.getX(), 100)
             y_data = np.linspace(self.__startPoint.getY(), self.__endPoint.getY(),100)
-            line, = plot.plot(x_data,y_data, color = "black")
-            self.__line = line
+            self.__line, = plot.plot(x_data,y_data, color = "black")
 
             #plots endpoints
-            self.__startPointPlot, = plot.plot(self.__startPoint.getX(),self.__startPoint.getY(), "o", color="blue")
-            self.__endPointPlot, = plot.plot(self.__endPoint.getX(),self.__endPoint.getY(), "o",color = "blue")
+            self.__endPointPlot = self.__endPoint.plotShape(plot,canvas)
+            self.__startPointPlot = self.__startPoint.plotShape(plot,canvas)
+            #self.__startPointPlot, = plot.plot(self.__startPoint.getX(),self.__startPoint.getY(), "o", color="blue")
+            #self.__endPointPlot, = plot.plot(self.__endPoint.getX(),self.__endPoint.getY(), "o",color = "blue")
 
             canvas.draw()
     

@@ -40,6 +40,7 @@ def click_handler(event):
                 numComponents = 1 + shape.getNumComponents()
                 shapes = [shape, currentShape]
                 shapeList.remove(shape)
+                shapeList.remove(currentShape)
                 currentShape = Shape(shapes, numComponents)
                 shapeList.append(currentShape)
                 return
@@ -60,15 +61,26 @@ def click_handler(event):
 
 def drag_handler(event):
     if event.inaxes and mouseDown:
+        global shapeType
         global movePoint
         global currentShape
         global currentPoint
         lastPoint = currentPoint.copy()
         currentPoint = Point(event.xdata,event.ydata)
 
+        if (createLine.isComplete() == False):
+            createLine.showAchievement()
+            lineButton.grid(row=2,column=1, padx=padx, pady=pady)
+
         if toolMode == "Draw":
-            if (shapeType == "Point"):
+            # if the user is trying to draw a point but drags instead, creates a line
+            if shapeType == "Point":
+                currentShape.removeShape(canvas)
+                shapeList.remove(currentShape)
+                changeShape("Line")
+                changeButtonColor(lineButton)
                 currentShape = newShape(currentPoint)
+
             currentShape.draw(plot1,canvas,currentPoint)
 
             # updates data display
@@ -87,8 +99,6 @@ def drag_handler(event):
             # updates data display
             dataDisplay.config(text=currentShape.measure())
             dataDisplay.update()
-
-
         # moves the entire shape
         elif (toolMode == "Select"):
             currentShape.removeShape(canvas)
@@ -127,36 +137,66 @@ def unclick_handler(event):
                     dataDisplay.config(text=currentShape.measure())
                     dataDisplay.update()
 
+# updates button colors
+def changeButtonColor(button):
+    button.config(bg=clickedButtonCol)
+
+    # changes other buttons to other color
+    if (button in shapeButtonList):
+        for b in shapeButtonList:
+            if (b != button):
+                b.config(bg=unclickedButtonCol)
+
+    if (button in operationButtonList):
+        for b in operationButtonList:
+            if (b != button):
+                b.config(bg=unclickedButtonCol)
+
+
 # changes type of shape plot
 def changeShape(newShape):
     global shapeType
     global toolMode
+    # changes old button color
     shapeType = newShape
-    toolMode = "Draw"
+    changeToolMode("Draw")
+    changeButtonColor(drawButton)
+
+
 
 # initializes a new shape
-def newShape(currentPoint):
+def newShape(startPoint):
+    # creates a new point
     if (shapeType == "Point"):
+
+        # achievement for creating a line
         if (createPoint.isComplete() == False):
             createPoint.showAchievement()
-            pointButton.grid(row=1,column=0, padx=padx, pady=pady)
+            pointButton.grid(row=2,column=0, padx=padx, pady=pady)
 
-        shape =currentPoint.copy()
+        shape =startPoint.copy()
         shape.plotShape(plot1,canvas)
         shapeList.append(shape)
     else:
+        # creates lines and circles
         shape = Line() if shapeType == "Line" else Circle()
-        shape.setStartPoint(currentPoint)
-        shape.setEndPoint(currentPoint)
+        shape.setStartPoint(startPoint)
+        shape.setEndPoint(startPoint)
         shapeList.append(shape)
     return shape
     
+# changes the tool mode
 def changeToolMode(newTool):
     global toolMode
     toolMode = newTool
 
 # clears the plot
 def clear():
+    changeToolMode("Draw")
+    changeButtonColor(drawButton)
+    changeShape("Point")
+    changeButtonColor(pointButton)
+
     global shapeList
     shapeList = []
     plot1.cla()
@@ -164,6 +204,7 @@ def clear():
     plot1.set_ylim(0,plot_size)
     plot1.set_axis_off()
     canvas.draw()
+
 
 
 # variables
@@ -176,6 +217,8 @@ currentPoint = None
 movePoint = None
 mouseDown = False
 Point.setEpsilon(20)
+clickedButtonCol = "light grey"
+unclickedButtonCol = "white smoke"
 
 # achievements
 """
@@ -211,14 +254,16 @@ toolbar = Frame(root)
 toolLabel = Label(toolbar, text="Toolbar")
 shapeLabel = Label(toolbar, text="Shape Library")
 operationLabel = Label(toolbar, text="Operations")
-pointButton = Button(toolbar, command=lambda: changeShape("Point"), height = 2, width = 10, text = "Point")
-lineButton = Button(toolbar, command=lambda: changeShape("Line"), height = 2, width = 10, text = "Line")
-circleButton = Button(toolbar, command =lambda: changeShape("Circle"), height = 2, width = 10, text = "Circle")
-clearButton = Button(toolbar,command=clear,height = 2, width = 10, text = "Clear")
-moveButton = Button(toolbar,command =lambda: changeToolMode("Move"),height = 2, width = 10, text = "Move Point")
-deleteButton = Button(toolbar,command =lambda: changeToolMode("Delete"),height = 2, width = 10, text = "Delete Object")
-selectButton = Button(toolbar,command =lambda: changeToolMode("Select"),height = 2, width = 10, text = "Select Object")
-
+pointButton = Button(toolbar, command=lambda: [changeShape("Point"), changeButtonColor(pointButton)], height = 2, width = 10, text = "Point")
+lineButton = Button(toolbar, command=lambda: [changeShape("Line"), changeButtonColor(lineButton)], height = 2, width = 10, text = "Line")
+circleButton = Button(toolbar, command =lambda: [changeShape("Circle"),changeButtonColor(circleButton)], height = 2, width = 10, text = "Circle")
+shapeButtonList = [pointButton,lineButton,circleButton]
+clearButton = Button(toolbar,command=lambda:[clear(), changeButtonColor(clearButton)],height = 2, width = 10, text = "Clear")
+moveButton = Button(toolbar,command =lambda: [changeToolMode("Move"),changeButtonColor(moveButton)],height = 2, width = 10, text = "Move Point")
+deleteButton = Button(toolbar,command =lambda: [changeToolMode("Delete"),changeButtonColor(deleteButton)],height = 2, width = 10, text = "Delete Object")
+selectButton = Button(toolbar,command =lambda: [changeToolMode("Select"),changeButtonColor(selectButton)],height = 2, width = 10, text = "Select Object")
+drawButton = Button(toolbar, command = lambda:[changeToolMode("Draw"),changeButtonColor(drawButton)],height = 2, width = 10, text = "Draw")
+operationButtonList = [clearButton,moveButton,deleteButton,selectButton,drawButton]
 row = 0
 # increments row and returns new incremented val
 def rowplus():
@@ -228,8 +273,7 @@ def rowplus():
 toolLabel.grid(row=row, column=1, padx=padx, pady=pady)
 shapeLabel.grid(row=rowplus(), column=1, padx=padx, pady=pady)
 
-row = 1
-lineButton.grid(row=row,column=1, padx=padx, pady=pady)
+row = 2
 circleButton.grid(row=row,column=2, padx=padx, pady=pady)
 
 operationLabel.grid(row=rowplus(), column = 1, padx=padx, pady=pady)
@@ -237,6 +281,8 @@ clearButton.grid(row=rowplus(),column=0, padx=padx, pady=pady)
 moveButton.grid(row=row,column=1, padx=padx, pady=pady)
 deleteButton.grid(row=row,column=2, padx=padx, pady=pady)
 selectButton.grid(row=row, column = 3, padx=padx, pady=pady)
+drawButton.grid(row=row, column=4, padx=padx, pady=pady)
+changeButtonColor(drawButton)
 toolbar.pack()
 
 

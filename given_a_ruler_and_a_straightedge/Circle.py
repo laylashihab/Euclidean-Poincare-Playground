@@ -49,9 +49,7 @@ class Circle:
 
     # moves the entire shape by a given amount
     def moveShape(self, deltaX, deltaY):
-        newPoint = Point(self.getCenterPoint().getX()+deltaX, self.getCenterPoint().getY() + deltaY)
-        self.__centerPoint = newPoint
-        #self.__circle = None
+        self.__centerPoint = Point(self.getCenterPoint().getX()+deltaX, self.getCenterPoint().getY() + deltaY)
 
     # mutators and accessors
     def setStartPoint(self, centerPoint):

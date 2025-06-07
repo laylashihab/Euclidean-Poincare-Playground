@@ -26,6 +26,12 @@ class Point:
     def getY(self):
         return self.__y
     
+    def getNumComponents(self):
+        return 1
+    
+    def getLength(self):
+        return 0
+    
     def setEpsilon(newEpsilon):
         Point.epsilon = newEpsilon
 
@@ -42,11 +48,18 @@ class Point:
     # checks if the Point shape contains a given point (essentially checks if they are close to equivalent)
     def containsPoint(self, point):
         return self.equals(point)
+    
+    # gets the exact point associated with a point 'equal' to this point
+    # essentially removes the epsilon for smoother joining for shapes
+    def getPoint(self, point):
+        if (self.equals(point)):
+            return self
         
     # plots the point
     def plotShape(self, plot, canvas):
         self.__plot, = plot.plot(self.__x,self.__y, "o", color="blue")
         canvas.draw()
+        return self.__plot
 
     # updates value for point and plots
     def draw(self,plot,canvas,endPoint):
@@ -66,6 +79,11 @@ class Point:
     def movePoint(self,point, newPoint):
         self.setX(newPoint.getX())
         self.setY(newPoint.getY())
+
+    # moves the point by a certain amount 
+    def moveShape(self,deltaX,deltaY):
+        self.setX(self.getX() + deltaX)
+        self.setY(self.getY() + deltaY)
         
     # creates a copy of the point with a NEW memory address (not the same Point but has same values)
     def copy(self):

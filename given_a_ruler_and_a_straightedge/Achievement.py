@@ -15,8 +15,8 @@ class Achievement:
         self.__message = message
 
     def showAchievement(self):
-        messagebox.showinfo("Achievement Unlocked!", self.__name + "\n"  + self.__message)
         self.__complete = True
+        messagebox.showinfo("Achievement Unlocked!", self.__name + "\n"  + self.__message)
         Achievement.totalComplete += 1
 
     def setMessage(self, message):
