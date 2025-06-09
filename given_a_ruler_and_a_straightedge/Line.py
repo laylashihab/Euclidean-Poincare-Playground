@@ -109,18 +109,22 @@ class Line:
     
     # returns the slope of the line
     def getSlope(self):
+        if (self.getEndPoint() == None or self.getStartPoint() == None):
+            return 0
         denom = (self.getEndPoint().getX() - self.getStartPoint().getX())
         if (denom == 0):
             return np.inf
         return (self.getEndPoint().getY() - self.getStartPoint().getY())/denom
     
     # returns the angle betweeen the line and another line
-    def getAngle(self, line2slope):
+    def getAngle(self, line2):
         s1 = self.getSlope()
-        s2 = line2slope
+        s2 = line2.getSlope()
+        if s1*s2 == -1:
+            return np.inf
         angle = math.atan(abs((s1 - s2)/(1 + (s1 * s2))))
         angle = -1 * angle if s1<0 else angle
-        return angle
+        return abs(math.degrees(angle))
     
     # returns details about the line
     def measure(self):

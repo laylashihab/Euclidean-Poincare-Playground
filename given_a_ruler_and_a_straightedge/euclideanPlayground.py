@@ -25,16 +25,18 @@ def click_handler(event):
     global currentPoint
     currentPoint = Point(event.xdata, event.ydata)
     mouseDown = True
+    foundPoint = False
 
     # checks if the point where the user clicked is a point in a shape
     for shape in shapeList:
         if shape.containsPoint(currentPoint):
+            foundPoint = True
             if toolMode == "Move":
-                # sets the point to move as the shape's point
+                # sets the point to move as the point the user is clikcing on
                 movePoint = currentPoint
                 currentShape = shape
             elif toolMode == "Draw":
-                # sets the currentPoint to the point the user is clicking on
+                # creates a compound shape in the Shape class with the shape the user clicked on and their new drawing
                 currentPoint = shape.getPoint(currentPoint)
                 currentShape = newShape(currentPoint)
                 numComponents = 1 + shape.getNumComponents()
@@ -47,17 +49,19 @@ def click_handler(event):
             elif toolMode == "Delete":
                 shape.removeShape(canvas)
                 shapeList.remove(shape)
-                dataDisplay.config(text="")
-                dataDisplay.update()
-                return
             elif toolMode == "Select":
                 currentShape = shape   
-
+         
+    if (foundPoint == False):
+        if (toolMode == "Draw"):
+            currentShape = newShape(currentPoint)
+        else:
+            currentShape = None
+        return 
+    
+    if currentShape != None:
         dataDisplay.config(text=currentShape.measure())
         dataDisplay.update()
-         
-    if (toolMode == "Draw"):
-        currentShape = newShape(currentPoint)
 
 def drag_handler(event):
     if event.inaxes and mouseDown:
@@ -68,7 +72,11 @@ def drag_handler(event):
         lastPoint = currentPoint.copy()
         currentPoint = Point(event.xdata,event.ydata)
 
-        if (createLine.isComplete() == False):
+        if currentShape == None:
+            return
+
+        # Create Line achievement
+        if (createLine.isComplete() == False and achievementsOn):
             createLine.showAchievement()
             lineButton.grid(row=2,column=1, padx=padx, pady=pady)
 
@@ -119,12 +127,14 @@ def unclick_handler(event):
     mouseDown = False
 
     currentPoint = Point(event.xdata,event.ydata)
+    # checks if the user is connecting up a figure
     if (toolMode == "Draw" or toolMode == "Move" or toolMode == "Select"):
         if (type(currentShape) != Point):
             for shape in shapeList:
                 if (shape != currentShape and type(shape) != Point and shape.containsPoint(currentPoint)):
                     currentShape.setEndPoint(shape.getPoint(currentPoint))
                     shapeList.remove(shape)
+                    shapeList.remove(currentShape)
                     shapes = [shape, currentShape]
                     currentShape = Shape(shapes, shape.getNumComponents() + currentShape.getNumComponents())
                     shapeList.append(currentShape)
@@ -162,15 +172,13 @@ def changeShape(newShape):
     changeToolMode("Draw")
     changeButtonColor(drawButton)
 
-
-
 # initializes a new shape
 def newShape(startPoint):
     # creates a new point
     if (shapeType == "Point"):
 
         # achievement for creating a line
-        if (createPoint.isComplete() == False):
+        if (createPoint.isComplete() == False and achievementsOn):
             createPoint.showAchievement()
             pointButton.grid(row=2,column=0, padx=padx, pady=pady)
 
@@ -189,6 +197,11 @@ def newShape(startPoint):
 def changeToolMode(newTool):
     global toolMode
     toolMode = newTool
+    
+    global currentShape
+    if (type(currentShape) == Shape):
+        currentShape.showAngles(plot1, canvas)
+
 
 # clears the plot
 def clear():
@@ -204,8 +217,6 @@ def clear():
     plot1.set_ylim(0,plot_size)
     plot1.set_axis_off()
     canvas.draw()
-
-
 
 # variables
 startPoint = [0,0]
@@ -228,7 +239,7 @@ http://aleph0.clarku.edu/~djoyce/elements/bookI/bookI.html
 """
 createPoint = Achievement("Define a Point", "A point is that which has no part.")
 createLine = Achievement("Define a Line", "A line is breadthless length.\nThe ends of a line are points.\nA straight line is a line which lies evenly with the points on itself.")
-
+achievementsOn = False
 
 # store various graph objects
 shapeList = [] 
@@ -274,7 +285,10 @@ toolLabel.grid(row=row, column=1, padx=padx, pady=pady)
 shapeLabel.grid(row=rowplus(), column=1, padx=padx, pady=pady)
 
 row = 2
-circleButton.grid(row=row,column=2, padx=padx, pady=pady)
+if (achievementsOn == False):
+    pointButton.grid(row=2,column=1, padx=padx, pady=pady)
+    lineButton.grid(row=2,column=2, padx=padx, pady=pady)
+circleButton.grid(row=row,column=3, padx=padx, pady=pady)
 
 operationLabel.grid(row=rowplus(), column = 1, padx=padx, pady=pady)
 clearButton.grid(row=rowplus(),column=0, padx=padx, pady=pady)
