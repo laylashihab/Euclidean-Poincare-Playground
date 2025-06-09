@@ -5,15 +5,14 @@ shape and figure are used interchangeably
 """
 
 from Line import *
-import matplotlib.patches as patches
 
 class Shape():
     __components = []
     __numComponents = 0
-    __arcPlotLists = []
+    __arcPlotLists = [] # stores both the arc and measurement plot
 
     # takes in a list of shape (line, point, shape, or circle) objects and an integer number of components
-    def __init__(self, components, numComponents):
+    def __init__(self, components, numComponents, arcPlotLists):
         # breaks apart Shape components into their constituent parts and ensures order is preserved
         for component in components:
             if type(component) == Shape:
@@ -25,6 +24,7 @@ class Shape():
                     index +=1
         self.__components = components
         self.__numComponents = numComponents
+        self.__arcPlotLists = arcPlotLists
 
     # plots each part of the shape
     def plotShape(self,plot,canvas):
@@ -40,7 +40,8 @@ class Shape():
             component.removeShape(canvas)
         
         for arc in self.__arcPlotLists:
-            arc.remove()
+            if arc != None:
+                arc.remove()
         self.__arcPlotLists = []
 
     # updates the plot of the last component to be added
@@ -109,32 +110,60 @@ class Shape():
             if s not in uniquePairList:
                 uniquePairList.append(s)
         return uniquePairList
-    
-    # returns a dictionary of lines and their associated angles
-    def getAngles(self):
-        lineAngleDict = {}
-        # puts all the lines in a list
-        for component in self.__components:
-            if type(component) == Line:
-                lineAngleDict[component] = component.getAngle(Line())
         
-        return lineAngleDict
-    
     # shows the angles between lines on a shape
     def showAngles(self,plot,canvas):
-        lineAngleDict = self.getAngles()
         pairList = self.findConnectedLines()
         for pair in pairList:
+            # shared point
             point = pair[0].getStartPoint() if pair[1].containsPoint(pair[0].getStartPoint()) else pair[0].getEndPoint()
-            np.set_printoptions(legacy='1.25')
-            pointCoord = [point.getX(), point.getY()]
-            theta1 = lineAngleDict[pair[0]]
-            theta2 = lineAngleDict[pair[1]]
-            arc = (patches.Arc(xy=pointCoord, width=250, height=250, theta1=theta1, theta2=theta2, angle= theta2-theta1, color="red", label = str(abs(theta2-theta1))+u"\u00b0"))
-            plot.add_patch(arc)
+
+            # find a good radius based on length of lines
+            l1 = pair[0].getLength()
+            l2 = pair[1].getLength()
+            radius = min(l1-5,l2-5,40)
+
+            # find start and end angles based on the lines
+            angle_start = pair[0].getTerminalAngle(point) % 360
+            angle_end = pair[1].getTerminalAngle(point) % 360
+
+            # calculate ccw and cw sweep
+            sweep1 = (angle_end - angle_start) % 360
+            sweep2 = (angle_start - angle_end) % 360
+
+            # select the smallest sweep
+            if sweep1 < sweep2:
+                start = angle_start
+                sweep = sweep1
+            else:
+                start = angle_end
+                sweep = sweep2
+
+            # plot the arc
+            angles_rad = np.radians(np.linspace(start,start + sweep,100))
+            arc_x = point.getX() + radius* np.cos(angles_rad)
+            arc_y = point.getY() + radius* np.sin(angles_rad)
+            arc, = plot.plot(arc_x,arc_y, color="red")
+
+            # plot the measurement
+            midAngle = (start + start + sweep) / 2
+            textDistance = radius + 25
+            textX = point.getX() + textDistance * np.cos(np.radians(midAngle))
+            textY = point.getY() + textDistance  * np.sin(np.radians(midAngle))
+            arcText = plot.text(textX, textY, round(sweep,3), fontsize=10, color='red')
+
+            # store the plots
             self.__arcPlotLists.append(arc)
+            self.__arcPlotLists.append(arcText)
             canvas.draw()
 
+    def hideAngles(self,canvas):
+        for arc in self.__arcPlotLists:
+            if arc != None:
+                arc.remove()
+        self.__arcPlotLists = []
+
+        canvas.draw()
 
     # provides data about the shape
     def measure(self):
@@ -150,3 +179,9 @@ class Shape():
 
     def getComponents(self):
         return self.__components
+    
+    def setArcPlotLists(self, arcPlotLists):
+        self.__arcPlotLists = arcPlotLists
+
+    def getArcPlotLists(self):
+        return self.__arcPlotLists

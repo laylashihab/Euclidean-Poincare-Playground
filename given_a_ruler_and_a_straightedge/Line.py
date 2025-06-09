@@ -107,28 +107,41 @@ class Line:
     def getLength(self):
         return math.sqrt(((self.getStartPoint().getX()-self.getEndPoint().getX()))**2+(self.getStartPoint().getY()-self.getEndPoint().getY())**2)
     
-    # returns the slope of the line
-    def getSlope(self):
+    # returns the components of the slope of the line
+    def getSlope(self, origin = Point(0,0)):
         if (self.getEndPoint() == None or self.getStartPoint() == None):
             return 0
-        denom = (self.getEndPoint().getX() - self.getStartPoint().getX())
-        if (denom == 0):
-            return np.inf
-        return (self.getEndPoint().getY() - self.getStartPoint().getY())/denom
+        if (self.getStartPoint().equals(origin)):
+            firstPoint = self.getStartPoint()
+            secondPoint = self.getEndPoint()
+        elif (self.getEndPoint().equals(origin)):
+            firstPoint = self.getEndPoint()
+            secondPoint = self.getStartPoint()
+        # ensures the slope is calculated correctly by having the first point as the point with the smallest x value
+        elif (self.getStartPoint().getX() < self.getEndPoint().getX()):
+            firstPoint = self.getStartPoint()
+            secondPoint = self.getEndPoint()
+        else: 
+            firstPoint = self.getEndPoint()
+            secondPoint = self.getStartPoint()
+
+        dx = (secondPoint.getX() - firstPoint.getX())
+        dy = (secondPoint.getY() - firstPoint.getY())
+        return dx,dy
     
-    # returns the angle betweeen the line and another line
-    def getAngle(self, line2):
-        s1 = self.getSlope()
-        s2 = line2.getSlope()
-        if s1*s2 == -1:
-            return np.inf
-        angle = math.atan(abs((s1 - s2)/(1 + (s1 * s2))))
-        angle = -1 * angle if s1<0 else angle
-        return abs(math.degrees(angle))
+    # returns the angle betweeen the line the terminal angle
+    def getTerminalAngle(self, reference = Point(0,0)):
+        dx,dy = self.getSlope(reference)
+        angle = math.atan2(dy,dx)
+        angle_deg = math.degrees(angle) % 360
+        return angle_deg
     
     # returns details about the line
     def measure(self):
-        returnString = "Length: {0}\nSlope: {1}".format(round(self.getLength(),3),round(self.getSlope(),3))
+        dx,dy = self.getSlope()
+        if dx ==0:
+            dx = 0.00000001
+        returnString = "Length: {0}\nSlope: {1}".format(round(self.getLength(),3),round(dy/dx,3))
         return returnString
 
         

@@ -43,7 +43,12 @@ def click_handler(event):
                 shapes = [shape, currentShape]
                 shapeList.remove(shape)
                 shapeList.remove(currentShape)
-                currentShape = Shape(shapes, numComponents)
+                arcPlots = []
+                if (type(shape) == Shape):
+                    arcPlots.extend(shape.getArcPlotLists())
+                if (type(currentShape) == Shape):
+                    arcPlots.extend(currentShape.getArcPlotLists())
+                currentShape = Shape(shapes, numComponents, arcPlots)
                 shapeList.append(currentShape)
                 return
             elif toolMode == "Delete":
@@ -136,7 +141,12 @@ def unclick_handler(event):
                     shapeList.remove(shape)
                     shapeList.remove(currentShape)
                     shapes = [shape, currentShape]
-                    currentShape = Shape(shapes, shape.getNumComponents() + currentShape.getNumComponents())
+                    arcPlots = []
+                    if (type(shape) == Shape):
+                        arcPlots.extend(shape.getArcPlotLists())
+                    if (type(currentShape) == Shape):
+                        arcPlots.extend(currentShape.getArcPlotLists())
+                    currentShape = Shape(shapes, shape.getNumComponents() + currentShape.getNumComponents(), arcPlots)
                     shapeList.append(currentShape)
 
                     #redraw figures so they connect smoothly at point
@@ -198,10 +208,6 @@ def changeToolMode(newTool):
     global toolMode
     toolMode = newTool
     
-    global currentShape
-    if (type(currentShape) == Shape):
-        currentShape.showAngles(plot1, canvas)
-
 
 # clears the plot
 def clear():
@@ -217,6 +223,19 @@ def clear():
     plot1.set_ylim(0,plot_size)
     plot1.set_axis_off()
     canvas.draw()
+
+def showAngles():
+    if (showAnglesButton.cget("text")) == "Show Angles":
+        for shape in shapeList:
+            if (type(shape) == Shape):
+                shape.showAngles(plot1,canvas)
+        showAnglesButton.config(text= "Hide Angles")
+
+    else:
+        for shape in shapeList:
+            if (type(shape) == Shape):
+                shape.hideAngles(canvas)
+        showAnglesButton.config(text= "Show Angles")
 
 # variables
 startPoint = [0,0]
@@ -269,12 +288,13 @@ pointButton = Button(toolbar, command=lambda: [changeShape("Point"), changeButto
 lineButton = Button(toolbar, command=lambda: [changeShape("Line"), changeButtonColor(lineButton)], height = 2, width = 10, text = "Line")
 circleButton = Button(toolbar, command =lambda: [changeShape("Circle"),changeButtonColor(circleButton)], height = 2, width = 10, text = "Circle")
 shapeButtonList = [pointButton,lineButton,circleButton]
-clearButton = Button(toolbar,command=lambda:[clear(), changeButtonColor(clearButton)],height = 2, width = 10, text = "Clear")
+clearButton = Button(toolbar,command=lambda:[clear()],height = 2, width = 10, text = "Clear")
 moveButton = Button(toolbar,command =lambda: [changeToolMode("Move"),changeButtonColor(moveButton)],height = 2, width = 10, text = "Move Point")
 deleteButton = Button(toolbar,command =lambda: [changeToolMode("Delete"),changeButtonColor(deleteButton)],height = 2, width = 10, text = "Delete Object")
 selectButton = Button(toolbar,command =lambda: [changeToolMode("Select"),changeButtonColor(selectButton)],height = 2, width = 10, text = "Select Object")
 drawButton = Button(toolbar, command = lambda:[changeToolMode("Draw"),changeButtonColor(drawButton)],height = 2, width = 10, text = "Draw")
-operationButtonList = [clearButton,moveButton,deleteButton,selectButton,drawButton]
+showAnglesButton = Button(toolbar, command= lambda: [showAngles()],height = 2, width = 10, text = "Show Angles")
+operationButtonList = [moveButton,deleteButton,selectButton,drawButton]
 row = 0
 # increments row and returns new incremented val
 def rowplus():
@@ -291,12 +311,14 @@ if (achievementsOn == False):
 circleButton.grid(row=row,column=3, padx=padx, pady=pady)
 
 operationLabel.grid(row=rowplus(), column = 1, padx=padx, pady=pady)
-clearButton.grid(row=rowplus(),column=0, padx=padx, pady=pady)
-moveButton.grid(row=row,column=1, padx=padx, pady=pady)
+moveButton.grid(row=rowplus(),column=1, padx=padx, pady=pady)
 deleteButton.grid(row=row,column=2, padx=padx, pady=pady)
 selectButton.grid(row=row, column = 3, padx=padx, pady=pady)
 drawButton.grid(row=row, column=4, padx=padx, pady=pady)
 changeButtonColor(drawButton)
+
+clearButton.grid(row=rowplus(),column=0, padx=padx, pady=pady)
+showAnglesButton.grid(row=row,column = 1,padx=padx,pady=pady)
 toolbar.pack()
 
 
