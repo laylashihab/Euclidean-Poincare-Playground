@@ -26,6 +26,7 @@ class Shape():
         self.__numComponents = numComponents
         self.__arcPlotLists = arcPlotLists
 
+
     # plots each part of the shape
     def plotShape(self,plot,canvas):
         for component in self.__components:
@@ -43,6 +44,7 @@ class Shape():
             if arc != None:
                 arc.remove()
         self.__arcPlotLists = []
+        canvas.draw()
 
     # updates the plot of the last component to be added
     def draw(self,plot,canvas,endPoint):
@@ -150,7 +152,7 @@ class Shape():
             textDistance = radius + 25
             textX = point.getX() + textDistance * np.cos(np.radians(midAngle))
             textY = point.getY() + textDistance  * np.sin(np.radians(midAngle))
-            arcText = plot.text(textX, textY, round(sweep,3), fontsize=10, color='red')
+            arcText = plot.text(textX, textY, round(sweep,3), fontsize=10, color='red', horizontalalignment= "center")
 
             # store the plots
             self.__arcPlotLists.append(arc)
