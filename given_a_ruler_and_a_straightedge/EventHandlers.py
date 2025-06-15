@@ -26,8 +26,6 @@ def click_handler(event):
 
     mouseDown = True
 
-    print(shapeList)
-
     # checks if the point where the user clicked is a point in a shape
     for shape in shapeList:
         if shape.containsPoint(currentPoint):
@@ -37,34 +35,23 @@ def click_handler(event):
                 movePoint = currentPoint
                 currentShape = shape
             elif toolMode == "Draw":
-                # creates a compound shape in the Shape class with the shape the user clicked on and their new drawing
                 currentPoint = shape.getPoint(currentPoint)
-                currentShape = newShape(currentPoint)
-                numComponents = 1 + shape.getNumComponents()
-                shapes = [shape, currentShape]
-                shapeList.remove(shape)
-                shapeList.remove(currentShape)
-                # gathers all arcplots
-                arcPlots = []
-                if (type(shape) == Shape):
-                    arcPlots.extend(shape.getArcPlotLists())
-                if (type(currentShape) == Shape):
-                    arcPlots.extend(currentShape.getArcPlotLists())
-                currentShape = Shape(shapes, numComponents, arcPlots)
-                shapeList.append(currentShape)
+                currentShape = newBasicShape(currentPoint)
+
+                newShape(shape)
                 return
             elif toolMode == "Delete":
-                shape.removeShape(canvas)
+                shape.removeShape(CANVAS)
                 shapeList.remove(shape)
             elif toolMode == "Select":
                 currentShape = shape   
          
-    # if the user is clicking on a clear space of the canvas
+    # if the user is clicking on a clear space of the CANVAS
     if (foundPoint == False):
         if (toolMode == "Draw"):
-            currentShape = newShape(currentPoint)
-            dataDisplay.config(text=currentShape.measure())
-            dataDisplay.update()
+            currentShape = newBasicShape(currentPoint)
+            DATADISPLAY.config(text=currentShape.measure())
+            DATADISPLAY.update()
         else:
             currentShape = None    
 
@@ -83,49 +70,52 @@ def drag_handler(event):
             return
 
         # Create Line achievement
-        if (createLine.isComplete() == False and achievementsOn):
-            createLine.showAchievement()
-            FrameSetUp.lineButton.grid(row=2,column=1, padx=padx, pady=pady)
+        if (ACHIEVEMENTSDICT["createLine"].isComplete() == False and MAIN.achievementsOn):
+            ACHIEVEMENTSDICT["createLine"].showAchievement()
 
         if toolMode == "Draw":
             # if the user is trying to draw a point but drags instead, creates a line
             if shapeType == "Point":
-                currentShape.removeShape(canvas)
+                currentShape.removeShape(CANVAS)
                 if (currentShape in shapeList):
                     shapeList.remove(currentShape)
                 FrameSetUp.changeShape("Line")
                 FrameSetUp.changeButtonColor(FrameSetUp.lineButton)
-                currentShape = newShape(startPoint=currentPoint)
+                currentShape = newBasicShape(startPoint=currentPoint)
 
-            currentShape.draw(plot1,canvas,endPoint=currentPoint)
+            currentShape.draw(PLOT,CANVAS,endPoint=currentPoint)
 
             # updates data display
-            dataDisplay.config(text=currentShape.measure())
-            dataDisplay.update()
+            DATADISPLAY.config(text=currentShape.measure())
+            DATADISPLAY.update()
 
         elif toolMode == "Move":
             # removes the current drawing of the line
-            currentShape.removeShape(canvas)
+            currentShape.removeShape(CANVAS)
 
             # moves the point to the current point
             currentShape.movePoint(movePoint, currentPoint)
             movePoint = currentPoint
-            currentShape.plotShape(plot1, canvas)
+            currentShape.plotShape(PLOT, CANVAS)
+
+            # ensures angles are shown that must be displayed
+            if (type(currentShape) == Shape and FrameSetUp.showAnglesButton.cget("text") == "Hide Angles"):
+                currentShape.showAngles(PLOT,CANVAS)
 
             # updates data display
-            dataDisplay.config(text=currentShape.measure())
-            dataDisplay.update()
+            DATADISPLAY.config(text=currentShape.measure())
+            DATADISPLAY.update()
         # moves the entire shape
         elif (toolMode == "Select"):
-            currentShape.removeShape(canvas)
+            currentShape.removeShape(CANVAS)
             deltaX = currentPoint.getX() - lastPoint.getX()
             deltaY = currentPoint.getY() - lastPoint.getY()
             currentShape.moveShape(deltaX, deltaY)
-            currentShape.plotShape(plot1, canvas)
+            currentShape.plotShape(PLOT, CANVAS)
 
             # updates data display
-            dataDisplay.config(text=currentShape.measure())
-            dataDisplay.update()
+            DATADISPLAY.config(text=currentShape.measure())
+            DATADISPLAY.update()
 
 def unclick_handler(event):
     # checks if the user is connecting two shapes
@@ -135,51 +125,60 @@ def unclick_handler(event):
     mouseDown = False
 
     currentPoint = Point(event.xdata,event.ydata)
+
     # checks if the user is connecting up a figure
     if (toolMode == "Draw" or toolMode == "Move" or toolMode == "Select"):
         if (type(currentShape) != Point):
             for shape in shapeList:
                 if (shape != currentShape and type(shape) != Point and shape.containsPoint(currentPoint)):
                     currentShape.setEndPoint(shape.getPoint(currentPoint))
-                    shapeList.remove(shape)
-                    shapeList.remove(currentShape)
-                    shapes = [shape, currentShape]
-                    arcPlots = []
-                    if (type(shape) == Shape):
-                        arcPlots.extend(shape.getArcPlotLists())
-                    if (type(currentShape) == Shape):
-                        arcPlots.extend(currentShape.getArcPlotLists())
-                    currentShape = Shape(shapes, shape.getNumComponents() + currentShape.getNumComponents(), arcPlots)
-                    shapeList.append(currentShape)
 
+                    newShape(shape)
+                    
                     #redraw figures so they connect smoothly at point
-                    currentShape.removeShape(canvas)
-                    currentShape.plotShape(plot1, canvas)
+                    currentShape.removeShape(CANVAS)
+                    currentShape.plotShape(PLOT, CANVAS)
+
 
                     # updates data display
-                    dataDisplay.config(text=currentShape.measure())
-                    dataDisplay.update()
+                    DATADISPLAY.config(text=currentShape.measure())
+                    DATADISPLAY.update()
+
+    # ensures angles are shown that must be displayed
+    if (type(currentShape) == Shape and FrameSetUp.showAnglesButton.cget("text") == "Hide Angles"):
+        currentShape.showAngles(PLOT,CANVAS)
+
+    # various types of angle achievements
+    if MAIN.achievementsOn and type(currentShape) == Shape:
+        if (ACHIEVEMENTSDICT["createAcuteAngle"].isComplete() == False or ACHIEVEMENTSDICT["createObtuseAngle"].isComplete() == False or ACHIEVEMENTSDICT["createRightAngle"].isComplete() == False):
+            angles = currentShape.showAngles(PLOT, CANVAS)
+            currentShape.hideAngles(CANVAS)
+            for angle in angles:
+                if ACHIEVEMENTSDICT["createAcuteAngle"].isComplete() == False and angle < 90:
+                    ACHIEVEMENTSDICT["createAcuteAngle"].showAchievement()
+                elif ACHIEVEMENTSDICT["createRightAngle"].isComplete() == False and angle == 90:
+                    ACHIEVEMENTSDICT["createRightAngle"].showAchievement()
+                elif ACHIEVEMENTSDICT["createObtuseAngle"].isComplete() == False and angle > 90:
+                    ACHIEVEMENTSDICT["createObtuseAngle"].showAchievement()
 
 
-# initializes a new shape
-def newShape(startPoint):
-    global canvas
-    global plot1
-    global padx
-    global pady
-    global achievementsOn
-    global createPoint
+
+# initializes a new Basic shape (Point, Line, Circle)
+# for points, creates a new point object
+# for lines and circles, sets the endpoint and startpoint to the given start point 
+def newBasicShape(startPoint):
+    global CANVAS
+    global PLOT
 
     # creates a new point
     if (shapeType == "Point"):
 
         # achievement for creating a line
-        if (createPoint.isComplete() == False and achievementsOn):
-            createPoint.showAchievement()
-            FrameSetUp.pointButton.grid(row=2,column=0, padx=padx, pady=pady)
+        if (ACHIEVEMENTSDICT["createPoint"].isComplete() == False and MAIN.achievementsOn):
+            ACHIEVEMENTSDICT["createPoint"].showAchievement()
 
         shape =startPoint.copy()
-        shape.plotShape(plot1,canvas)
+        shape.plotShape(PLOT,CANVAS)
         shapeList.append(shape)
     else:
         # creates lines and circles
@@ -189,6 +188,32 @@ def newShape(startPoint):
         shapeList.append(shape)
     return shape
 
+# creates a new Shape type shape
+def newShape(newShape):
+    global currentShape
+
+    # create Angle achievement
+    if (ACHIEVEMENTSDICT["createAngle"].isComplete() == False and type(newShape) == Line and type(currentShape) == Line and MAIN.achievementsOn):
+        ACHIEVEMENTSDICT["createAngle"].showAchievement()
+
+    numComponents = 1 + newShape.getNumComponents()
+    shapes = [newShape, currentShape]
+
+    if (newShape in shapeList):
+        shapeList.remove(newShape)
+    if (currentShape in shapeList):
+        shapeList.remove(currentShape)
+
+    # gathers all arcplots
+    arcPlots = []
+    if (type(newShape) == Shape):
+        arcPlots.extend(newShape.getArcPlotLists())
+    if (type(currentShape) == Shape):
+        arcPlots.extend(currentShape.getArcPlotLists())
+    currentShape = Shape(shapes, numComponents, arcPlots)
+    shapeList.append(currentShape)
+
+# class variables
 currentShape = None
 currentPoint = None
 movePoint = None
@@ -196,40 +221,31 @@ mouseDown = False
 shapeType = "Point"
 shapeList = [] 
 toolMode = "Draw"
-canvas = None
-dataDisplay = None
-plot1 = None
-padx = None
-pady = None
-achievementsOn = None
-createLine = None
-createPoint = None
 
+# constant variables to set from Main
+CANVAS = None
+DATADISPLAY = None
+PLOT = None
+ACHIEVEMENTSDICT = None
+MAIN = None
 
-
-# bindings
+# sets up bindings with CANVAS
 def bindEvents(Main):
-    global canvas
-    global dataDisplay
-    global plot1
-    global createLine
-    global createPoint
-    global padx
-    global pady
-    global achievementsOn
+    global CANVAS
+    global DATADISPLAY
+    global PLOT
+    global ACHIEVEMENTSDICT
+    global MAIN
     
-    canvas = Main.canvas
-    dataDisplay = Main.dataDisplay
-    plot1 = Main.plot1
-    createLine = Main.createLine
-    createPoint = Main.createPoint
-    padx = Main.padx
-    pady = Main.pady
-    achievementsOn = Main.achievementsOn
+    CANVAS = Main.canvas
+    DATADISPLAY = Main.dataDisplay
+    PLOT = Main.plot1
+    ACHIEVEMENTSDICT = Main.achievementsDict
 
+    MAIN = Main
 
-    Main.canvas.mpl_connect("button_press_event", click_handler)
-    Main.canvas.mpl_connect("motion_notify_event", drag_handler)
-    Main.canvas.mpl_connect("button_release_event", unclick_handler)
+    CANVAS.mpl_connect("button_press_event", click_handler)
+    CANVAS.mpl_connect("motion_notify_event", drag_handler)
+    CANVAS.mpl_connect("button_release_event", unclick_handler)
 
 

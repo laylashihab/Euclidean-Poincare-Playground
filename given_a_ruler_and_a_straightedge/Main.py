@@ -1,6 +1,4 @@
 from tkinter import *
-import matplotlib.pyplot as plt
-import numpy as np
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
 
@@ -28,8 +26,22 @@ class Main:
         source:
         http://aleph0.clarku.edu/~djoyce/elements/bookI/bookI.html
         """
-        self.createPoint = Achievement("Define a Point", "A point is that which has no part.")
-        self.createLine = Achievement("Define a Line", "A line is breadthless length.\nThe ends of a line are points.\nA straight line is a line which lies evenly with the points on itself.")
+        self.achievementsDict = {}
+        self.achievementsDict["createPoint"] = Achievement("Define a Point", "A point is that which has no part.")
+        self.achievementsDict["createLine"] = Achievement("Define a Line", "A line is breadthless length.\nThe ends of a line are points.\n" \
+        "A straight line is a line which lies evenly with the points on itself.")
+        self.achievementsDict["createAngle"] = Achievement("Define a Plane Angle", "A plane angle is the inclination to one another of two lines in a plane " \
+        "which meet one another and do not lie in a straight line.")
+        self.achievementsDict["createAcuteAngle"] = Achievement("Define an Acute Angle", "An acute angle is an angle less than a right angle.")
+        self.achievementsDict["createRightAngle"] = Achievement("Define a Right Angle", "When a straight line standing on a straight line makes the adjacent angles" \
+        " equal to one another, each of the equal angles is right")
+        self.achievementsDict["createPerpendicularLines"] = Achievement("Define Perpendicular Lines", "When a straight line standing on a straight line makes the adjacent angles " \
+        "equal to one another, the straight line standing on the other is called a perpendicular to that on which it stands")
+        self.achievementsDict["createObtuseAngle"] = Achievement("Define an Obtuse Angle", "An obtuse angle is an angle greater than a right angle")
+        self.achievementsDict["createCircle"] = Achievement("Define a Circle","A circle is a plane figure contained by one line such that all the straight lines falling " \
+        "upon it from one point among those lying within the figure equal one another.\nAnd the point is called the center of the circle.")
+
+        
         self.achievementsOn = False
 
         # the figure that will contain the plot

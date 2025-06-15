@@ -32,8 +32,6 @@ class Shape():
         for component in self.__components:
             component.plotShape(plot,canvas)
 
-        self.showAngles(plot,canvas)
-
     
     # removes each part of the shape
     def removeShape(self,canvas):
@@ -43,12 +41,14 @@ class Shape():
         for arc in self.__arcPlotLists:
             if arc != None:
                 arc.remove()
-        self.__arcPlotLists = []
         canvas.draw()
 
     # updates the plot of the last component to be added
     def draw(self,plot,canvas,endPoint):
         self.__components[-1].draw(plot,canvas,endPoint)
+
+    def getStartPoint(self):
+        return self.__components[0].getStartPoint()
 
     # sets the end point of the last figure drawn
     def setEndPoint(self, endPoint):
@@ -75,6 +75,12 @@ class Shape():
             if (component.containsPoint(point)):
                 return True
         return False
+    
+    # returns a boolean regarding if the figure is closed 
+    # a closed figure has the same starting and ending point
+    def isClosedFigure(self):
+        return self.getStartPoint().equals(self.getEndPoint())
+
     
     # gets the exact point of a point in the shape if the point is contained with the shape (removes the epsilon value)
     # used for smoother combining of shapes
@@ -112,10 +118,13 @@ class Shape():
             if s not in uniquePairList:
                 uniquePairList.append(s)
         return uniquePairList
-        
+            
     # shows the angles between lines on a shape
+    # returns a list of angle measures 
     def showAngles(self,plot,canvas):
         pairList = self.findConnectedLines()
+        angleList = []
+        self.__arcPlotLists =[]
         for pair in pairList:
             # shared point
             point = pair[0].getStartPoint() if pair[1].containsPoint(pair[0].getStartPoint()) else pair[0].getEndPoint()
@@ -141,6 +150,9 @@ class Shape():
                 start = angle_end
                 sweep = sweep2
 
+            # adds the sweep to the angle list
+            angleList.append(sweep)
+
             # plot the arc
             angles_rad = np.radians(np.linspace(start,start + sweep,100))
             arc_x = point.getX() + radius* np.cos(angles_rad)
@@ -158,6 +170,7 @@ class Shape():
             self.__arcPlotLists.append(arc)
             self.__arcPlotLists.append(arcText)
             canvas.draw()
+        return angleList
 
     def hideAngles(self,canvas):
         for arc in self.__arcPlotLists:

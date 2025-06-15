@@ -55,6 +55,14 @@ def changeToolMode(newTool):
         case "Select":
             changeButtonColor(selectButton)
 
+def achievementsOnOff(Main):
+    Main.achievementsOn = not Main.achievementsOn
+    if (Main.achievementsOn == True):
+        achievementsOnButton.config(text="Turn Achievements Off")
+    else:
+        achievementsOnButton.config(text="Turn Achievements On")
+
+
 # clears the plot
 def clear(Main):
 
@@ -100,7 +108,6 @@ def setUp(Main):
     padx=Main.padx
     pady=Main.pady
     plot_size = Main.plot_size
-    achievementsOn = Main.achievementsOn
 
     global toolLabel
     global shapeLabel
@@ -114,6 +121,7 @@ def setUp(Main):
     global selectButton
     global drawButton
     global showAnglesButton
+    global achievementsOnButton
 
     #main window setup
     root.geometry("600x700")
@@ -132,6 +140,7 @@ def setUp(Main):
     selectButton = Button(toolbar,command =lambda: [changeToolMode("Select"),changeButtonColor(selectButton)],height = 2, width = 10, text = "Select Object")
     drawButton = Button(toolbar, command = lambda:[changeToolMode("Draw"),changeButtonColor(drawButton)],height = 2, width = 10, text = "Draw")
     showAnglesButton = Button(toolbar, command= lambda: [showAngles(Main)],height = 2, width = 10, text = "Show Angles")
+    achievementsOnButton = Button(toolbar, command = lambda: [achievementsOnOff(Main)],height = 2, width = 20, text = "Turn Achievements On")
 
     global shapeButtonList
     global operationButtonList
@@ -142,31 +151,29 @@ def setUp(Main):
     descriptLabel.pack()
 
     # tool setup
-    row = 0
-    toolLabel.grid(row=row, column=1, padx=padx, pady=pady)
-    row += 1
-    shapeLabel.grid(row=row, column=1, padx=padx, pady=pady)
-    row += 1
-    if (achievementsOn == False):
-        pointButton.grid(row=row,column=1, padx=padx, pady=pady)
-        changeButtonColor(pointButton)
-        lineButton.grid(row=row,column=2, padx=padx, pady=pady)
-    circleButton.grid(row=row,column=3, padx=padx, pady=pady)
+    toolLabel.grid(row=0, column=1, padx=padx, pady=pady)
 
-    row +=1 
-    operationLabel.grid(row=row, column = 1, padx=padx, pady=pady)
-    row += 1
-    moveButton.grid(row=row,column=1, padx=padx, pady=pady)
-    deleteButton.grid(row=row,column=2, padx=padx, pady=pady)
-    selectButton.grid(row=row, column = 3, padx=padx, pady=pady)
-    drawButton.grid(row=row, column=4, padx=padx, pady=pady)
+    # Shape types
+    shapeLabel.grid(row=1, column=1, padx=padx, pady=pady)
+    pointButton.grid(row=2,column=1, padx=padx, pady=pady)
+    lineButton.grid(row=2,column=2, padx=padx, pady=pady)
+    circleButton.grid(row=2,column=3, padx=padx, pady=pady)
+    changeButtonColor(pointButton)
+
+    # Operation Types
+    operationLabel.grid(row=3, column = 1, padx=padx, pady=pady)
+    moveButton.grid(row=4,column=1, padx=padx, pady=pady)
+    deleteButton.grid(row=4,column=2, padx=padx, pady=pady)
+    selectButton.grid(row=4, column = 3, padx=padx, pady=pady)
+    drawButton.grid(row=4, column=4, padx=padx, pady=pady)
     changeButtonColor(drawButton)
 
-    row += 1
-    clearButton.grid(row=row,column=0, padx=padx, pady=pady)
-    showAnglesButton.grid(row=row,column = 1,padx=padx,pady=pady)
-    toolbar.pack()
+    # Other Operations
+    clearButton.grid(row=5,column=1, padx=padx, pady=pady)
+    showAnglesButton.grid(row=5,column = 2,padx=padx,pady=pady)
+    achievementsOnButton.grid(row = 5, column = 3, columnspan= 2, padx=padx,pady=pady)
 
+    toolbar.pack()
 
     # creating the Tkinter canvas containing the Matplotlib figure
     canvas.get_tk_widget().config(width=plot_size,height=plot_size)
@@ -201,6 +208,7 @@ deleteButton = None
 selectButton = None
 drawButton = None
 showAnglesButton = None
+achievementsOnButton = None
 
 shapeButtonList = None
 operationButtonList = None
