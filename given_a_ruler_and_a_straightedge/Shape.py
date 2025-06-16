@@ -32,15 +32,13 @@ class Shape():
         for component in self.__components:
             component.plotShape(plot,canvas)
 
-    
     # removes each part of the shape
     def removeShape(self,canvas):
         for component in self.__components:
             component.removeShape(canvas)
-        
-        for arc in self.__arcPlotLists:
-            if arc != None:
-                arc.remove()
+
+        self.__arcPlotLists = []
+
         canvas.draw()
 
     # updates the plot of the last component to be added
@@ -174,12 +172,19 @@ class Shape():
 
     def hideAngles(self,canvas):
         for arc in self.__arcPlotLists:
-            if arc != None:
-                arc.remove()
+            arc.remove()
         self.__arcPlotLists = []
 
         canvas.draw()
 
+    def showMetrics(self,plot, canvas):
+        for component in self.__components:
+            component.showMetrics(plot,canvas)
+
+    def hideMetrics(self, canvas):
+        for component in self.__components:
+            component.hideMetrics(canvas)
+            
     # provides data about the shape
     def measure(self):
         returnString = "Num Components: {0}\n Total Length: {1}".format(self.__numComponents, round(self.getLength(),3))

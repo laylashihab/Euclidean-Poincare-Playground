@@ -50,6 +50,12 @@ class Circle:
     # moves the entire shape by a given amount
     def moveShape(self, deltaX, deltaY):
         self.__centerPoint = Point(self.getCenterPoint().getX()+deltaX, self.getCenterPoint().getY() + deltaY)
+    
+    def showMetrics(self,plot, canvas):
+        pass
+
+    def hideMetrics(self, canvas):
+        pass
 
     # mutators and accessors
     def setStartPoint(self, centerPoint):

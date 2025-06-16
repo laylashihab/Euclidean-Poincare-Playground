@@ -65,10 +65,6 @@ def drag_handler(event):
     if currentShape == None:
         return
 
-    # Create Line achievement
-    if (ACHIEVEMENTSDICT["createLine"].isComplete() == False and MAIN.achievementsOn):
-        ACHIEVEMENTSDICT["createLine"].showAchievement()
-
     if toolMode == "Draw":
         # if the user is trying to draw a point but drags instead, creates a line
         if shapeType == "Point":
@@ -94,9 +90,11 @@ def drag_handler(event):
         movePoint = currentPoint
         currentShape.plotShape(PLOT, CANVAS)
 
-        # ensures angles are shown that must be displayed
+        # ensures angles and metrics are shown that must be displayed
         if (type(currentShape) == Shape and FrameSetUp.showAnglesButton.cget("text") == "Hide Angles"):
             currentShape.showAngles(PLOT,CANVAS)
+        elif (FrameSetUp.showMetricsButton.cget("text") == "Hide Metrics"):
+            currentShape.showMetrics(PLOT,CANVAS)
 
         # updates data display
         FrameSetUp.dataDisplay.config(text=currentShape.measure())
@@ -104,6 +102,8 @@ def drag_handler(event):
 
     # moves the entire shape
     elif (toolMode == "Select"):
+        if (type(currentShape) == Shape):
+            currentShape.hideAngles(CANVAS)
         currentShape.removeShape(CANVAS)
         deltaX = currentPoint.getX() - lastPoint.getX()
         deltaY = currentPoint.getY() - lastPoint.getY()
@@ -137,9 +137,18 @@ def unclick_handler(event):
                     FrameSetUp.dataDisplay.config(text=currentShape.measure())
                     FrameSetUp.dataDisplay.update()
 
-    # ensures angles are shown that must be displayed
+    # ensures angles and metrics are shown that must be displayed
     if (type(currentShape) == Shape and FrameSetUp.showAnglesButton.cget("text") == "Hide Angles"):
         currentShape.showAngles(PLOT,CANVAS)
+    if (FrameSetUp.showMetricsButton.cget("text") == "Hide Metrics"):
+        currentShape.showMetrics(PLOT, CANVAS)
+
+    # achievements for creating a circle or line
+    if (MAIN.achievementsOn and ACHIEVEMENTSDICT["createCircle"].isComplete() == False and type(currentShape) == Circle):
+        ACHIEVEMENTSDICT["createCircle"].showAchievement()
+    elif (MAIN.achievementsOn and ACHIEVEMENTSDICT["createLine"].isComplete() == False and type(currentShape) == Line):
+        ACHIEVEMENTSDICT["createLine"].showAchievement()
+
 
     # various types of angle achievements
     if MAIN.achievementsOn and type(currentShape) == Shape:
@@ -163,7 +172,7 @@ def newBasicShape(startPoint):
     # creates a new point
     if (shapeType == "Point"):
 
-        # achievement for creating a line
+        # achievement for creating a point
         if (ACHIEVEMENTSDICT["createPoint"].isComplete() == False and MAIN.achievementsOn):
             ACHIEVEMENTSDICT["createPoint"].showAchievement()
 
@@ -176,6 +185,7 @@ def newBasicShape(startPoint):
         shape.setStartPoint(startPoint)
         shape.setEndPoint(startPoint)
         shapeList.append(shape)
+
     return shape
 
 # creates a new Shape type shape

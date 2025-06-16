@@ -1,7 +1,5 @@
-from Point import *
-from Line import *
-from Circle import *
 from Shape import *
+from Line import *
 from Achievement import *
 
 from matplotlib.figure import Figure
@@ -80,7 +78,7 @@ def clear():
     CANVAS.draw()
 
 def showAngles():
-    if (showAnglesButton.cget("text")) == "Show Angles":
+    if showAnglesButton.cget("text") == "Show Angles":
         for shape in EventHandlers.shapeList:
             if (type(shape) == Shape):
                 shape.showAngles(PLOT,CANVAS)
@@ -91,6 +89,17 @@ def showAngles():
             if (type(shape) == Shape):
                 shape.hideAngles(CANVAS)
         showAnglesButton.config(text= "Show Angles")
+
+def showMetrics():
+    if (showMetricsButton.cget("text") == "Show Metrics"):
+        for shape in EventHandlers.shapeList:
+            shape.showMetrics(PLOT, CANVAS)
+        showMetricsButton.config(text = "Hide Metrics")
+    else:
+        for shape in EventHandlers.shapeList:
+            shape.hideMetrics(CANVAS)
+
+        showMetricsButton.config(text = "Show Metrics")
 
 # constants to define from Main
 ROOT = None
@@ -105,7 +114,8 @@ dataDisplay = None
 toolLabel,shapeLabel,operationLabel = None, None, None
 pointButton,lineButton,circleButton= None, None, None
 moveButton,deleteButton,selectButton,drawButton = None,None,None,None
-clearButton,showAnglesButton,achievementsOnButton = None, None, None
+clearButton,showAnglesButton, showMetricsButton= None, None, None
+achievementsOnButton = None
 shapeButtonList,operationButtonList = None, None
 
 
@@ -120,7 +130,8 @@ def setUp(Main):
     global dataDisplay,toolLabel,shapeLabel,operationLabel
     global pointButton, lineButton,circleButton
     global moveButton,deleteButton,selectButton,drawButton
-    global clearButton,showAnglesButton,achievementsOnButton
+    global clearButton,showAnglesButton,showMetricsButton
+    global achievementsOnButton
     global shapeButtonList,operationButtonList
 
     # creating the root TKinter component
@@ -162,6 +173,7 @@ def setUp(Main):
     selectButton = Button(toolbar,command =lambda: [changeToolMode("Select"),changeButtonColor(selectButton)],height = 2, width = 10, text = "Select Object")
     drawButton = Button(toolbar, command = lambda:[changeToolMode("Draw"),changeButtonColor(drawButton)],height = 2, width = 10, text = "Draw")
     showAnglesButton = Button(toolbar, command= lambda: [showAngles()],height = 2, width = 10, text = "Show Angles")
+    showMetricsButton = Button(toolbar, command = lambda: [showMetrics()],height = 2, width = 10, text = "Show Metrics")
     achievementsOnButton = Button(toolbar, command = lambda: [achievementsOnOff(Main)],height = 2, width = 20, text = "Turn Achievements On")
 
     # lists containing buttons that will have coloration
@@ -192,7 +204,10 @@ def setUp(Main):
     # Other Operations
     clearButton.grid(row=5,column=1, padx=PADX, pady=PADY)
     showAnglesButton.grid(row=5,column = 2,padx=PADX,pady=PADY)
-    achievementsOnButton.grid(row = 5, column = 3, columnspan= 2, padx=PADX,pady=PADY)
+    showMetricsButton.grid(row = 5, column = 3, padx=PADX, pady=PADY)
+
+    #achievements Button
+    achievementsOnButton.grid(row = 6, column = 1, columnspan= 2, padx=PADX,pady=PADY)
 
     toolbar.pack()
 

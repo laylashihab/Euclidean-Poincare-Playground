@@ -16,6 +16,9 @@ class Line:
     __endPointPlot = None
     __startPointPlot = None
 
+    __measurementText = []
+
+
     def __init__(self):
         pass
 
@@ -29,8 +32,6 @@ class Line:
             #plots endpoints
             self.__endPointPlot = self.__endPoint.plotShape(plot,canvas)
             self.__startPointPlot = self.__startPoint.plotShape(plot,canvas)
-            #self.__startPointPlot, = plot.plot(self.__startPoint.getX(),self.__startPoint.getY(), "o", color="blue")
-            #self.__endPointPlot, = plot.plot(self.__endPoint.getX(),self.__endPoint.getY(), "o",color = "blue")
 
             canvas.draw()
     
@@ -42,6 +43,8 @@ class Line:
             self.__startPointPlot.remove()
             self.__endPointPlot.remove()
             self.__line = None
+
+            self.hideMetrics(canvas)
 
             canvas.draw()
 
@@ -57,6 +60,22 @@ class Line:
         newEnd = Point(self.getEndPoint().getX() + deltaX, self.getEndPoint().getY() + deltaY)
         self.setEndPoint(newEnd)
         self.setStartPoint(newStart)
+
+    def showMetrics(self,plot,canvas):
+        textX = (self.getEndPoint().getX() + self.getStartPoint().getX())/ 2
+        textY = (self.getEndPoint().getY() + self.getStartPoint().getY())/ 2
+        lengthText = plot.text(textX, textY, round(self.getLength(),3), fontsize=10, color='red', rotation = self.getTerminalAngle(), horizontalalignment = 'center',verticalalignment = 'top')
+
+        # store the plots
+        self.__measurementText.append(lengthText)
+        canvas.draw()
+
+    def hideMetrics(self, canvas):
+        for measurement in self.__measurementText:
+            measurement.remove()
+
+        self.__measurementText = []
+        canvas.draw()
 
     # moves the endPoint to a new location
     def movePoint(self,point, newPoint):

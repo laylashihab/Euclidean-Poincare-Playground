@@ -48,7 +48,6 @@ class Main:
         FrameSetUp.setUp(self)
         EventHandlers.bindEvents(self)
         
-
     def run(self):
         FrameSetUp.ROOT.mainloop()
 
