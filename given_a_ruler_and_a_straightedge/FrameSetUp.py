@@ -4,7 +4,9 @@ from Circle import *
 from Shape import *
 from Achievement import *
 
-from tkinter import Button,Label,Frame
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
+from tkinter import Button,Label,Frame, Tk
 
 import EventHandlers
 
@@ -64,152 +66,141 @@ def achievementsOnOff(Main):
 
 
 # clears the plot
-def clear(Main):
-
-    plot1 = Main.plot1
-    plot_size = Main.plot_size
-    canvas = Main.canvas
-
+def clear():
     changeToolMode("Draw")
     changeButtonColor(drawButton)
     changeShape("Point")
     changeButtonColor(pointButton)
 
     EventHandlers.shapeList = []
-    plot1.cla()
-    plot1.set_xlim(0,plot_size)
-    plot1.set_ylim(0,plot_size)
-    plot1.set_axis_off()
-    canvas.draw()
+    PLOT.cla()
+    PLOT.set_xlim(0,PLOTSIZE)
+    PLOT.set_ylim(0,PLOTSIZE)
+    PLOT.set_axis_off()
+    CANVAS.draw()
 
-def showAngles(Main):
-    plot1 = Main.plot1
-    canvas = Main.canvas
-
+def showAngles():
     if (showAnglesButton.cget("text")) == "Show Angles":
         for shape in EventHandlers.shapeList:
             if (type(shape) == Shape):
-                shape.showAngles(plot1,canvas)
+                shape.showAngles(PLOT,CANVAS)
         showAnglesButton.config(text= "Hide Angles")
 
     else:
         for shape in EventHandlers.shapeList:
             if (type(shape) == Shape):
-                shape.hideAngles(canvas)
+                shape.hideAngles(CANVAS)
         showAnglesButton.config(text= "Show Angles")
+
+# constants to define from Main
+ROOT = None
+PLOT = None
+CANVAS = None
+PADX = None
+PADY = None
+PLOTSIZE = None
+
+# Frame Set Up global variables
+dataDisplay = None
+toolLabel,shapeLabel,operationLabel = None, None, None
+pointButton,lineButton,circleButton= None, None, None
+moveButton,deleteButton,selectButton,drawButton = None,None,None,None
+clearButton,showAnglesButton,achievementsOnButton = None, None, None
+shapeButtonList,operationButtonList = None, None
 
 
 def setUp(Main):
-    root = Main.root
-    tb = Main.tb
-    dataDisplay = Main.dataDisplay
-    plot1 = Main.plot1
-    canvas = Main.canvas
-    padx=Main.padx
-    pady=Main.pady
-    plot_size = Main.plot_size
+    # constants
+    global ROOT, PLOT, CANVAS, PADX, PADY, PLOTSIZE
+    PADX=Main.PADX
+    PADY=Main.PADY
+    PLOTSIZE = Main.PLOTSIZE
 
-    global toolLabel
-    global shapeLabel
-    global operationLabel
-    global pointButton
-    global lineButton
-    global circleButton
-    global clearButton
-    global moveButton
-    global deleteButton
-    global selectButton
-    global drawButton
-    global showAnglesButton
-    global achievementsOnButton
+    # Frame set up variables
+    global dataDisplay,toolLabel,shapeLabel,operationLabel
+    global pointButton, lineButton,circleButton
+    global moveButton,deleteButton,selectButton,drawButton
+    global clearButton,showAnglesButton,achievementsOnButton
+    global shapeButtonList,operationButtonList
 
-    #main window setup
-    root.geometry("600x700")
-    root.title('Euclidean Playground')
-    descriptLabel = Label(root, text="You have been given a straightedge and a compass")
-    toolbar = Frame(root)
+    # creating the root TKinter component
+    ROOT = Tk()
+    ROOT.geometry("600x700")
+    ROOT.title('Euclidean Playground')
+    
+    # the figure that will contain the Canvas
+    FIG = Figure(figsize = (5, 5), dpi = 100, constrained_layout=True)
+
+    # creates the canvas containing the plot
+    CANVAS = FigureCanvasTkAgg(FIG, master = ROOT)  
+    CANVAS.get_tk_widget().config(width=PLOTSIZE,height=PLOTSIZE)
+    CANVAS.draw()
+
+    # creates a plot 
+    PLOT = FIG.add_subplot(111)
+    PLOT.set_xlim(0,PLOTSIZE)
+    PLOT.set_ylim(0,PLOTSIZE)
+    PLOT.set_axis_off()
+
+    # creating the Matplotlib toolbar
+    tb = NavigationToolbar2Tk(CANVAS, ROOT)
+    tb.update()
+
+    # buttons and labels
+    dataDisplay = Label(ROOT, text="")
+    descriptLabel = Label(ROOT, text="You have been given a straightedge and a compass")
+    toolbar = Frame(ROOT)
     toolLabel = Label(toolbar, text="Toolbar")
     shapeLabel = Label(toolbar, text="Shape Library")
     operationLabel = Label(toolbar, text="Operations")
     pointButton = Button(toolbar, command=lambda: [changeShape("Point"), changeButtonColor(pointButton)], height = 2, width = 10, text = "Point")
     lineButton = Button(toolbar, command=lambda: [changeShape("Line"), changeButtonColor(lineButton)], height = 2, width = 10, text = "Line")
     circleButton = Button(toolbar, command =lambda: [changeShape("Circle"),changeButtonColor(circleButton)], height = 2, width = 10, text = "Circle")
-    clearButton = Button(toolbar,command=lambda:[clear(Main)],height = 2, width = 10, text = "Clear")
+    clearButton = Button(toolbar,command=lambda:[clear()],height = 2, width = 10, text = "Clear")
     moveButton = Button(toolbar,command =lambda: [changeToolMode("Move"),changeButtonColor(moveButton)],height = 2, width = 10, text = "Move Point")
     deleteButton = Button(toolbar,command =lambda: [changeToolMode("Delete"),changeButtonColor(deleteButton)],height = 2, width = 10, text = "Delete Object")
     selectButton = Button(toolbar,command =lambda: [changeToolMode("Select"),changeButtonColor(selectButton)],height = 2, width = 10, text = "Select Object")
     drawButton = Button(toolbar, command = lambda:[changeToolMode("Draw"),changeButtonColor(drawButton)],height = 2, width = 10, text = "Draw")
-    showAnglesButton = Button(toolbar, command= lambda: [showAngles(Main)],height = 2, width = 10, text = "Show Angles")
+    showAnglesButton = Button(toolbar, command= lambda: [showAngles()],height = 2, width = 10, text = "Show Angles")
     achievementsOnButton = Button(toolbar, command = lambda: [achievementsOnOff(Main)],height = 2, width = 20, text = "Turn Achievements On")
 
-    global shapeButtonList
-    global operationButtonList
-
+    # lists containing buttons that will have coloration
     shapeButtonList = [pointButton,lineButton,circleButton]
     operationButtonList = [moveButton,deleteButton,selectButton,drawButton]
+
     # description setup
     descriptLabel.pack()
 
     # tool setup
-    toolLabel.grid(row=0, column=1, padx=padx, pady=pady)
+    toolLabel.grid(row=0, column=1, padx=PADX, pady=PADY)
 
     # Shape types
-    shapeLabel.grid(row=1, column=1, padx=padx, pady=pady)
-    pointButton.grid(row=2,column=1, padx=padx, pady=pady)
-    lineButton.grid(row=2,column=2, padx=padx, pady=pady)
-    circleButton.grid(row=2,column=3, padx=padx, pady=pady)
+    shapeLabel.grid(row=1, column=1, padx=PADX, pady=PADY)
+    pointButton.grid(row=2,column=1, padx=PADX, pady=PADY)
+    lineButton.grid(row=2,column=2, padx=PADX, pady=PADY)
+    circleButton.grid(row=2,column=3, padx=PADX, pady=PADY)
     changeButtonColor(pointButton)
 
     # Operation Types
-    operationLabel.grid(row=3, column = 1, padx=padx, pady=pady)
-    moveButton.grid(row=4,column=1, padx=padx, pady=pady)
-    deleteButton.grid(row=4,column=2, padx=padx, pady=pady)
-    selectButton.grid(row=4, column = 3, padx=padx, pady=pady)
-    drawButton.grid(row=4, column=4, padx=padx, pady=pady)
+    operationLabel.grid(row=3, column = 1, padx=PADX, pady=PADY)
+    moveButton.grid(row=4,column=1, padx=PADX, pady=PADY)
+    deleteButton.grid(row=4,column=2, padx=PADX, pady=PADY)
+    selectButton.grid(row=4, column = 3, padx=PADX, pady=PADY)
+    drawButton.grid(row=4, column=4, padx=PADX, pady=PADY)
     changeButtonColor(drawButton)
 
     # Other Operations
-    clearButton.grid(row=5,column=1, padx=padx, pady=pady)
-    showAnglesButton.grid(row=5,column = 2,padx=padx,pady=pady)
-    achievementsOnButton.grid(row = 5, column = 3, columnspan= 2, padx=padx,pady=pady)
+    clearButton.grid(row=5,column=1, padx=PADX, pady=PADY)
+    showAnglesButton.grid(row=5,column = 2,padx=PADX,pady=PADY)
+    achievementsOnButton.grid(row = 5, column = 3, columnspan= 2, padx=PADX,pady=PADY)
 
     toolbar.pack()
 
-    # creating the Tkinter canvas containing the Matplotlib figure
-    canvas.get_tk_widget().config(width=plot_size,height=plot_size)
-    canvas.draw()
-
-    # placing the canvas on the Tkinter window
-    canvas.get_tk_widget().pack()
-
-    # adding the subplot
-    plot1.set_xlim(0,plot_size)
-    plot1.set_ylim(0,plot_size)
-    plot1.set_axis_off()
-
-    # creating the Matplotlib toolbar
-    tb.update()
+    # placing the CANVAS on the Tkinter window
+    CANVAS.get_tk_widget().pack()
 
     # placing the toolbar on the Tkinter window
-    canvas.get_tk_widget().pack()
+    CANVAS.get_tk_widget().pack()
 
     # data display setup
     dataDisplay.pack()
-
-toolLabel = None
-shapeLabel = None
-operationLabel = None
-pointButton = None
-lineButton = None
-circleButton = None
-clearButton = None
-moveButton = None
-deleteButton = None
-selectButton = None
-drawButton = None
-showAnglesButton = None
-achievementsOnButton = None
-
-shapeButtonList = None
-operationButtonList = None
-

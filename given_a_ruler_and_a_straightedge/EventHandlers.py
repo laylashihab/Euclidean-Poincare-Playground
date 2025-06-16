@@ -15,12 +15,8 @@ def click_handler(event):
     if (not event.inaxes):
         return
     
-    global shapeList
-    global foundPoint
-    global currentPoint
-    global currentShape
-    global mouseDown
-    global movePoint
+    global shapeList,foundPoint,currentPoint,currentShape,mouseDown,movePoint
+
     currentPoint = Point(event.xdata, event.ydata)
     foundPoint = False
 
@@ -50,78 +46,76 @@ def click_handler(event):
     if (foundPoint == False):
         if (toolMode == "Draw"):
             currentShape = newBasicShape(currentPoint)
-            DATADISPLAY.config(text=currentShape.measure())
-            DATADISPLAY.update()
+
+            # updates data display
+            FrameSetUp.dataDisplay.config(text=currentShape.measure())
+            FrameSetUp.dataDisplay.update()
         else:
             currentShape = None    
 
 def drag_handler(event):
-    if event.inaxes and mouseDown:
-        global shapeType
-        global movePoint
-        global currentShape
-        global currentPoint
-        global shapeList
-        global toolMode
-        lastPoint = currentPoint.copy()
-        currentPoint = Point(event.xdata,event.ydata)
+    if not event.inaxes or not mouseDown:
+        return
+    
+    global shapeType,movePoint,currentShape,currentPoint,shapeList,toolMode
 
-        if currentShape == None:
-            return
+    lastPoint = currentPoint.copy()
+    currentPoint = Point(event.xdata,event.ydata)
 
-        # Create Line achievement
-        if (ACHIEVEMENTSDICT["createLine"].isComplete() == False and MAIN.achievementsOn):
-            ACHIEVEMENTSDICT["createLine"].showAchievement()
+    if currentShape == None:
+        return
 
-        if toolMode == "Draw":
-            # if the user is trying to draw a point but drags instead, creates a line
-            if shapeType == "Point":
-                currentShape.removeShape(CANVAS)
-                if (currentShape in shapeList):
-                    shapeList.remove(currentShape)
-                FrameSetUp.changeShape("Line")
-                FrameSetUp.changeButtonColor(FrameSetUp.lineButton)
-                currentShape = newBasicShape(startPoint=currentPoint)
+    # Create Line achievement
+    if (ACHIEVEMENTSDICT["createLine"].isComplete() == False and MAIN.achievementsOn):
+        ACHIEVEMENTSDICT["createLine"].showAchievement()
 
-            currentShape.draw(PLOT,CANVAS,endPoint=currentPoint)
-
-            # updates data display
-            DATADISPLAY.config(text=currentShape.measure())
-            DATADISPLAY.update()
-
-        elif toolMode == "Move":
-            # removes the current drawing of the line
+    if toolMode == "Draw":
+        # if the user is trying to draw a point but drags instead, creates a line
+        if shapeType == "Point":
             currentShape.removeShape(CANVAS)
+            if (currentShape in shapeList):
+                shapeList.remove(currentShape)
+            FrameSetUp.changeShape("Line")
+            FrameSetUp.changeButtonColor(FrameSetUp.lineButton)
+            currentShape = newBasicShape(startPoint=currentPoint)
 
-            # moves the point to the current point
-            currentShape.movePoint(movePoint, currentPoint)
-            movePoint = currentPoint
-            currentShape.plotShape(PLOT, CANVAS)
+        currentShape.draw(PLOT,CANVAS,endPoint=currentPoint)
 
-            # ensures angles are shown that must be displayed
-            if (type(currentShape) == Shape and FrameSetUp.showAnglesButton.cget("text") == "Hide Angles"):
-                currentShape.showAngles(PLOT,CANVAS)
+        # updates data display
+        FrameSetUp.dataDisplay.config(text=currentShape.measure())
+        FrameSetUp.dataDisplay.update()
 
-            # updates data display
-            DATADISPLAY.config(text=currentShape.measure())
-            DATADISPLAY.update()
-        # moves the entire shape
-        elif (toolMode == "Select"):
-            currentShape.removeShape(CANVAS)
-            deltaX = currentPoint.getX() - lastPoint.getX()
-            deltaY = currentPoint.getY() - lastPoint.getY()
-            currentShape.moveShape(deltaX, deltaY)
-            currentShape.plotShape(PLOT, CANVAS)
+    elif toolMode == "Move":
+        # removes the current drawing of the line
+        currentShape.removeShape(CANVAS)
 
-            # updates data display
-            DATADISPLAY.config(text=currentShape.measure())
-            DATADISPLAY.update()
+        # moves the point to the current point
+        currentShape.movePoint(movePoint, currentPoint)
+        movePoint = currentPoint
+        currentShape.plotShape(PLOT, CANVAS)
+
+        # ensures angles are shown that must be displayed
+        if (type(currentShape) == Shape and FrameSetUp.showAnglesButton.cget("text") == "Hide Angles"):
+            currentShape.showAngles(PLOT,CANVAS)
+
+        # updates data display
+        FrameSetUp.dataDisplay.config(text=currentShape.measure())
+        FrameSetUp.dataDisplay.update()
+
+    # moves the entire shape
+    elif (toolMode == "Select"):
+        currentShape.removeShape(CANVAS)
+        deltaX = currentPoint.getX() - lastPoint.getX()
+        deltaY = currentPoint.getY() - lastPoint.getY()
+        currentShape.moveShape(deltaX, deltaY)
+        currentShape.plotShape(PLOT, CANVAS)
+
+        # updates data display
+        FrameSetUp.dataDisplay.config(text=currentShape.measure())
+        FrameSetUp.dataDisplay.update()
 
 def unclick_handler(event):
-    # checks if the user is connecting two shapes
-    global currentPoint
-    global currentShape
-    global mouseDown
+    global currentPoint,currentShape,mouseDown
     mouseDown = False
 
     currentPoint = Point(event.xdata,event.ydata)
@@ -139,10 +133,9 @@ def unclick_handler(event):
                     currentShape.removeShape(CANVAS)
                     currentShape.plotShape(PLOT, CANVAS)
 
-
                     # updates data display
-                    DATADISPLAY.config(text=currentShape.measure())
-                    DATADISPLAY.update()
+                    FrameSetUp.dataDisplay.config(text=currentShape.measure())
+                    FrameSetUp.dataDisplay.update()
 
     # ensures angles are shown that must be displayed
     if (type(currentShape) == Shape and FrameSetUp.showAnglesButton.cget("text") == "Hide Angles"):
@@ -161,14 +154,11 @@ def unclick_handler(event):
                 elif ACHIEVEMENTSDICT["createObtuseAngle"].isComplete() == False and angle > 90:
                     ACHIEVEMENTSDICT["createObtuseAngle"].showAchievement()
 
-
-
 # initializes a new Basic shape (Point, Line, Circle)
 # for points, creates a new point object
 # for lines and circles, sets the endpoint and startpoint to the given start point 
 def newBasicShape(startPoint):
-    global CANVAS
-    global PLOT
+    global CANVAS,PLOT
 
     # creates a new point
     if (shapeType == "Point"):
@@ -224,23 +214,18 @@ toolMode = "Draw"
 
 # constant variables to set from Main
 CANVAS = None
-DATADISPLAY = None
 PLOT = None
 ACHIEVEMENTSDICT = None
 MAIN = None
 
 # sets up bindings with CANVAS
 def bindEvents(Main):
-    global CANVAS
-    global DATADISPLAY
-    global PLOT
-    global ACHIEVEMENTSDICT
+    global CANVAS, PLOT, ACHIEVEMENTSDICT
     global MAIN
     
-    CANVAS = Main.canvas
-    DATADISPLAY = Main.dataDisplay
-    PLOT = Main.plot1
-    ACHIEVEMENTSDICT = Main.achievementsDict
+    CANVAS = FrameSetUp.CANVAS
+    PLOT = FrameSetUp.PLOT
+    ACHIEVEMENTSDICT = Main.ACHIEVEMENTSDICT
 
     MAIN = Main
 
