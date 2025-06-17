@@ -23,15 +23,15 @@ class Line:
         pass
 
     # plots the line in the given plot and updates the canvas
-    def plotShape(self, plot, canvas):
+    def plotShape(self, plot, canvas,linewidth):
         if self.__endPoint != None:
             x_data = np.linspace(self.__startPoint.getX(), self.__endPoint.getX(), 100)
             y_data = np.linspace(self.__startPoint.getY(), self.__endPoint.getY(),100)
-            self.__line, = plot.plot(x_data,y_data, color = "black")
+            self.__line, = plot.plot(x_data,y_data, color = "black", lw= linewidth)
 
             #plots endpoints
-            self.__endPointPlot = self.__endPoint.plotShape(plot,canvas)
-            self.__startPointPlot = self.__startPoint.plotShape(plot,canvas)
+            self.__endPointPlot = self.__endPoint.plotShape(plot,canvas,linewidth)
+            self.__startPointPlot = self.__startPoint.plotShape(plot,canvas,linewidth)
 
             canvas.draw()
     
@@ -49,10 +49,10 @@ class Line:
             canvas.draw()
 
     # updates the plot of the shape to a new endpoint
-    def draw(self,plot,canvas,endPoint):
+    def draw(self,plot,canvas,endPoint,linewidth):
         self.removeShape(canvas)
         self.setEndPoint(endPoint)
-        self.plotShape(plot,canvas)
+        self.plotShape(plot,canvas,linewidth)
 
     # moves the entire line by a given amount
     def moveShape(self, deltaX,deltaY):

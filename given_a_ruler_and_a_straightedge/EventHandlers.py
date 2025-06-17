@@ -10,6 +10,10 @@ import FrameSetUp
 Series of functions to deal with mouseEvents
 
 """
+
+THINLINE = 1
+THICKLINE = 3
+
 # function to deal with user clicking.
 def click_handler(event):
     if (not event.inaxes):
@@ -75,7 +79,7 @@ def drag_handler(event):
             FrameSetUp.changeButtonColor(FrameSetUp.lineButton)
             currentShape = newBasicShape(startPoint=currentPoint)
 
-        currentShape.draw(PLOT,CANVAS,endPoint=currentPoint)
+        currentShape.draw(PLOT,CANVAS,endPoint=currentPoint, linewidth=THINLINE)
 
         # updates data display
         FrameSetUp.dataDisplay.config(text=currentShape.measure())
@@ -88,7 +92,7 @@ def drag_handler(event):
         # moves the point to the current point
         currentShape.movePoint(movePoint, currentPoint)
         movePoint = currentPoint
-        currentShape.plotShape(PLOT, CANVAS)
+        currentShape.plotShape(PLOT, CANVAS, THINLINE)
 
         # ensures angles and metrics are shown that must be displayed
         if (type(currentShape) == Shape and FrameSetUp.showAnglesButton.cget("text") == "Hide Angles"):
@@ -108,7 +112,7 @@ def drag_handler(event):
         deltaX = currentPoint.getX() - lastPoint.getX()
         deltaY = currentPoint.getY() - lastPoint.getY()
         currentShape.moveShape(deltaX, deltaY)
-        currentShape.plotShape(PLOT, CANVAS)
+        currentShape.plotShape(PLOT, CANVAS, THICKLINE)
 
         # updates data display
         FrameSetUp.dataDisplay.config(text=currentShape.measure())
@@ -120,22 +124,34 @@ def unclick_handler(event):
 
     currentPoint = Point(event.xdata,event.ydata)
 
-    # checks if the user is connecting up a figure
     if (toolMode == "Draw" or toolMode == "Move" or toolMode == "Select"):
-        if (type(currentShape) != Point):
-            for shape in shapeList:
-                if (shape != currentShape and type(shape) != Point and shape.containsPoint(currentPoint)):
-                    currentShape.setEndPoint(shape.getPoint(currentPoint))
+        for shape in shapeList:
+            # changes lines to thin 
+            currentShape.removeShape(CANVAS)
+            currentShape.plotShape(PLOT, CANVAS,THINLINE)
 
-                    newShape(shape)
-                    
-                    #redraw figures so they connect smoothly at point
-                    currentShape.removeShape(CANVAS)
-                    currentShape.plotShape(PLOT, CANVAS)
+            if (shape != currentShape and type(shape) != Point and shape.containsPoint(currentPoint)):
+                currentShape.setEndPoint(shape.getPoint(currentPoint))
 
-                    # updates data display
-                    FrameSetUp.dataDisplay.config(text=currentShape.measure())
-                    FrameSetUp.dataDisplay.update()
+                newShape(shape)
+
+                # updates data display
+                FrameSetUp.dataDisplay.config(text=currentShape.measure())
+                FrameSetUp.dataDisplay.update()
+    
+    # ensures selected shapes are still selected and thick
+    if (toolMode == "Select"):
+        currentShape.removeShape(CANVAS)
+        currentShape.plotShape(PLOT, CANVAS,THICKLINE)
+
+        if (type(currentShape) == Shape and currentShape.isClosedFigure()):
+            FrameSetUp.saveFigureButton.grid(row=6, column=3,padx=FrameSetUp.PADX,pady=FrameSetUp.PADY)
+        else:
+            FrameSetUp.saveFigureButton.grid_forget()
+
+    else:
+        currentShape = None
+
 
     # ensures angles and metrics are shown that must be displayed
     if (type(currentShape) == Shape and FrameSetUp.showAnglesButton.cget("text") == "Hide Angles"):
@@ -177,7 +193,7 @@ def newBasicShape(startPoint):
             ACHIEVEMENTSDICT["createPoint"].showAchievement()
 
         shape =startPoint.copy()
-        shape.plotShape(PLOT,CANVAS)
+        shape.plotShape(PLOT,CANVAS,THICKLINE)
         shapeList.append(shape)
     else:
         # creates lines and circles

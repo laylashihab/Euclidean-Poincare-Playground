@@ -56,16 +56,16 @@ class Point:
             return self
         
     # plots the point
-    def plotShape(self, plot, canvas):
-        self.__plot, = plot.plot(self.__x,self.__y, "o", color="blue")
+    def plotShape(self, plot, canvas, linewidth):
+        self.__plot, = plot.plot(self.__x,self.__y, "o", color="blue", lw = linewidth)
         canvas.draw()
         return self.__plot
 
     # updates value for point and plots
-    def draw(self,plot,canvas,endPoint):
+    def draw(self,plot,canvas,endPoint,linewidth):
         self.removeShape(canvas)
         self.movePoint(self,endPoint)
-        self.plotShape(plot,canvas)
+        self.plotShape(plot,canvas,linewidth)
 
     # removes the plotted point from the canvas
     def removeShape(self,canvas):

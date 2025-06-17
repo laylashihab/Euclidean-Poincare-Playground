@@ -13,10 +13,17 @@ Class dealing with frame details
 Includes setting up the frame and adjusting the frame as users interact with it (such as changing buttons)
 """
 
+# button type colors
+clickedButtonCol = "light grey"
+unclickedButtonCol = "white smoke"
+unavailableButtonCol = "thistle4"
+
+# frame set-up
+frameSize = "600x800"
+figSize = (7, 6)
+
 # updates button colors
 def changeButtonColor(button):
-    clickedButtonCol = "light grey"
-    unclickedButtonCol = "white smoke"
     button.config(bg=clickedButtonCol)
 
     # changes other buttons to other color
@@ -101,6 +108,9 @@ def showMetrics():
 
         showMetricsButton.config(text = "Show Metrics")
 
+def saveFigure():
+    print("figure saved")
+
 # constants to define from Main
 ROOT = None
 PLOT = None
@@ -115,7 +125,7 @@ toolLabel,shapeLabel,operationLabel = None, None, None
 pointButton,lineButton,circleButton= None, None, None
 moveButton,deleteButton,selectButton,drawButton = None,None,None,None
 clearButton,showAnglesButton, showMetricsButton= None, None, None
-achievementsOnButton = None
+achievementsOnButton, saveFigureButton = None, None
 shapeButtonList,operationButtonList = None, None
 
 
@@ -131,16 +141,16 @@ def setUp(Main):
     global pointButton, lineButton,circleButton
     global moveButton,deleteButton,selectButton,drawButton
     global clearButton,showAnglesButton,showMetricsButton
-    global achievementsOnButton
+    global achievementsOnButton,saveFigureButton,openFigureLibraryButton
     global shapeButtonList,operationButtonList
 
     # creating the root TKinter component
     ROOT = Tk()
-    ROOT.geometry("600x700")
+    ROOT.geometry(frameSize)
     ROOT.title('Euclidean Playground')
     
     # the figure that will contain the Canvas
-    FIG = Figure(figsize = (5, 5), dpi = 100, constrained_layout=True)
+    FIG = Figure(figsize = figSize, dpi = 100, constrained_layout=True)
 
     # creates the canvas containing the plot
     CANVAS = FigureCanvasTkAgg(FIG, master = ROOT)  
@@ -174,7 +184,6 @@ def setUp(Main):
     drawButton = Button(toolbar, command = lambda:[changeToolMode("Draw"),changeButtonColor(drawButton)],height = 2, width = 10, text = "Draw")
     showAnglesButton = Button(toolbar, command= lambda: [showAngles()],height = 2, width = 10, text = "Show Angles")
     showMetricsButton = Button(toolbar, command = lambda: [showMetrics()],height = 2, width = 10, text = "Show Metrics")
-    achievementsOnButton = Button(toolbar, command = lambda: [achievementsOnOff(Main)],height = 2, width = 20, text = "Turn Achievements On")
 
     # lists containing buttons that will have coloration
     shapeButtonList = [pointButton,lineButton,circleButton]
@@ -206,8 +215,20 @@ def setUp(Main):
     showAnglesButton.grid(row=5,column = 2,padx=PADX,pady=PADY)
     showMetricsButton.grid(row = 5, column = 3, padx=PADX, pady=PADY)
 
-    #achievements Button
+    # bottom toolbar setup
+    extratools = Frame(ROOT)
+
+    achievementsOnButton = Button(extratools, command = lambda: [achievementsOnOff(Main)],height = 2, width = 20, text = "Turn Achievements On")
+    saveFigureButton = Button(extratools, command= lambda: [saveFigure()], height = 2, width = 10, text = "Save Figure")
+    openFigureLibraryButton = Button(extratools, command= lambda:[], height = 2, width = 20, text = "Open Saved Figure Library")
+
+    #achievements and save figure Buttons
     achievementsOnButton.grid(row = 6, column = 1, columnspan= 2, padx=PADX,pady=PADY)
+    saveFigureButton.grid(row=6, column=3,padx=PADX,pady=PADY)
+    #saveFigureButton.config(bg=unavailableButtonCol)
+    openFigureLibraryButton.grid(row = 6, column = 4, columnspan= 2, padx=PADX,pady=PADY)
+
+    # saved figures library
 
     toolbar.pack()
 
@@ -219,3 +240,6 @@ def setUp(Main):
 
     # data display setup
     dataDisplay.pack()
+
+    extratools.pack()
+    saveFigureButton.grid_forget()

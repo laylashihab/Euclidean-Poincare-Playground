@@ -22,13 +22,13 @@ class Circle:
         pass
 
     # plots the circle and center point in a given plot and updates canvas
-    def plotShape(self, plot, canvas):
+    def plotShape(self, plot, canvas, linewidth):
         if self.__centerPoint != None:
-            self.__circle = patches.Circle((self.__centerPoint.getX(), self.__centerPoint.getY()), radius=self.__radius, edgecolor='black', facecolor = 'None')
+            self.__circle = patches.Circle((self.__centerPoint.getX(), self.__centerPoint.getY()), radius=self.__radius, edgecolor='black', facecolor = 'None', linewidth= linewidth)
 
             #plots circle and radius point
             plot.add_patch(self.__circle)
-            self.__centerPointPlot, = plot.plot(self.__centerPoint.getX(),self.__centerPoint.getY(), "o", color = "blue")
+            self.__centerPointPlot, = plot.plot(self.__centerPoint.getX(),self.__centerPoint.getY(), "o", color = "blue", linewidth=linewidth)
             canvas.draw()
 
     # removes circle and center point associated with the plotted circle
@@ -42,10 +42,10 @@ class Circle:
             canvas.draw()
 
     # updates the plot of the circle with a new endpoint
-    def draw(self, plot,canvas, endPoint):
+    def draw(self, plot,canvas, endPoint,linewidth):
         self.removeShape(canvas)
         self.setEndPoint(endPoint)
-        self.plotShape(plot,canvas)
+        self.plotShape(plot,canvas,linewidth)
 
     # moves the entire shape by a given amount
     def moveShape(self, deltaX, deltaY):

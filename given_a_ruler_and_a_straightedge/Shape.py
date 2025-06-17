@@ -5,6 +5,7 @@ shape and figure are used interchangeably
 """
 
 from Line import *
+from Circle import *
 
 class Shape():
     __components = []
@@ -28,9 +29,9 @@ class Shape():
 
 
     # plots each part of the shape
-    def plotShape(self,plot,canvas):
+    def plotShape(self,plot,canvas, linewidth):
         for component in self.__components:
-            component.plotShape(plot,canvas)
+            component.plotShape(plot,canvas,linewidth)
 
     # removes each part of the shape
     def removeShape(self,canvas):
@@ -42,8 +43,8 @@ class Shape():
         canvas.draw()
 
     # updates the plot of the last component to be added
-    def draw(self,plot,canvas,endPoint):
-        self.__components[-1].draw(plot,canvas,endPoint)
+    def draw(self,plot,canvas,endPoint,linewidth):
+        self.__components[-1].draw(plot,canvas,endPoint,linewidth)
 
     def getStartPoint(self):
         return self.__components[0].getStartPoint()
@@ -77,7 +78,30 @@ class Shape():
     # returns a boolean regarding if the figure is closed 
     # a closed figure has the same starting and ending point
     def isClosedFigure(self):
-        return self.getStartPoint().equals(self.getEndPoint())
+        # checks that each point from a line or circle is connected to another
+
+        # creates a list of all points
+        pointsList = []
+        for component in self.__components:
+            if (type(component)==Line):
+                pointsList.append(component.getStartPoint())
+                pointsList.append(component.getEndPoint())
+            elif type(component)== Circle:
+                pointsList.append(component.getCenterPoint())
+
+        nonUniquePointsList = []
+        for i in range(0, len(pointsList)-1):
+            for j in range(i+1,len(pointsList)):
+                if pointsList[i].equals(pointsList[j]):
+                    nonUniquePointsList.append(pointsList[i])
+                    nonUniquePointsList.append(pointsList[j])
+
+        print(pointsList)
+        print(nonUniquePointsList)
+        if (set(pointsList) == set(nonUniquePointsList)):
+            return True
+        else:
+            return False
 
     
     # gets the exact point of a point in the shape if the point is contained with the shape (removes the epsilon value)
