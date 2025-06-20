@@ -55,6 +55,9 @@ class Point:
         if (self.equals(point)):
             return self
         
+    def isClosedFigure():
+        return False
+    
     # plots the point
     def plotShape(self, plot, canvas, linewidth):
         self.__plot, = plot.plot(self.__x,self.__y, "o", color="blue", lw = linewidth)

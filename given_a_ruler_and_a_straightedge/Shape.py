@@ -88,16 +88,18 @@ class Shape():
                 pointsList.append(component.getEndPoint())
             elif type(component)== Circle:
                 pointsList.append(component.getCenterPoint())
-
+                
+        # initializes a list to hold any point that has two or more shapes associated with it
         nonUniquePointsList = []
+
+        # compares each point with every other point
         for i in range(0, len(pointsList)-1):
             for j in range(i+1,len(pointsList)):
                 if pointsList[i].equals(pointsList[j]):
                     nonUniquePointsList.append(pointsList[i])
                     nonUniquePointsList.append(pointsList[j])
 
-        print(pointsList)
-        print(nonUniquePointsList)
+        # if there are NO unique points, the figure is closed
         if (set(pointsList) == set(nonUniquePointsList)):
             return True
         else:

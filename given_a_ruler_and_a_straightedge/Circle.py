@@ -87,6 +87,9 @@ class Circle:
     def getNumComponents(self):
         return 1
     
+    def isClosedFigure(self):
+        return True
+    
     # checks if a given point is the center point
     # if so, marks that the center will be move (radius will not be adjusted)
     def containsPoint(self, point):

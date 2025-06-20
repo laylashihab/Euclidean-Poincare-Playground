@@ -22,18 +22,17 @@ def click_handler(event):
     global shapeList,foundPoint,currentPoint,currentShape,mouseDown,movePoint
 
     currentPoint = Point(event.xdata, event.ydata)
-    foundPoint = False
 
     mouseDown = True
 
     # checks if the point where the user clicked is a point in a shape
     for shape in shapeList:
         if shape.containsPoint(currentPoint):
-            foundPoint = True
             if toolMode == "Move":
                 # sets the point to move as the point the user is clikcing on
                 movePoint = currentPoint
                 currentShape = shape
+                return
             elif toolMode == "Draw":
                 currentPoint = shape.getPoint(currentPoint)
                 currentShape = newBasicShape(currentPoint)
@@ -43,31 +42,37 @@ def click_handler(event):
             elif toolMode == "Delete":
                 shape.removeShape(CANVAS)
                 shapeList.remove(shape)
+                return
             elif toolMode == "Select":
-                currentShape = shape   
+                if (currentShape != None):
+                    currentShape.removeShape(CANVAS)
+                    currentShape.plotShape(PLOT, CANVAS,THINLINE)
+
+                currentShape = shape  
+
+                currentShape.removeShape(CANVAS)
+                currentShape.plotShape(PLOT, CANVAS,THICKLINE)
+                return
+ 
          
     # if the user is clicking on a clear space of the CANVAS
-    if (foundPoint == False):
-        if (toolMode == "Draw"):
-            currentShape = newBasicShape(currentPoint)
+    if (toolMode == "Draw"):
+        currentShape = newBasicShape(currentPoint)
 
-            # updates data display
-            FrameSetUp.dataDisplay.config(text=currentShape.measure())
-            FrameSetUp.dataDisplay.update()
-        else:
-            currentShape = None    
+        # updates data display
+        FrameSetUp.dataDisplay.config(text=currentShape.measure())
+        FrameSetUp.dataDisplay.update()
+    else:
+        currentShape = None    
 
 def drag_handler(event):
-    if not event.inaxes or not mouseDown:
-        return
-    
     global shapeType,movePoint,currentShape,currentPoint,shapeList,toolMode
 
+    if not event.inaxes or not mouseDown or currentShape == None:
+        return
+    
     lastPoint = currentPoint.copy()
     currentPoint = Point(event.xdata,event.ydata)
-
-    if currentShape == None:
-        return
 
     if toolMode == "Draw":
         # if the user is trying to draw a point but drags instead, creates a line
@@ -144,11 +149,10 @@ def unclick_handler(event):
         currentShape.removeShape(CANVAS)
         currentShape.plotShape(PLOT, CANVAS,THICKLINE)
 
-        if (type(currentShape) == Shape and currentShape.isClosedFigure()):
+        if (currentShape.isClosedFigure()):
             FrameSetUp.saveFigureButton.grid(row=6, column=3,padx=FrameSetUp.PADX,pady=FrameSetUp.PADY)
         else:
             FrameSetUp.saveFigureButton.grid_forget()
-
     else:
         currentShape = None
 
@@ -193,7 +197,7 @@ def newBasicShape(startPoint):
             ACHIEVEMENTSDICT["createPoint"].showAchievement()
 
         shape =startPoint.copy()
-        shape.plotShape(PLOT,CANVAS,THICKLINE)
+        shape.plotShape(PLOT,CANVAS,THINLINE)
         shapeList.append(shape)
     else:
         # creates lines and circles
@@ -212,7 +216,7 @@ def newShape(newShape):
     if (ACHIEVEMENTSDICT["createAngle"].isComplete() == False and type(newShape) == Line and type(currentShape) == Line and MAIN.achievementsOn):
         ACHIEVEMENTSDICT["createAngle"].showAchievement()
 
-    numComponents = 1 + newShape.getNumComponents()
+    numComponents = currentShape.getNumComponents() + newShape.getNumComponents()
     shapes = [newShape, currentShape]
 
     if (newShape in shapeList):

@@ -100,6 +100,9 @@ class Line:
     def getNumComponents(self):
         return 1
     
+    def isClosedFigure(self):
+        return False
+    
     # checks if either endpoint equals a given point
     # if so, forces the endPoint to be the given point (line itself doesn't change)
     def containsPoint(self, point):
