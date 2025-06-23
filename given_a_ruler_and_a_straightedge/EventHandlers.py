@@ -130,11 +130,17 @@ def unclick_handler(event):
     currentPoint = Point(event.xdata,event.ydata)
 
     if (toolMode == "Draw" or toolMode == "Move" or toolMode == "Select"):
+        # checks if the user is connecting a figure back to itself and cleans up point location
+        if currentShape.containsPoint(currentPoint):
+            currentShape.setEndPoint(currentShape.getPoint(currentPoint))
+
+        # checks if user is connecting the figure to another figure
         for shape in shapeList:
             # changes lines to thin 
             currentShape.removeShape(CANVAS)
             currentShape.plotShape(PLOT, CANVAS,THINLINE)
 
+            # checks if two shapes are being combined
             if (shape != currentShape and type(shape) != Point and shape.containsPoint(currentPoint)):
                 currentShape.setEndPoint(shape.getPoint(currentPoint))
 
