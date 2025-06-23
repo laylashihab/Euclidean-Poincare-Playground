@@ -33,6 +33,26 @@ class Shape():
         for component in self.__components:
             component.plotShape(plot,canvas,linewidth)
 
+    def plotShapeScaledPlotsize(self,plot,canvas,oldPlotSize, newPlotSize):
+        # calculates scalefactor
+        scaleFactor = newPlotSize / oldPlotSize
+
+        for component in self.__components:
+            if (type(component) == Line):
+                startPoint = Point(component.getStartPoint().getX() *scaleFactor,component.getStartPoint().getY() *scaleFactor)
+                startPoint.setPointSize(Point.getDPS()*scaleFactor)
+                endPoint = Point(component.getEndPoint().getX()*scaleFactor,component.getEndPoint().getY() *scaleFactor)
+                endPoint.setPointSize(Point.getDPS()*scaleFactor)
+                component.setStartPoint(startPoint)
+                component.setEndPoint(endPoint)
+                component.plotShape(plot,canvas,1)
+            else:
+                centerPoint = Point(component.getCenterPoint().getX() *scaleFactor,component.getCenterPoint().getY() *scaleFactor)
+                centerPoint.setPointSize(Point.getDPS()*scaleFactor)
+                component.setCenterPoint(centerPoint)
+                component.setRadius(component.getRadius() *scaleFactor)
+                component.plotShape(plot,canvas,1)
+
     # removes each part of the shape
     def removeShape(self,canvas):
         for component in self.__components:
@@ -231,3 +251,4 @@ class Shape():
 
     def getArcPlotLists(self):
         return self.__arcPlotLists
+    

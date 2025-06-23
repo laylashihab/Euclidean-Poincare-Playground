@@ -5,6 +5,8 @@ from Achievement import *
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg)
 import tkinter as tk
+import copy
+
 import EventHandlers
 
 """"
@@ -116,7 +118,6 @@ def showMetrics():
 def saveFigure(shape):
     global savedFiguresList
     savedFiguresList.append(shape)
-    print("figure saved")
 
 def openFigureLibrary():
     global savedFiguresList
@@ -124,9 +125,7 @@ def openFigureLibrary():
     # sets up the figure library window
     LIBRARYROOT = tk.Toplevel(ROOT)
     LIBRARYROOT.title("Figure Library")
-    plotsize = 50
-
-    fig = Figure(figsize = figSize, dpi = 100, constrained_layout=True)
+    plotsize = 100
 
     # adds all figures to a component
     num = 1
@@ -135,6 +134,8 @@ def openFigureLibrary():
 
         label = tk.Label(item,text = str(num))
         num +=1
+
+        fig = Figure(figsize = figSize, dpi = 100, constrained_layout=True)
 
         # creates the canvas containing the plot
         canvas = FigureCanvasTkAgg(fig, master = item)  
@@ -147,13 +148,16 @@ def openFigureLibrary():
         plot.set_ylim(0,plotsize)
         plot.set_axis_off()
 
-        figure.plotShape(plot,canvas,1)
-
         # packs all components
         label.grid(row = 0, column = 0,padx=PADX, pady=PADY)
         canvas.get_tk_widget().grid(row=0,column=1,padx=PADX, pady=PADY)
         item.pack()
-
+        
+        # ensures original object is not mutated
+        figure = copy.deepcopy(figure)
+        
+        # plots the shape in scale to the figure library plotsize
+        figure.plotShapeScaledPlotsize(plot,canvas,oldPlotSize = PLOTSIZE, newPlotSize=plotsize)
 
 # constants
 ROOT = None

@@ -7,11 +7,15 @@ class Point:
     __x = 0
     __y = 0
     __plot = None
+    __pointSize = None
     epsilon = 0
+    dps = 0 # default point size
+
 
     def __init__(self, x = 0, y=0):
         self.__x = x
         self.__y = y
+        self.__pointSize = Point.dps
 
     # getters and setters
     def setX(self, x):
@@ -35,6 +39,14 @@ class Point:
     def setEpsilon(newEpsilon):
         Point.epsilon = newEpsilon
 
+    def setDPS(dps):
+        Point.dps = dps
+
+    def getDPS():
+        return Point.dps
+
+    def setPointSize(self,newPointSize):
+        self.__pointSize = newPointSize
     
     # checks if the point is equal to a given point to within some epsilon value
     def equals(self, otherPoint):
@@ -60,7 +72,7 @@ class Point:
     
     # plots the point
     def plotShape(self, plot, canvas, linewidth):
-        self.__plot, = plot.plot(self.__x,self.__y, "o", color="blue", lw = linewidth)
+        self.__plot = plot.scatter(self.__x,self.__y, color="blue", s=self.__pointSize)
         canvas.draw()
         return self.__plot
 

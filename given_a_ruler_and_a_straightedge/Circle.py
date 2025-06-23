@@ -28,7 +28,7 @@ class Circle:
 
             #plots circle and radius point
             plot.add_patch(self.__circle)
-            self.__centerPointPlot, = plot.plot(self.__centerPoint.getX(),self.__centerPoint.getY(), "o", color = "blue", linewidth=linewidth)
+            self.__centerPointPlot = self.__centerPoint.plotShape(plot,canvas,linewidth)
             canvas.draw()
 
     # removes circle and center point associated with the plotted circle
@@ -60,6 +60,9 @@ class Circle:
     # mutators and accessors
     def setStartPoint(self, centerPoint):
         self.__centerPoint = centerPoint
+
+    def setCenterPoint(self, centerPoint):
+        self.__centerPoint = centerPoint
     
     def movePoint(self, point, newPoint):
         self.setEndPoint(newPoint)
@@ -71,6 +74,9 @@ class Circle:
             self.__centerPoint = endPoint
         else:
             self.__radius = math.sqrt(((self.__centerPoint.getX()-endPoint.getX()))**2+(self.__centerPoint.getY()-endPoint.getY())**2)
+
+    def setRadius(self,radius):
+        self.__radius = radius
 
     def getCenterPoint(self):
         return self.__centerPoint

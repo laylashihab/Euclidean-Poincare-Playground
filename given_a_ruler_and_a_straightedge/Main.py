@@ -43,10 +43,14 @@ class Main:
         self.PADX = 10
         self.PADY = 5
         self.PLOTSIZE = 400
+        self.DEFAULTPOINTSIZE = 50
 
         # set up the frame and eventHandlers
         FrameSetUp.setUp(self)
         EventHandlers.bindEvents(self)
+
+        # sets dps and lw
+        Point.setDPS(self.DEFAULTPOINTSIZE)
         
     def run(self):
         FrameSetUp.ROOT.mainloop()
