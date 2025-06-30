@@ -48,12 +48,6 @@ class Line:
 
             canvas.draw()
 
-    # updates the plot of the shape to a new endpoint
-    def draw(self,plot,canvas,endPoint,linewidth):
-        self.removeShape(canvas)
-        self.setEndPoint(endPoint)
-        self.plotShape(plot,canvas,linewidth)
-
     # moves the entire line by a given amount
     def moveShape(self, deltaX,deltaY):
         newStart = Point(self.getStartPoint().getX() + deltaX, self.getStartPoint().getY() + deltaY)
@@ -77,9 +71,12 @@ class Line:
         self.__measurementText = []
         canvas.draw()
 
-    # moves the endPoint to a new location
+    # moves the given point to a new location
     def movePoint(self,point, newPoint):
-        self.setEndPoint(newPoint)
+        if self.getEndPoint() == point:
+            self.setEndPoint(newPoint)
+        else:
+            self.setStartPoint(newPoint)
 
     # mutators and accessors
     def setStartPoint(self, startPoint):
@@ -115,6 +112,15 @@ class Line:
             self.setEndPoint(temp)
             return True
         elif point.equals(self.__endPoint):
+            return True
+        else:
+            return False
+        
+    # checks if the exact given point is contained in the figure
+    def exactContainsPoint(self,point):
+        if (self.getStartPoint().getX() == point.getX() and self.getStartPoint().getY() == point.getY()):
+            return True
+        elif (self.getEndPoint().getX() == point.getX() and self.getEndPoint().getY() == point.getY()):
             return True
         else:
             return False
@@ -165,5 +171,11 @@ class Line:
             dx = 0.00000001
         returnString = "Length: {0}\nSlope: {1}".format(round(self.getLength(),3),round(dy/dx,3))
         return returnString
+    
+    def print(self):
+        string = "Line: " + str(self)
+        string += "\n\t Start Point: " + str(self.getStartPoint())
+        string += "\n\t End Point: " + str(self.getEndPoint())
+        print(string)
 
         

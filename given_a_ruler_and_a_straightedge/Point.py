@@ -107,3 +107,7 @@ class Point:
     # provides measurements for the point
     def measure(self):
         return "{0}, {1}".format(round(self.getX(),3),round(self.getY(),3))
+    
+    def print(self):
+        string = "Point: " + str(self)
+        print(string)

@@ -6,6 +6,8 @@ shape and figure are used interchangeably
 
 from Line import *
 from Circle import *
+import copy
+
 
 class Shape():
     __components = []
@@ -33,11 +35,15 @@ class Shape():
         for component in self.__components:
             component.plotShape(plot,canvas,linewidth)
 
+    # plots a scaled version of the shape
     def plotShapeScaledPlotsize(self,plot,canvas,oldPlotSize, newPlotSize):
         # calculates scalefactor
         scaleFactor = newPlotSize / oldPlotSize
 
-        for component in self.__components:
+        # ensures that the shape is not mutated
+        figure = copy.deepcopy(self)
+
+        for component in figure.__components:
             if (type(component) == Line):
                 startPoint = Point(component.getStartPoint().getX() *scaleFactor,component.getStartPoint().getY() *scaleFactor)
                 startPoint.setPointSize(Point.getDPS()*scaleFactor)
@@ -62,10 +68,6 @@ class Shape():
 
         canvas.draw()
 
-    # updates the plot of the last component to be added
-    def draw(self,plot,canvas,endPoint,linewidth):
-        self.__components[-1].draw(plot,canvas,endPoint,linewidth)
-
     def getStartPoint(self):
         return self.__components[0].getStartPoint()
 
@@ -83,10 +85,10 @@ class Shape():
             component.moveShape(deltaX,deltaY)
 
     # moves a particular point in the shape and updates the components that use that point 
-    def movePoint(self, point, newPoint):
+    def movePoint(self, pointToMove, newPoint):
         for component in self.__components:
-            if (component.containsPoint(point)):
-                component.movePoint(point, newPoint)
+            if (component.exactContainsPoint(pointToMove)):
+                component.movePoint(pointToMove, newPoint)
 
     # checks if any component contains a given point
     def containsPoint(self,point):
@@ -217,9 +219,13 @@ class Shape():
         return angleList
 
     def hideAngles(self,canvas):
-        for arc in self.__arcPlotLists:
+        # iterating over a copy of the list reduces risk of unpredictable behavior
+        for arc in self.__arcPlotLists[:]:
+            self.__arcPlotLists.remove(arc)
             arc.remove()
-        self.__arcPlotLists = []
+
+        if len(self.__arcPlotLists) != 0:
+            print("Failed to remove all angle plots")
 
         canvas.draw()
 
@@ -251,4 +257,10 @@ class Shape():
 
     def getArcPlotLists(self):
         return self.__arcPlotLists
+    
+    def print(self):
+        print("Components: " + str(self.__numComponents) + "\tNum Arc Plots: " + str(len(self.__arcPlotLists)))
+        for component in self.__components:
+            print("\t",end="")
+            component.print()
     

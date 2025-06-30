@@ -5,7 +5,6 @@ from Achievement import *
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg)
 import tkinter as tk
-import copy
 
 import EventHandlers
 
@@ -18,6 +17,11 @@ Includes setting up the frame and adjusting the frame as users interact with it 
 clickedButtonCol = "light grey"
 unclickedButtonCol = "white smoke"
 unavailableButtonCol = "thistle4"
+
+# other colors
+backgroundCol = "lavender"
+textCol = "black"
+buttonTextCol = "black"
 
 # frame set-up
 frameSize = "600x800"
@@ -119,8 +123,13 @@ def saveFigure(shape):
     global savedFiguresList
     savedFiguresList.append(shape)
 
+def addFigure(figure):
+    figure.plotShape(PLOT, CANVAS, 1)
+    EventHandlers.shapeList.append(figure)
+    EventHandlers.currentShape = None
+
 def openFigureLibrary():
-    global savedFiguresList
+    global savedFiguresList, figureButtonList
 
     # sets up the figure library window
     LIBRARYROOT = tk.Toplevel(ROOT)
@@ -148,16 +157,26 @@ def openFigureLibrary():
         plot.set_ylim(0,plotsize)
         plot.set_axis_off()
 
+        # creates a button associated with the plot
+        b = tk.Button(item, command = lambda: [addFigure(figure)],height = 2, width = 10, text = "Add to Canvas")
+        figureButtonList.append(b)
+
         # packs all components
         label.grid(row = 0, column = 0,padx=PADX, pady=PADY)
         canvas.get_tk_widget().grid(row=0,column=1,padx=PADX, pady=PADY)
+        b.grid(row = 0, column =2,padx=PADX, pady=PADY)
+
         item.pack()
-        
-        # ensures original object is not mutated
-        figure = copy.deepcopy(figure)
-        
+                
         # plots the shape in scale to the figure library plotsize
         figure.plotShapeScaledPlotsize(plot,canvas,oldPlotSize = PLOTSIZE, newPlotSize=plotsize)
+
+def styleButton(button):
+    button.config(fg=buttonTextCol)
+
+
+def styleLabel(label):
+    label.config(fg=textCol, bg=backgroundCol)
 
 # constants
 ROOT = None
@@ -178,6 +197,7 @@ clearButton,showAnglesButton, showMetricsButton= None, None, None
 achievementsOnButton, saveFigureButton = None, None
 shapeButtonList,operationButtonList = None, None
 savedFiguresList =[]
+figureButtonList = []
 
 def setUp(Main):
     # constants
@@ -198,6 +218,7 @@ def setUp(Main):
     ROOT = tk.Tk()
     ROOT.geometry(frameSize)
     ROOT.title('Euclidean Playground')
+    ROOT.config(bg=backgroundCol)
     
     # the figure that will contain the Canvas
     FIG = Figure(figsize = figSize, dpi = 100, constrained_layout=True)
@@ -216,7 +237,7 @@ def setUp(Main):
     # buttons and labels
     dataDisplay = tk.Label(ROOT, text="")
     descriptLabel = tk.Label(ROOT, text="You have been given a straightedge and a compass")
-    TOOLBAR = tk.Frame(ROOT)
+    TOOLBAR = tk.Frame(ROOT, bg=backgroundCol)
     toolLabel = tk.Label(TOOLBAR, text="TOOLBAR")
     shapeLabel = tk.Label(TOOLBAR, text="Shape Library")
     operationLabel = tk.Label(TOOLBAR, text="Operations")
@@ -231,9 +252,28 @@ def setUp(Main):
     showAnglesButton = tk.Button(TOOLBAR, command= lambda: [showAngles()],height = 2, width = 10, text = "Show Angles")
     showMetricsButton = tk.Button(TOOLBAR, command = lambda: [showMetrics()],height = 2, width = 10, text = "Show Metrics")
 
+    # bottom TOOLBAR setup
+    EXTRATOOLS = tk.Frame(ROOT,bg=backgroundCol)
+
+    achievementsOnButton = tk.Button(EXTRATOOLS, command = lambda: [achievementsOnOff(Main)],height = 2, width = 20, text = "Turn Achievements On")
+    saveFigureButton = tk.Button(EXTRATOOLS, command= lambda: [saveFigure(EventHandlers.currentShape)], height = 2, width = 10, text = "Save Figure")
+    openFigureLibraryButton = tk.Button(EXTRATOOLS, command= lambda:[openFigureLibrary()], height = 2, width = 20, text = "Open Saved Figure Library")
+
     # lists containing buttons that will have coloration
     shapeButtonList = [pointButton,lineButton,circleButton]
     operationButtonList = [moveButton,deleteButton,selectButton,drawButton]
+
+    # list containing all button components
+    buttons = [pointButton,lineButton,circleButton,clearButton,moveButton,deleteButton,selectButton,drawButton,showAnglesButton,
+               showMetricsButton,achievementsOnButton,saveFigureButton,openFigureLibraryButton]
+    # list containing all label components
+    labels = [dataDisplay,descriptLabel,toolLabel,shapeLabel,operationLabel]
+
+    # styles all buttons and labels
+    for button in buttons:
+        styleButton(button)
+    for label in labels:
+        styleLabel(label)
 
     # description setup
     descriptLabel.pack()
@@ -261,13 +301,6 @@ def setUp(Main):
     showAnglesButton.grid(row=5,column = 2,padx=PADX,pady=PADY)
     showMetricsButton.grid(row = 5, column = 3, padx=PADX, pady=PADY)
 
-    # bottom TOOLBAR setup
-    extratools = tk.Frame(ROOT)
-
-    achievementsOnButton = tk.Button(extratools, command = lambda: [achievementsOnOff(Main)],height = 2, width = 20, text = "Turn Achievements On")
-    saveFigureButton = tk.Button(extratools, command= lambda: [saveFigure(EventHandlers.currentShape)], height = 2, width = 10, text = "Save Figure")
-    openFigureLibraryButton = tk.Button(extratools, command= lambda:[openFigureLibrary()], height = 2, width = 20, text = "Open Saved Figure Library")
-
     #achievements and save figure Buttons
     achievementsOnButton.grid(row = 6, column = 1, columnspan= 2, padx=PADX,pady=PADY)
     saveFigureButton.grid(row=6, column=3,padx=PADX,pady=PADY)
@@ -283,5 +316,5 @@ def setUp(Main):
     # data display setup
     dataDisplay.pack()
 
-    extratools.pack()
+    EXTRATOOLS.pack()
     saveFigureButton.grid_forget()

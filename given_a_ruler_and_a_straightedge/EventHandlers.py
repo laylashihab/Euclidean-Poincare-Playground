@@ -19,42 +19,59 @@ def click_handler(event):
     if (not event.inaxes):
         return
     
-    global shapeList,foundPoint,currentPoint,currentShape,mouseDown,movePoint
+    global shapeList,currentPoint,currentShape,mouseDown,movePoint,toolMode
 
     currentPoint = Point(event.xdata, event.ydata)
 
     mouseDown = True
 
+    # hides the angle and metrics plots
+    if (currentShape != None):
+        if (type(currentShape) == Shape): 
+            currentShape.hideAngles(CANVAS)
+        currentShape.hideMetrics(CANVAS)
+    
     # checks if the point where the user clicked is a point in a shape
     for shape in shapeList:
         if shape.containsPoint(currentPoint):
-            if toolMode == "Move":
-                # sets the point to move as the point the user is clikcing on
-                movePoint = currentPoint
-                currentShape = shape
-                return
-            elif toolMode == "Draw":
-                currentPoint = shape.getPoint(currentPoint)
-                currentShape = newBasicShape(currentPoint)
+            match toolMode:
+                case "Move":
+                    currentShape = shape
 
-                newShape(shape)
-                return
-            elif toolMode == "Delete":
-                shape.removeShape(CANVAS)
-                shapeList.remove(shape)
-                return
-            elif toolMode == "Select":
-                if (currentShape != None):
+                    # sets the point to move as the exact point from the figure
+                    movePoint = shape.getPoint(currentPoint)
+
+                    return
+                case "Draw":
+                    point = shape.getPoint(currentPoint)
+                    new = newBasicShape(point)
+
+                    currentShape = newShape(shape, new)
+
+                    return
+                case "Delete":
+
+                    shape.removeShape(CANVAS)
+                    shapeList.remove(shape)
+
+                    # updates data display
+                    FrameSetUp.dataDisplay.config(text="")
+                    FrameSetUp.dataDisplay.update()
+
+                    return
+                
+                case "Select":
+                    if (currentShape != None):
+                        currentShape.removeShape(CANVAS)
+                        currentShape.plotShape(PLOT, CANVAS,THINLINE)
+
+                    currentShape = shape  
+
+                    #plots selected shape w a thick line
                     currentShape.removeShape(CANVAS)
-                    currentShape.plotShape(PLOT, CANVAS,THINLINE)
+                    currentShape.plotShape(PLOT, CANVAS,THICKLINE)
+                    return
 
-                currentShape = shape  
-
-                currentShape.removeShape(CANVAS)
-                currentShape.plotShape(PLOT, CANVAS,THICKLINE)
-                return
- 
-         
     # if the user is clicking on a clear space of the CANVAS
     if (toolMode == "Draw"):
         currentShape = newBasicShape(currentPoint)
@@ -66,7 +83,7 @@ def click_handler(event):
         currentShape = None    
 
 def drag_handler(event):
-    global shapeType,movePoint,currentShape,currentPoint,shapeList,toolMode
+    global shapeType,currentShape,currentPoint,shapeList,toolMode,movePoint
 
     if not event.inaxes or not mouseDown or currentShape == None:
         return
@@ -74,100 +91,90 @@ def drag_handler(event):
     lastPoint = currentPoint.copy()
     currentPoint = Point(event.xdata,event.ydata)
 
-    if toolMode == "Draw":
-        # if the user is trying to draw a point but drags instead, creates a line
-        if shapeType == "Point":
+    match toolMode:
+        case "Draw":
+            # if the user is trying to draw a point but drags instead, creates a line
+            if shapeType == "Point":
+                currentShape.removeShape(CANVAS)
+                if (currentShape in shapeList):
+                    shapeList.remove(currentShape)
+                FrameSetUp.changeShape("Line")
+                FrameSetUp.changeButtonColor(FrameSetUp.lineButton)
+                currentShape = newBasicShape(startPoint=currentPoint)
+            else:
+                currentShape.removeShape(CANVAS)
+                currentShape.setEndPoint(currentPoint)
+                currentShape.plotShape(PLOT,CANVAS,THINLINE)
+
+        case "Move":
             currentShape.removeShape(CANVAS)
-            if (currentShape in shapeList):
-                shapeList.remove(currentShape)
-            FrameSetUp.changeShape("Line")
-            FrameSetUp.changeButtonColor(FrameSetUp.lineButton)
-            currentShape = newBasicShape(startPoint=currentPoint)
 
-        currentShape.draw(PLOT,CANVAS,endPoint=currentPoint, linewidth=THINLINE)
+            currentShape.movePoint(movePoint, currentPoint)
+            movePoint = currentPoint #cmovepoint represents the point that will be moving/moved
 
-        # updates data display
-        FrameSetUp.dataDisplay.config(text=currentShape.measure())
-        FrameSetUp.dataDisplay.update()
+            currentShape.plotShape(PLOT, CANVAS, THINLINE)
 
-    elif toolMode == "Move":
-        # removes the current drawing of the line
-        currentShape.removeShape(CANVAS)
-
-        # moves the point to the current point
-        currentShape.movePoint(movePoint, currentPoint)
-        movePoint = currentPoint
-        currentShape.plotShape(PLOT, CANVAS, THINLINE)
-
-        # ensures angles and metrics are shown that must be displayed
-        if (type(currentShape) == Shape and FrameSetUp.showAnglesButton.cget("text") == "Hide Angles"):
-            currentShape.showAngles(PLOT,CANVAS)
-        elif (FrameSetUp.showMetricsButton.cget("text") == "Hide Metrics"):
-            currentShape.showMetrics(PLOT,CANVAS)
-
-        # updates data display
-        FrameSetUp.dataDisplay.config(text=currentShape.measure())
-        FrameSetUp.dataDisplay.update()
-
-    # moves the entire shape
-    elif (toolMode == "Select"):
-        if (type(currentShape) == Shape):
-            currentShape.hideAngles(CANVAS)
-        currentShape.removeShape(CANVAS)
-        deltaX = currentPoint.getX() - lastPoint.getX()
-        deltaY = currentPoint.getY() - lastPoint.getY()
-        currentShape.moveShape(deltaX, deltaY)
-        currentShape.plotShape(PLOT, CANVAS, THICKLINE)
-
-        # updates data display
-        FrameSetUp.dataDisplay.config(text=currentShape.measure())
-        FrameSetUp.dataDisplay.update()
+        # moves the entire shape
+        case  "Select":
+            currentShape.removeShape(CANVAS)
+            deltaX = currentPoint.getX() - lastPoint.getX()
+            deltaY = currentPoint.getY() - lastPoint.getY()
+            currentShape.moveShape(deltaX, deltaY)
+            currentShape.plotShape(PLOT, CANVAS, THICKLINE)
 
 def unclick_handler(event):
-    global currentPoint,currentShape,mouseDown
+    global currentPoint,currentShape,mouseDown,toolMode
     mouseDown = False
 
     currentPoint = Point(event.xdata,event.ydata)
 
+    if currentShape == None:
+        return
+    
+    # updates data display
+    FrameSetUp.dataDisplay.config(text=currentShape.measure())
+    FrameSetUp.dataDisplay.update()
+            
     if (toolMode == "Draw" or toolMode == "Move" or toolMode == "Select"):
-        # checks if the user is connecting a figure back to itself and cleans up point location
-        if currentShape.containsPoint(currentPoint):
-            currentShape.setEndPoint(currentShape.getPoint(currentPoint))
+        if (toolMode == "Draw"):
+            # checks if the user is connecting a figure back to itself and cleans up point location
+            if currentShape.containsPoint(currentPoint):
+                currentShape.setEndPoint(currentShape.getPoint(currentPoint))
+
+                # plots the "snapped" position
+                currentShape.removeShape(CANVAS)
+                currentShape.plotShape(PLOT, CANVAS,THINLINE)
 
         # checks if user is connecting the figure to another figure
         for shape in shapeList:
-            # changes lines to thin 
-            currentShape.removeShape(CANVAS)
-            currentShape.plotShape(PLOT, CANVAS,THINLINE)
+            if (shape != currentShape):
+                # checks if two shapes are being combined
+                if shape.containsPoint(currentPoint):
+                    currentShape.setEndPoint(shape.getPoint(currentPoint))
 
-            # checks if two shapes are being combined
-            if (shape != currentShape and type(shape) != Point and shape.containsPoint(currentPoint)):
-                currentShape.setEndPoint(shape.getPoint(currentPoint))
+                    currentShape = newShape(currentShape, shape)
 
-                newShape(shape)
+                    # updates data display
+                    FrameSetUp.dataDisplay.config(text=currentShape.measure())
+                    FrameSetUp.dataDisplay.update()
+                
+                # changes lines to thin for all other shapes
+                currentShape.removeShape(CANVAS)
+                currentShape.plotShape(PLOT, CANVAS,THINLINE)
 
-                # updates data display
-                FrameSetUp.dataDisplay.config(text=currentShape.measure())
-                FrameSetUp.dataDisplay.update()
+    # ensures angles and metrics are shown that must be displayed
+    if (type(currentShape) == Shape and FrameSetUp.showAnglesButton.cget("text") == "Hide Angles"):
+        currentShape.showAngles(PLOT,CANVAS)
+    if (currentShape != None and FrameSetUp.showMetricsButton.cget("text") == "Hide Metrics"):
+        currentShape.showMetrics(PLOT, CANVAS)
     
     # ensures selected shapes are still selected and thick
     if (toolMode == "Select"):
         currentShape.removeShape(CANVAS)
         currentShape.plotShape(PLOT, CANVAS,THICKLINE)
-
-        if (currentShape.isClosedFigure()):
-            FrameSetUp.saveFigureButton.grid(row=6, column=3,padx=FrameSetUp.PADX,pady=FrameSetUp.PADY)
-        else:
-            FrameSetUp.saveFigureButton.grid_forget()
+        FrameSetUp.saveFigureButton.grid(row=6, column=3,padx=FrameSetUp.PADX,pady=FrameSetUp.PADY)
     else:
-        currentShape = None
-
-
-    # ensures angles and metrics are shown that must be displayed
-    if (type(currentShape) == Shape and FrameSetUp.showAnglesButton.cget("text") == "Hide Angles"):
-        currentShape.showAngles(PLOT,CANVAS)
-    if (FrameSetUp.showMetricsButton.cget("text") == "Hide Metrics"):
-        currentShape.showMetrics(PLOT, CANVAS)
+        FrameSetUp.saveFigureButton.grid_forget()
 
     # achievements for creating a circle or line
     if (MAIN.achievementsOn and ACHIEVEMENTSDICT["createCircle"].isComplete() == False and type(currentShape) == Circle):
@@ -193,7 +200,7 @@ def unclick_handler(event):
 # for points, creates a new point object
 # for lines and circles, sets the endpoint and startpoint to the given start point 
 def newBasicShape(startPoint):
-    global CANVAS,PLOT
+    global shapeType,shapeList
 
     # creates a new point
     if (shapeType == "Point"):
@@ -214,39 +221,42 @@ def newBasicShape(startPoint):
 
     return shape
 
-# creates a new Shape type shape
-def newShape(newShape):
-    global currentShape
-
+# creates a new Shape type shape with two Shape objects
+def newShape(oldShape, newShape):
+    global shapeList
     # create Angle achievement
-    if (ACHIEVEMENTSDICT["createAngle"].isComplete() == False and type(newShape) == Line and type(currentShape) == Line and MAIN.achievementsOn):
+    if (ACHIEVEMENTSDICT["createAngle"].isComplete() == False and type(newShape) == Line and type(oldShape) == Line and MAIN.achievementsOn):
         ACHIEVEMENTSDICT["createAngle"].showAchievement()
 
-    numComponents = currentShape.getNumComponents() + newShape.getNumComponents()
-    shapes = [newShape, currentShape]
+    numComponents = oldShape.getNumComponents() + newShape.getNumComponents()
+    shapes = [oldShape,newShape]
 
+    #removes old shapes from shape list
     if (newShape in shapeList):
         shapeList.remove(newShape)
-    if (currentShape in shapeList):
-        shapeList.remove(currentShape)
+    if (oldShape in shapeList):
+        shapeList.remove(oldShape)
 
     # gathers all arcplots
     arcPlots = []
     if (type(newShape) == Shape):
         arcPlots.extend(newShape.getArcPlotLists())
-    if (type(currentShape) == Shape):
-        arcPlots.extend(currentShape.getArcPlotLists())
-    currentShape = Shape(shapes, numComponents, arcPlots)
-    shapeList.append(currentShape)
+    if (type(oldShape) == Shape):
+        arcPlots.extend(oldShape.getArcPlotLists())
+
+    # creates new shape object
+    newlyCreatedShape = Shape(shapes, numComponents, arcPlots)
+    shapeList.append(newlyCreatedShape)
+    return newlyCreatedShape
 
 # class variables
 currentShape = None
 currentPoint = None
-movePoint = None
 mouseDown = False
 shapeType = "Point"
 shapeList = [] 
 toolMode = "Draw"
+movePoint = None
 
 # constant variables to set from Main
 CANVAS = None

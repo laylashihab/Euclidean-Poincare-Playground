@@ -41,12 +41,6 @@ class Circle:
 
             canvas.draw()
 
-    # updates the plot of the circle with a new endpoint
-    def draw(self, plot,canvas, endPoint,linewidth):
-        self.removeShape(canvas)
-        self.setEndPoint(endPoint)
-        self.plotShape(plot,canvas,linewidth)
-
     # moves the entire shape by a given amount
     def moveShape(self, deltaX, deltaY):
         self.__centerPoint = Point(self.getCenterPoint().getX()+deltaX, self.getCenterPoint().getY() + deltaY)
@@ -105,6 +99,13 @@ class Circle:
         else: 
             return False
         
+    # checks if the exact given point is contained in the figure
+    def exactContainsPoint(self,point):
+        if (self.getCenterPoint().getX() == point.getX() or self.getCenterPoint().getY() == point.getY()):
+            return True
+        else:
+            return False
+
     # gets the exact point associated with the circle given the point is contained in the circle
     # essentially removes the epsilon value associated with a contained point for smoother joining of shapes
     def getPoint(self,point):
@@ -127,3 +128,8 @@ class Circle:
     def measure(self):
         label = "Radius: {0}\nCircumference: {1}\nArea: {2}".format(round(self.getRadius(), 3), round(self.getCircumference(),3),round(self.getArea(),3))
         return label
+
+    def print(self):
+        string = "Circle: " + str(self)
+        string += "\n\tCenterPoint: " + str(self.getCenterPoint()) 
+        print(string)
