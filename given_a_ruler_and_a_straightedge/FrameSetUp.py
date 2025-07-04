@@ -7,6 +7,8 @@ from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg)
 import tkinter as tk
 
 import EventHandlers
+import constants as c
+
 
 """"
 Class dealing with frame details
@@ -47,24 +49,33 @@ def changeButtonColor(button):
 def changeShape(newShape):
     EventHandlers.shapeType = newShape
     match newShape:
-        case "Line":
+        case c.LINE:
             changeButtonColor(lineButton)
-        case "Point":
+        case c.POINT:
             changeButtonColor(pointButton)
-        case "Circle":
+        case c.CIRCLE:
             changeButtonColor(circleButton)
 
 # changes the button color for the selected tool
 def changeToolMode(newTool):
+
+    # ensures that any thick lines are cleared 
+    if EventHandlers.toolMode == c.SELECT:
+        for shape in EventHandlers.shapeList:
+            shape.removeShape(CANVAS)
+            shape.plotShape(PLOT, CANVAS,EventHandlers.THINLINE)
+
     EventHandlers.toolMode = newTool
     match newTool:
-        case "Draw":
+        case c.DRAW:
             changeButtonColor(drawButton)
-        case "Move":
-            changeButtonColor(moveButton)
-        case "Delete":
+        case c.MOVEPOINT:
+            changeButtonColor(movePointButton)
+        case c.DELETE:
             changeButtonColor(deleteButton)
-        case "Select":
+        case c.MOVEOBJECT:
+            changeButtonColor(moveObjectButton)
+        case c.SELECT:
             changeButtonColor(selectButton)
     
     # ensures that all lines are thin
@@ -82,9 +93,9 @@ def achievementsOnOff(Main):
 
 # clears the plot
 def clear():
-    changeToolMode("Draw")
+    changeToolMode(c.DRAW)
     changeButtonColor(drawButton)
-    changeShape("Point")
+    changeShape(c.POINT)
     changeButtonColor(pointButton)
 
     EventHandlers.shapeList = []
@@ -121,9 +132,17 @@ def showMetrics():
 
 def saveFigure(shape):
     global savedFiguresList
-    savedFiguresList.append(shape)
+    # ensures a copy of the shape is saved, not the actual shape object
+    shape = copy.deepcopy(shape)
+
+    if (shape == None):
+        print("Save Failed: Object type == None")
+    else:
+        savedFiguresList.append(shape)
 
 def addFigure(figure):
+    # ensures a copy of the saved figure is added
+    figure = copy.deepcopy(figure)
     figure.plotShape(PLOT, CANVAS, 1)
     EventHandlers.shapeList.append(figure)
     EventHandlers.currentShape = None
@@ -158,7 +177,7 @@ def openFigureLibrary():
         plot.set_axis_off()
 
         # creates a button associated with the plot
-        b = tk.Button(item, command = lambda: [addFigure(figure)],height = 2, width = 10, text = "Add to Canvas")
+        b = tk.Button(item, command=lambda fig=figure: addFigure(fig), height = 2, width = 10, text = "Add to Canvas")
         figureButtonList.append(b)
 
         # packs all components
@@ -192,8 +211,8 @@ PLOTSIZE = None
 dataDisplay = None
 toolLabel,shapeLabel,operationLabel = None, None, None
 pointButton,lineButton,circleButton= None, None, None
-moveButton,deleteButton,selectButton,drawButton = None,None,None,None
-clearButton,showAnglesButton, showMetricsButton= None, None, None
+movePointButton,deleteButton,moveObjectButton,drawButton = None,None,None,None
+clearButton,showAnglesButton, showMetricsButton,selectButton= None, None, None, None
 achievementsOnButton, saveFigureButton = None, None
 shapeButtonList,operationButtonList = None, None
 savedFiguresList =[]
@@ -202,14 +221,14 @@ figureButtonList = []
 def setUp(Main):
     # constants
     global ROOT, LIBRARYROOT, FIGURES, PLOT, CANVAS, PADX, PADY, PLOTSIZE
-    PADX=Main.PADX
-    PADY=Main.PADY
-    PLOTSIZE = Main.PLOTSIZE
+    PADX=c.PADX
+    PADY=c.PADY
+    PLOTSIZE = c.PLOTSIZE
 
     # Frame set up variables
     global dataDisplay,toolLabel,shapeLabel,operationLabel
     global pointButton, lineButton,circleButton
-    global moveButton,deleteButton,selectButton,drawButton
+    global movePointButton,deleteButton,selectButton,drawButton,moveObjectButton
     global clearButton,showAnglesButton,showMetricsButton
     global achievementsOnButton,saveFigureButton,openFigureLibraryButton
     global shapeButtonList,operationButtonList
@@ -241,14 +260,15 @@ def setUp(Main):
     toolLabel = tk.Label(TOOLBAR, text="TOOLBAR")
     shapeLabel = tk.Label(TOOLBAR, text="Shape Library")
     operationLabel = tk.Label(TOOLBAR, text="Operations")
-    pointButton = tk.Button(TOOLBAR, command=lambda: [changeShape("Point"), changeButtonColor(pointButton)], height = 2, width = 10, text = "Point")
-    lineButton = tk.Button(TOOLBAR, command=lambda: [changeShape("Line"), changeButtonColor(lineButton)], height = 2, width = 10, text = "Line")
-    circleButton = tk.Button(TOOLBAR, command =lambda: [changeShape("Circle"),changeButtonColor(circleButton)], height = 2, width = 10, text = "Circle")
+    pointButton = tk.Button(TOOLBAR, command=lambda: [changeShape(c.POINT), changeButtonColor(pointButton)], height = 2, width = 10, text = "Point")
+    lineButton = tk.Button(TOOLBAR, command=lambda: [changeShape(c.LINE), changeButtonColor(lineButton)], height = 2, width = 10, text = "Line")
+    circleButton = tk.Button(TOOLBAR, command =lambda: [changeShape(c.CIRCLE),changeButtonColor(circleButton)], height = 2, width = 10, text = "Circle")
     clearButton = tk.Button(TOOLBAR,command=lambda:[clear()],height = 2, width = 10, text = "Clear")
-    moveButton = tk.Button(TOOLBAR,command =lambda: [changeToolMode("Move"),changeButtonColor(moveButton)],height = 2, width = 10, text = "Move Point")
-    deleteButton = tk.Button(TOOLBAR,command =lambda: [changeToolMode("Delete"),changeButtonColor(deleteButton)],height = 2, width = 10, text = "Delete Object")
-    selectButton = tk.Button(TOOLBAR,command =lambda: [changeToolMode("Select"),changeButtonColor(selectButton)],height = 2, width = 10, text = "Select Object")
-    drawButton = tk.Button(TOOLBAR, command = lambda:[changeToolMode("Draw"),changeButtonColor(drawButton)],height = 2, width = 10, text = "Draw")
+    movePointButton = tk.Button(TOOLBAR,command =lambda: [changeToolMode(c.MOVEPOINT),changeButtonColor(movePointButton)],height = 2, width = 10, text = "Move Point")
+    deleteButton = tk.Button(TOOLBAR,command =lambda: [changeToolMode(c.DELETE),changeButtonColor(deleteButton)],height = 2, width = 10, text = "Delete Object")
+    moveObjectButton = tk.Button(TOOLBAR,command =lambda: [changeToolMode(c.MOVEOBJECT),changeButtonColor(moveObjectButton)],height = 2, width = 10, text = "Move Object")
+    selectButton = tk.Button(TOOLBAR,command =lambda: [changeToolMode(c.SELECT),changeButtonColor(selectButton)],height = 2, width = 10, text = "Select Object")
+    drawButton = tk.Button(TOOLBAR, command = lambda:[changeToolMode(c.DRAW),changeButtonColor(drawButton)],height = 2, width = 10, text = "Draw")
     showAnglesButton = tk.Button(TOOLBAR, command= lambda: [showAngles()],height = 2, width = 10, text = "Show Angles")
     showMetricsButton = tk.Button(TOOLBAR, command = lambda: [showMetrics()],height = 2, width = 10, text = "Show Metrics")
 
@@ -256,16 +276,16 @@ def setUp(Main):
     EXTRATOOLS = tk.Frame(ROOT,bg=backgroundCol)
 
     achievementsOnButton = tk.Button(EXTRATOOLS, command = lambda: [achievementsOnOff(Main)],height = 2, width = 20, text = "Turn Achievements On")
-    saveFigureButton = tk.Button(EXTRATOOLS, command= lambda: [saveFigure(EventHandlers.currentShape)], height = 2, width = 10, text = "Save Figure")
+    saveFigureButton = tk.Button(EXTRATOOLS, command= lambda: [saveFigure(EventHandlers.selectedShape)], height = 2, width = 10, text = "Save Figure")
     openFigureLibraryButton = tk.Button(EXTRATOOLS, command= lambda:[openFigureLibrary()], height = 2, width = 20, text = "Open Saved Figure Library")
 
     # lists containing buttons that will have coloration
     shapeButtonList = [pointButton,lineButton,circleButton]
-    operationButtonList = [moveButton,deleteButton,selectButton,drawButton]
+    operationButtonList = [movePointButton,deleteButton,moveObjectButton,drawButton, selectButton]
 
     # list containing all button components
-    buttons = [pointButton,lineButton,circleButton,clearButton,moveButton,deleteButton,selectButton,drawButton,showAnglesButton,
-               showMetricsButton,achievementsOnButton,saveFigureButton,openFigureLibraryButton]
+    buttons = [pointButton,lineButton,circleButton,clearButton,movePointButton,deleteButton,selectButton,drawButton,showAnglesButton,
+               showMetricsButton,achievementsOnButton,saveFigureButton,openFigureLibraryButton, moveObjectButton]
     # list containing all label components
     labels = [dataDisplay,descriptLabel,toolLabel,shapeLabel,operationLabel]
 
@@ -290,21 +310,21 @@ def setUp(Main):
 
     # Operation Types
     operationLabel.grid(row=3, column = 1, padx=PADX, pady=PADY)
-    moveButton.grid(row=4,column=1, padx=PADX, pady=PADY)
-    deleteButton.grid(row=4,column=2, padx=PADX, pady=PADY)
-    selectButton.grid(row=4, column = 3, padx=PADX, pady=PADY)
-    drawButton.grid(row=4, column=4, padx=PADX, pady=PADY)
+    movePointButton.grid(row=4,column=1, padx=PADX, pady=PADY)
+    moveObjectButton.grid(row=4, column=2,padx=PADX, pady=PADY)
+    deleteButton.grid(row=4,column=3, padx=PADX, pady=PADY)
+    selectButton.grid(row=4, column = 4, padx=PADX, pady=PADY)
+    drawButton.grid(row=4, column=5, padx=PADX, pady=PADY)
     changeButtonColor(drawButton)
 
     # Other Operations
-    clearButton.grid(row=5,column=1, padx=PADX, pady=PADY)
-    showAnglesButton.grid(row=5,column = 2,padx=PADX,pady=PADY)
-    showMetricsButton.grid(row = 5, column = 3, padx=PADX, pady=PADY)
+    clearButton.grid(row=5,column=2, padx=PADX, pady=PADY)
+    showAnglesButton.grid(row=5,column = 3,padx=PADX,pady=PADY)
+    showMetricsButton.grid(row = 5, column = 4, padx=PADX, pady=PADY)
 
     #achievements and save figure Buttons
     achievementsOnButton.grid(row = 6, column = 1, columnspan= 2, padx=PADX,pady=PADY)
     saveFigureButton.grid(row=6, column=3,padx=PADX,pady=PADY)
-    #saveFigureButton.config(bg=unavailableButtonCol)
     openFigureLibraryButton.grid(row = 6, column = 4, columnspan= 2, padx=PADX,pady=PADY)
 
     # placing the TOOLBAR on the Tkinter window

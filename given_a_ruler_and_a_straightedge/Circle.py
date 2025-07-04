@@ -1,5 +1,6 @@
 import math
 import matplotlib.patches as patches
+import copy
 
 """"
 class to create Euclidean Circle objects
@@ -30,6 +31,20 @@ class Circle:
             plot.add_patch(self.__circle)
             self.__centerPointPlot = self.__centerPoint.plotShape(plot,canvas,linewidth)
             canvas.draw()
+
+    #plots the line on a scaled canvas
+    def plotShapeScaledPlotsize(self,plot,canvas,oldPlotSize, newPlotSize):
+        # calculates scalefactor
+        scaleFactor = newPlotSize / oldPlotSize
+
+        # ensures that the shape is not mutated
+        figure = copy.deepcopy(self)
+
+        centerPoint = Point(figure.getCenterPoint().getX() *scaleFactor,figure.getCenterPoint().getY() *scaleFactor)
+        centerPoint.setPointSize(Point.getDPS()*scaleFactor)
+        figure.setCenterPoint(centerPoint)
+        figure.setRadius(figure.getRadius() *scaleFactor)
+        figure.plotShape(plot,canvas,1)
 
     # removes circle and center point associated with the plotted circle
     def removeShape(self,canvas):

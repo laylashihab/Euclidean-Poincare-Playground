@@ -1,5 +1,6 @@
 import numpy as np
 import math
+import copy 
 
 from Point import *
 """"
@@ -34,7 +35,23 @@ class Line:
             self.__startPointPlot = self.__startPoint.plotShape(plot,canvas,linewidth)
 
             canvas.draw()
-    
+
+    #plots the line on a scaled canvas
+    def plotShapeScaledPlotsize(self,plot,canvas,oldPlotSize, newPlotSize):
+        # calculates scalefactor
+        scaleFactor = newPlotSize / oldPlotSize
+
+        # ensures that the shape is not mutated
+        figure = copy.deepcopy(self)
+
+        startPoint = Point(figure.getStartPoint().getX() *scaleFactor,figure.getStartPoint().getY() *scaleFactor)
+        startPoint.setPointSize(Point.getDPS()*scaleFactor)
+        endPoint = Point(figure.getEndPoint().getX()*scaleFactor,self.getEndPoint().getY() *scaleFactor)
+        endPoint.setPointSize(Point.getDPS()*scaleFactor)
+        figure.setStartPoint(startPoint)
+        figure.setEndPoint(endPoint)
+        figure.plotShape(plot,canvas,1)
+
     # removes the endpoints and lines associated with the plotted line
     def removeShape(self,canvas):
         if self.__line != None:
