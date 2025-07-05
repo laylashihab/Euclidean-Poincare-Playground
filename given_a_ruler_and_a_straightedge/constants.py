@@ -6,6 +6,7 @@ MOVEPOINT = 2
 DELETE = 3
 MOVEOBJECT = 4
 SELECT = 5
+SCALE = 6
 
 # Shape Types
 POINT = 0

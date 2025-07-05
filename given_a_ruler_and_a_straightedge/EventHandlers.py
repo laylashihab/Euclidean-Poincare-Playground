@@ -94,6 +94,15 @@ def click_handler(event):
                     FrameSetUp.dataDisplay.update()
 
                     return
+                case c.SCALE:
+                    currentShape = shape
+
+                    # updates data display
+                    FrameSetUp.dataDisplay.config(text=shape.measure())
+                    FrameSetUp.dataDisplay.update()
+
+                    return
+
 
     # if the user is clicking on a clear space of the CANVAS
     if (toolMode == c.DRAW):
@@ -102,8 +111,6 @@ def click_handler(event):
         # updates data display
         FrameSetUp.dataDisplay.config(text=currentShape.measure())
         FrameSetUp.dataDisplay.update()
-    else:
-        currentShape = None    
 
 def drag_handler(event):
     global shapeType,currentShape,currentPoint,shapeList,toolMode,movePoint
@@ -158,7 +165,7 @@ def unclick_handler(event):
     FrameSetUp.dataDisplay.config(text=currentShape.measure())
     FrameSetUp.dataDisplay.update()
             
-    if (toolMode == c.DRAW or toolMode == c.MOVEPOINT or toolMode == c.MOVEOBJECT):
+    if (toolMode == c.DRAW or toolMode == c.MOVEPOINT or toolMode == c.MOVEOBJECT) and type(currentShape) != Point:
         if (toolMode == c.DRAW):
             # checks if the user is connecting a figure back to itself and cleans up point location
             if currentShape.containsPoint(currentPoint):

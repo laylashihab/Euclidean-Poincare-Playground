@@ -1,6 +1,7 @@
 import math
 import matplotlib.patches as patches
 import copy
+from constants import PLOTSIZE
 
 """"
 class to create Euclidean Circle objects
@@ -45,6 +46,34 @@ class Circle:
         figure.setCenterPoint(centerPoint)
         figure.setRadius(figure.getRadius() *scaleFactor)
         figure.plotShape(plot,canvas,1)
+
+    #scales the whole circle by a given amount, but preserves original radius
+    def scale(self,scaleVal,plot,canvas):
+        self.removeShape(canvas)
+        oldRadius = self.getRadius()
+        newRadius = oldRadius + (float(scaleVal) * oldRadius)
+        if (newRadius > PLOTSIZE or newRadius <= 0):
+            return
+        self.setRadius(newRadius)
+        self.plotShape(plot,canvas,1)
+        self.setRadius(oldRadius)
+
+    # modifies original radius and scales
+    def confirmScaleSize(self,scaleVal,plot,canvas):
+        self.removeShape(canvas)
+        oldRadius = self.getRadius()
+        newRadius = oldRadius + (float(scaleVal) * oldRadius)
+        if (newRadius > PLOTSIZE or newRadius <= 0):
+            return
+        self.setRadius(newRadius)
+        self.plotShape(plot,canvas,1)
+
+
+    def scaleX(self,scaleVal):
+        pass
+
+    def scaleY(self,scaleVal):
+        pass
 
     # removes circle and center point associated with the plotted circle
     def removeShape(self,canvas):

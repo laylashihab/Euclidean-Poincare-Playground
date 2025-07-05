@@ -40,6 +40,22 @@ class Shape():
         for component in self.__components:
             component.plotShapeScaledPlotsize(plot,canvas,oldPlotSize, newPlotSize)
 
+    def scale(self,scaleVal,plot,canvas):
+        for component in self.__components:
+            component.scale(scaleVal,plot,canvas)
+
+    def confirmScaleSize(self,scaleVal,plot,canvas):
+        for component in self.__components:
+            component.confirmScaleSize(scaleVal,plot,canvas)
+
+    def scaleX(self,scaleVal):
+        for component in self.__components:
+            component.scaleX(scaleVal)
+
+    def scaleY(self,scaleVal):
+        for component in self.__components:
+            component.scaleY(scaleVal)
+
     # removes each part of the shape
     def removeShape(self,canvas):
         for component in self.__components:

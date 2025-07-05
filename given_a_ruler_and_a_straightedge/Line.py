@@ -52,6 +52,85 @@ class Line:
         figure.setEndPoint(endPoint)
         figure.plotShape(plot,canvas,1)
 
+    def scale(self,scaleVal,plot,canvas):
+        dx,dy = self.getSlope()
+        if (dx != 0):
+            slope = dy/dx
+        else:
+            slope = np.inf
+        oldStart = self.getStartPoint()
+        oldEnd = self.getEndPoint()
+
+        # determines which point is on the left
+        if (oldStart.getX() < oldEnd.getX()):
+            leftPoint = oldStart
+            rightPoint = oldEnd
+        else:
+            leftPoint = oldEnd
+            rightPoint = oldStart
+
+        # determining a new x point for the endpoint based on the scaleval
+        x = leftPoint.getX() - (scaleVal * leftPoint.getX())
+        # finding the y cord associated with the new x using point slope form
+        y = leftPoint.getY() + (slope * (x-leftPoint.getX())) 
+
+        newLeft = Point(x,y)
+
+        x = rightPoint.getX() + (scaleVal * rightPoint.getX())
+        y = rightPoint.getY() + (slope * (x-rightPoint.getX())) # point slope form
+
+        newRight = Point(x,y)
+
+        # ensures the points aren't flipping sides
+        if newLeft.getX() >= newRight.getX():
+            return
+
+        self.removeShape(canvas)
+        self.setStartPoint(newLeft)
+        self.setEndPoint(newRight)
+        self.plotShape(plot,canvas,1)
+        self.setStartPoint(oldStart)
+        self.setEndPoint(oldEnd)
+
+
+    def confirmScaleSize(self,scaleVal,plot,canvas):
+        dx,dy = self.getSlope()
+        if (dx != 0):
+            slope = dy/dx
+        else:
+            slope = np.inf
+        oldStart = self.getStartPoint()
+        oldEnd = self.getEndPoint()
+
+        # determines which point is on the left
+        if (oldStart.getX() < oldEnd.getX()):
+            leftPoint = oldStart
+            rightPoint = oldEnd
+        else:
+            leftPoint = oldEnd
+            rightPoint = oldStart
+
+        # determining a new x point for the endpoint based on the scaleval
+        x = leftPoint.getX() - (scaleVal * leftPoint.getX())
+        # finding the y cord associated with the new x using point slope form
+        y = leftPoint.getY() + (slope * (x-leftPoint.getX())) 
+
+        newLeft = Point(x,y)
+
+        x = rightPoint.getX() + (scaleVal * rightPoint.getX())
+        y = rightPoint.getY() + (slope * (x-rightPoint.getX())) # point slope form
+
+        newRight = Point(x,y)
+
+        # ensures the points aren't flipping sides
+        if newLeft.getX() >= newRight.getX():
+            return
+
+        self.removeShape(canvas)
+        self.setStartPoint(newLeft)
+        self.setEndPoint(newRight)
+        self.plotShape(plot,canvas,1)
+            
     # removes the endpoints and lines associated with the plotted line
     def removeShape(self,canvas):
         if self.__line != None:
