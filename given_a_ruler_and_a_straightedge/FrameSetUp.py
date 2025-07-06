@@ -72,6 +72,7 @@ def changeToolMode(newTool):
     
     # ensures the scale slider is hidden
     if newTool != c.SCALE:
+        scaleSlider.set(100)
         scaleSlider.grid_forget()
 
     EventHandlers.toolMode = newTool
@@ -295,7 +296,7 @@ def setUp(Main):
         scaleSlider.grid(row=6,column=3)
 
     scaleShapeButton = tk.Button(TOOLBAR,command=lambda: [showSlider(),changeButtonColor(scaleShapeButton),changeToolMode(c.SCALE)],height=2,width=10,text="Scale")
-    scaleSlider = tk.Scale(TOOLBAR, from_=-1, to=1, orient=tk.HORIZONTAL,command=scaleChange, resolution=0.01)
+    scaleSlider = tk.Scale(TOOLBAR, from_=0, to=200, orient=tk.HORIZONTAL,command=scaleChange, resolution=0.01)
 
     # bottom TOOLBAR setup
     EXTRATOOLS = tk.Frame(ROOT,bg=backgroundCol)
@@ -345,6 +346,7 @@ def setUp(Main):
     # scaling operations
     scaleShapeButton.grid(row=6,column=2)
     scaleSlider.grid(row=6,column=3)
+    scaleSlider.set(100)
 
     #achievements and save figure Buttons
     placeRow([achievementsOnButton,saveFigureButton,openFigureLibraryButton],8,2)

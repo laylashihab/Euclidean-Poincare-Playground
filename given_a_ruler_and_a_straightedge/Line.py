@@ -53,6 +53,7 @@ class Line:
         figure.plotShape(plot,canvas,1)
 
     def scale(self,scaleVal,plot,canvas):
+        scaler = scaleVal / 100
         dx,dy = self.getSlope()
         if (dx != 0):
             slope = dy/dx
@@ -69,17 +70,29 @@ class Line:
             leftPoint = oldEnd
             rightPoint = oldStart
 
-        # determining a new x point for the endpoint based on the scaleval
-        x = leftPoint.getX() - (scaleVal * leftPoint.getX())
-        # finding the y cord associated with the new x using point slope form
-        y = leftPoint.getY() + (slope * (x-leftPoint.getX())) 
+        # determines the new length
+        oldLength = self.getLength()
+        newLength = oldLength * scaler
 
-        newLeft = Point(x,y)
+        # determines how much to add to either side of the line
+        halfLength = (newLength - oldLength)/2
 
-        x = rightPoint.getX() + (scaleVal * rightPoint.getX())
-        y = rightPoint.getY() + (slope * (x-rightPoint.getX())) # point slope form
+        # finds the angle
+        angle = self.getTerminalAngle()
+        if angle > 90:
+            angle = self.getTerminalAngle(rightPoint)
+        
+        deltaX = halfLength * math.cos(angle)
 
-        newRight = Point(x,y)
+        newLeftX = leftPoint.getX() + deltaX
+        newLeftY = leftPoint.getY() + (slope * (newLeftX-leftPoint.getX()))
+
+        newRightX = rightPoint.getX() - deltaX
+        newRightY = rightPoint.getY() + (slope * (newRightX-rightPoint.getX()))
+
+        newLeft = Point(newLeftX,newLeftY)
+
+        newRight = Point(newRightX,newRightY)
 
         # ensures the points aren't flipping sides
         if newLeft.getX() >= newRight.getX():
@@ -94,6 +107,7 @@ class Line:
 
 
     def confirmScaleSize(self,scaleVal,plot,canvas):
+        scaler = scaleVal / 100
         dx,dy = self.getSlope()
         if (dx != 0):
             slope = dy/dx
@@ -110,17 +124,26 @@ class Line:
             leftPoint = oldEnd
             rightPoint = oldStart
 
-        # determining a new x point for the endpoint based on the scaleval
-        x = leftPoint.getX() - (scaleVal * leftPoint.getX())
-        # finding the y cord associated with the new x using point slope form
-        y = leftPoint.getY() + (slope * (x-leftPoint.getX())) 
+        # determines the new length
+        oldLength = self.getLength()
+        newLength = oldLength * scaler
 
-        newLeft = Point(x,y)
+        # determines how much to add to either side of the line
+        halfLength = (newLength - oldLength)/2
 
-        x = rightPoint.getX() + (scaleVal * rightPoint.getX())
-        y = rightPoint.getY() + (slope * (x-rightPoint.getX())) # point slope form
+        angle = self.getTerminalAngle()
 
-        newRight = Point(x,y)
+        deltaX = halfLength * math.cos(angle)
+
+        newLeftX = leftPoint.getX() + deltaX
+        newLeftY = leftPoint.getY() + (slope * (newLeftX-leftPoint.getX()))
+
+        newRightX = rightPoint.getX() - deltaX
+        newRightY = rightPoint.getY() + (slope * (newRightX-rightPoint.getX()))
+
+        newLeft = Point(newLeftX,newLeftY)
+
+        newRight = Point(newRightX,newRightY)
 
         # ensures the points aren't flipping sides
         if newLeft.getX() >= newRight.getX():
