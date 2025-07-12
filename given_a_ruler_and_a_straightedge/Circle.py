@@ -68,13 +68,6 @@ class Circle:
         self.setRadius(newRadius)
         self.plotShape(plot,canvas,1)
 
-
-    def scaleX(self,scaleVal):
-        pass
-
-    def scaleY(self,scaleVal):
-        pass
-
     # removes circle and center point associated with the plotted circle
     def removeShape(self,canvas):
         if self.__circle != None:
@@ -124,6 +117,9 @@ class Circle:
     
     def getShape(self):
         return self.__circle
+    
+    def getStartPoint(self):
+        return self.__centerPoint
     
     def getEndPoint(self):
         return self.__centerPoint

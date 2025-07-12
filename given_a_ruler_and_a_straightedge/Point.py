@@ -1,3 +1,4 @@
+import math
 """"
 Class to define a point in a graph
 Points are defined by an x and y value
@@ -67,6 +68,10 @@ class Point:
         if (self.equals(point)):
             return self
         
+    # returns the euclidean distance between the point object and another point
+    def getDistance(self, otherPoint):
+        return math.sqrt(((self.getX()-otherPoint.getX()))**2+(self.getY()-otherPoint.getY())**2)
+        
     def isClosedFigure():
         return False
     
@@ -110,4 +115,5 @@ class Point:
     
     def print(self):
         string = "Point: " + str(self)
+        string += "\n\tX: " + str(self.getX()) + "\tY: " + str(self.getY())
         print(string)

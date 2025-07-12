@@ -203,7 +203,6 @@ def openFigureLibrary():
 def styleButton(button):
     button.config(fg=buttonTextCol)
 
-
 def styleLabel(label):
     label.config(fg=textCol, bg=backgroundCol)
 
@@ -296,7 +295,7 @@ def setUp(Main):
         scaleSlider.grid(row=6,column=3)
 
     scaleShapeButton = tk.Button(TOOLBAR,command=lambda: [showSlider(),changeButtonColor(scaleShapeButton),changeToolMode(c.SCALE)],height=2,width=10,text="Scale")
-    scaleSlider = tk.Scale(TOOLBAR, from_=0, to=200, orient=tk.HORIZONTAL,command=scaleChange, resolution=0.01)
+    scaleSlider = tk.Scale(TOOLBAR, from_=0, to=200, orient=tk.HORIZONTAL,command=scaleChange, resolution=1)
 
     # bottom TOOLBAR setup
     EXTRATOOLS = tk.Frame(ROOT,bg=backgroundCol)

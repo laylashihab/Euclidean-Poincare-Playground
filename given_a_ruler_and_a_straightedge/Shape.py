@@ -29,7 +29,6 @@ class Shape():
         self.__numComponents = numComponents
         self.__arcPlotLists = arcPlotLists
 
-
     # plots each part of the shape
     def plotShape(self,plot,canvas, linewidth):
         for component in self.__components:
@@ -41,20 +40,175 @@ class Shape():
             component.plotShapeScaledPlotsize(plot,canvas,oldPlotSize, newPlotSize)
 
     def scale(self,scaleVal,plot,canvas):
-        for component in self.__components:
-            component.scale(scaleVal,plot,canvas)
+        scaler = scaleVal / 100 
+
+        # finds the midpoint of the shape
+        points = set()
+        for component in self.getComponents():
+            points.add(component.getStartPoint())
+            points.add(component.getEndPoint())
+        numPoints = len(points)
+        xTotal = 0
+        yTotal = 0
+        for p in points:
+            xTotal += p.getX()
+            yTotal += p.getY()
+
+        midpoint = Point(xTotal/numPoints, yTotal/numPoints)
+
+        for component in self.getComponents():
+            if (type(component) == Line):
+                # dealing with start point
+                currentStart = component.getStartPoint()
+
+                # finds the distance the startpoint must move
+                curDistanceToMid = currentStart.getDistance(midpoint)
+                newDistance = curDistanceToMid * scaler
+
+                # finds the angle of the line connecting the midpoint to point
+                dx = (currentStart.getX() - midpoint.getX())
+                if dx == 0:
+                    break
+
+                dy = (currentStart.getY() - midpoint.getY())
+                angle = math.atan(dx/dy)   
+                
+                if dy*dx < 0 :
+                    angle *= -1
+
+                # finds the new point of point using the angle
+                deltaX = (newDistance-curDistanceToMid) * math.sin(angle)
+
+                if (currentStart.getX() > midpoint.getX()):
+                    deltaX *= -1
+
+                newX = currentStart.getX() - deltaX
+                newY = currentStart.getY() + ((dy/dx)) * (newX-currentStart.getX())
+
+                # sets the new startpoint
+                newPoint = Point(newX,newY)
+                if (not newPoint.equals(midpoint)):
+                    component.setStartPoint(newPoint)
+                
+                # dealing with the endpoint 
+                currentEnd = component.getEndPoint()
+                curDistanceToMid = currentEnd.getDistance(midpoint)
+                newDistance = curDistanceToMid * scaler
+
+                # finds the angle
+                dx = (currentEnd.getX() - midpoint.getX())
+
+                if (dx == 0):
+                    break
+
+                dy = (currentEnd.getY() - midpoint.getY())
+                angle = math.atan(dx/dy)   
+                if dy*dx < 0 :
+                    angle *= -1
+                deltaX = (newDistance-curDistanceToMid) * math.sin(angle)
+                if (currentEnd.getX() > midpoint.getX()):
+                    deltaX *= -1
+
+                newX = currentEnd.getX() - deltaX
+                newY = currentEnd.getY() + ((dy/dx)) * (newX-currentEnd.getX())
+
+                newPoint = Point(newX,newY)
+                if (not newPoint.equals(midpoint)):
+                    component.setEndPoint(newPoint)
+
+                # deals w plotting
+                component.removeShape(canvas)
+                component.plotShape(plot,canvas, 1)
+
+                # resets start and endpoints
+                component.setStartPoint(currentStart)
+                component.setEndPoint(currentEnd)
+            else: # dealing w circles
+                component.scale(scaleVal,plot,canvas)
 
     def confirmScaleSize(self,scaleVal,plot,canvas):
-        for component in self.__components:
-            component.confirmScaleSize(scaleVal,plot,canvas)
+        scaler = scaleVal / 100 
 
-    def scaleX(self,scaleVal):
-        for component in self.__components:
-            component.scaleX(scaleVal)
+        # finds the midpoint of the shape
+        points = set()
+        for component in self.getComponents():
+            points.add(component.getStartPoint())
+            points.add(component.getEndPoint())
+        numPoints = len(points)
+        xTotal = 0
+        yTotal = 0
+        for p in points:
+            xTotal += p.getX()
+            yTotal += p.getY()
 
-    def scaleY(self,scaleVal):
-        for component in self.__components:
-            component.scaleY(scaleVal)
+        midpoint = Point(xTotal/numPoints, yTotal/numPoints)
+
+        for component in self.getComponents():
+            if (type(component) == Line):
+                # dealing with start point
+                currentStart = component.getStartPoint()
+
+                # finds the distance the startpoint must move
+                curDistanceToMid = currentStart.getDistance(midpoint)
+                newDistance = curDistanceToMid * scaler
+
+                # finds the angle of the line connecting the midpoint to point
+                dx = (currentStart.getX() - midpoint.getX())
+                if dx == 0:
+                    break
+
+                dy = (currentStart.getY() - midpoint.getY())
+                angle = math.atan(dx/dy)   
+                
+                if dy*dx < 0 :
+                    angle *= -1
+
+                # finds the new point of point using the angle
+                deltaX = (newDistance-curDistanceToMid) * math.sin(angle)
+
+                if (currentStart.getX() > midpoint.getX()):
+                    deltaX *= -1
+
+                newX = currentStart.getX() - deltaX
+                newY = currentStart.getY() + ((dy/dx)) * (newX-currentStart.getX())
+
+                # sets the new startpoint
+                newPoint = Point(newX,newY)
+                if (not newPoint.equals(midpoint)):
+                    component.setStartPoint(newPoint)
+                
+                # dealing with the endpoint 
+                currentEnd = component.getEndPoint()
+                curDistanceToMid = currentEnd.getDistance(midpoint)
+                newDistance = curDistanceToMid * scaler
+
+                # finds the angle
+                dx = (currentEnd.getX() - midpoint.getX())
+
+                if (dx == 0):
+                    break
+
+                dy = (currentEnd.getY() - midpoint.getY())
+                angle = math.atan(dx/dy)   
+                if dy*dx < 0 :
+                    angle *= -1
+                deltaX = (newDistance-curDistanceToMid) * math.sin(angle)
+                if (currentEnd.getX() > midpoint.getX()):
+                    deltaX *= -1
+
+                newX = currentEnd.getX() - deltaX
+                newY = currentEnd.getY() + ((dy/dx)) * (newX-currentEnd.getX())
+
+                newPoint = Point(newX,newY)
+                if (not newPoint.equals(midpoint)):
+                    component.setEndPoint(newPoint)
+
+                # deals w plotting
+                component.removeShape(canvas)
+                component.plotShape(plot,canvas, 1)
+
+            else: # dealing w circles
+                component.confirmScaleSize(scaleVal,plot,canvas)
 
     # removes each part of the shape
     def removeShape(self,canvas):

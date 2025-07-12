@@ -77,17 +77,17 @@ class Line:
         # determines how much to add to either side of the line
         halfLength = (newLength - oldLength)/2
 
-        # finds the angle
-        angle = self.getTerminalAngle()
-        if angle > 90:
-            angle = self.getTerminalAngle(rightPoint)
-        
-        deltaX = halfLength * math.cos(angle)
+        if slope < 0:
+            halfLength *= -1
 
-        newLeftX = leftPoint.getX() + deltaX
+        # finds the angle
+        angle = math.atan(dx/dy)     
+        deltaX = halfLength * math.sin(angle)
+
+        newLeftX = leftPoint.getX() - deltaX
         newLeftY = leftPoint.getY() + (slope * (newLeftX-leftPoint.getX()))
 
-        newRightX = rightPoint.getX() - deltaX
+        newRightX = rightPoint.getX() + deltaX
         newRightY = rightPoint.getY() + (slope * (newRightX-rightPoint.getX()))
 
         newLeft = Point(newLeftX,newLeftY)
@@ -131,14 +131,17 @@ class Line:
         # determines how much to add to either side of the line
         halfLength = (newLength - oldLength)/2
 
-        angle = self.getTerminalAngle()
+        if slope < 0:
+            halfLength *= -1
 
-        deltaX = halfLength * math.cos(angle)
+        # finds the angle
+        angle = math.atan(dx/dy)     
+        deltaX = halfLength * math.sin(angle)
 
-        newLeftX = leftPoint.getX() + deltaX
+        newLeftX = leftPoint.getX() - deltaX
         newLeftY = leftPoint.getY() + (slope * (newLeftX-leftPoint.getX()))
 
-        newRightX = rightPoint.getX() - deltaX
+        newRightX = rightPoint.getX() + deltaX
         newRightY = rightPoint.getY() + (slope * (newRightX-rightPoint.getX()))
 
         newLeft = Point(newLeftX,newLeftY)
@@ -150,8 +153,14 @@ class Line:
             return
 
         self.removeShape(canvas)
-        self.setStartPoint(newLeft)
-        self.setEndPoint(newRight)
+        # ensures start and end points are not altered in relative position
+        if oldStart.getX() < oldEnd.getX():
+            self.setStartPoint(newLeft)
+            self.setEndPoint(newRight)
+        else:
+            self.setStartPoint(newRight)
+            self.setEndPoint(newLeft)
+            
         self.plotShape(plot,canvas,1)
             
     # removes the endpoints and lines associated with the plotted line
@@ -253,7 +262,7 @@ class Line:
     # returns the euclidean distance between two endpoints using Euclid's fifth postulate (Pythagorean thm)
     def getLength(self):
         return math.sqrt(((self.getStartPoint().getX()-self.getEndPoint().getX()))**2+(self.getStartPoint().getY()-self.getEndPoint().getY())**2)
-    
+            
     # returns the components of the slope of the line
     def getSlope(self, origin = Point(0,0)):
         if (self.getEndPoint() == None or self.getStartPoint() == None):
