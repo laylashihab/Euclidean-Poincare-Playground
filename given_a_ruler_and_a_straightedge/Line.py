@@ -172,9 +172,9 @@ class Line:
             self.__endPointPlot.remove()
             self.__line = None
 
-            self.hideMetrics(canvas)
+        self.hideMetrics(canvas)
 
-            canvas.draw()
+        canvas.draw()
 
     # moves the entire line by a given amount
     def moveShape(self, deltaX,deltaY):

@@ -244,9 +244,9 @@ def setUp(Main):
     # Frame set up variables
     global dataDisplay,toolLabel,shapeLabel,operationLabel
     global pointButton, lineButton,circleButton
-    global movePointButton,deleteButton,selectButton,drawButton,moveObjectButton
+    global movePointButton,deleteButton,drawButton,moveObjectButton
     global clearButton,showAnglesButton,showMetricsButton
-    global achievementsOnButton,saveFigureButton,openFigureLibraryButton
+    global achievementsOnButton,selectButton,saveFigureButton,openFigureLibraryButton
     global shapeButtonList,operationButtonList
     global scaleShapeButton,scaleSlider
     
@@ -277,32 +277,34 @@ def setUp(Main):
     shapeLabel = tk.Label(TOOLBAR, text="Shape Library")
     operationLabel = tk.Label(TOOLBAR, text="Operations")
     
+    # Shape Buttons
     pointButton = tk.Button(TOOLBAR, command=lambda: [changeShape(c.POINT), changeButtonColor(pointButton)], height = 2, width = 10, text = "Point")
     lineButton = tk.Button(TOOLBAR, command=lambda: [changeShape(c.LINE), changeButtonColor(lineButton)], height = 2, width = 10, text = "Line")
     circleButton = tk.Button(TOOLBAR, command =lambda: [changeShape(c.CIRCLE),changeButtonColor(circleButton)], height = 2, width = 10, text = "Circle")
     
-    clearButton = tk.Button(TOOLBAR,command=lambda:[clear()],height = 2, width = 10, text = "Clear")
-    movePointButton = tk.Button(TOOLBAR,command =lambda: [changeToolMode(c.MOVEPOINT),changeButtonColor(movePointButton)],height = 2, width = 10, text = "Move Point")
-    deleteButton = tk.Button(TOOLBAR,command =lambda: [changeToolMode(c.DELETE),changeButtonColor(deleteButton)],height = 2, width = 10, text = "Delete Object")
-    moveObjectButton = tk.Button(TOOLBAR,command =lambda: [changeToolMode(c.MOVEOBJECT),changeButtonColor(moveObjectButton)],height = 2, width = 10, text = "Move Object")
-    selectButton = tk.Button(TOOLBAR,command =lambda: [changeToolMode(c.SELECT),changeButtonColor(selectButton)],height = 2, width = 10, text = "Select Object")
-    drawButton = tk.Button(TOOLBAR, command = lambda:[changeToolMode(c.DRAW),changeButtonColor(drawButton)],height = 2, width = 10, text = "Draw")
+    # Basic Operation Buttons
+    clearButton = tk.Button(TOOLBAR,command=lambda:[clear()],height = 2, width = 12, text = "Clear")
+    movePointButton = tk.Button(TOOLBAR,command =lambda: [changeToolMode(c.MOVEPOINT),changeButtonColor(movePointButton)],height = 2, width = 12, text = "Move Point")
+    deleteButton = tk.Button(TOOLBAR,command =lambda: [changeToolMode(c.DELETE),changeButtonColor(deleteButton)],height = 2, width = 12, text = "Delete Object")
+    moveObjectButton = tk.Button(TOOLBAR,command =lambda: [changeToolMode(c.MOVEOBJECT),changeButtonColor(moveObjectButton)],height = 2, width = 12, text = "Move Object")
+    drawButton = tk.Button(TOOLBAR, command = lambda:[changeToolMode(c.DRAW),changeButtonColor(drawButton)],height = 2, width = 12, text = "Draw")
     
-    showAnglesButton = tk.Button(TOOLBAR, command= lambda: [showAngles()],height = 2, width = 10, text = "Show Angles")
-    showMetricsButton = tk.Button(TOOLBAR, command = lambda: [showMetrics()],height = 2, width = 10, text = "Show Metrics")
+    # Measurements Buttons
+    showAnglesButton = tk.Button(TOOLBAR, command= lambda: [showAngles()],height = 2, width = 15, text = "Show Angles")
+    showMetricsButton = tk.Button(TOOLBAR, command = lambda: [showMetrics()],height = 2, width = 15, text = "Show Metrics")
 
-    def showSlider():
-        scaleSlider.grid(row=6,column=3)
-
-    scaleShapeButton = tk.Button(TOOLBAR,command=lambda: [showSlider(),changeButtonColor(scaleShapeButton),changeToolMode(c.SCALE)],height=2,width=10,text="Scale")
-    scaleSlider = tk.Scale(TOOLBAR, from_=0, to=200, orient=tk.HORIZONTAL,command=scaleChange, resolution=1)
+    scaleShapeButton = tk.Button(TOOLBAR,command=lambda: [showSlider(),changeButtonColor(scaleShapeButton),changeToolMode(c.SCALE)],height=2,width=15,text="Scale")
+    scaleSlider = tk.Scale(TOOLBAR, from_=0, to=200, orient=tk.HORIZONTAL,command=scaleChange, resolution=1,width=20)
 
     # bottom TOOLBAR setup
     EXTRATOOLS = tk.Frame(ROOT,bg=backgroundCol)
 
-    achievementsOnButton = tk.Button(EXTRATOOLS, command = lambda: [achievementsOnOff(Main)],height = 2, width = 20, text = "Turn Achievements On")
-    saveFigureButton = tk.Button(EXTRATOOLS, command= lambda: [saveFigure(EventHandlers.selectedShape)], height = 2, width = 10, text = "Save Figure")
+    saveFigureButton = tk.Button(EXTRATOOLS, command= lambda: [saveFigure(EventHandlers.selectedShape)], height = 2, width = 15, text = "Save Figure")
     openFigureLibraryButton = tk.Button(EXTRATOOLS, command= lambda:[openFigureLibrary()], height = 2, width = 20, text = "Open Saved Figure Library")
+    selectButton = tk.Button(EXTRATOOLS,command =lambda: [changeToolMode(c.SELECT),changeButtonColor(selectButton)],height = 2, width = 15, text = "Select Object")
+
+
+    achievementsOnButton = tk.Button(EXTRATOOLS, command = lambda: [achievementsOnOff(Main)],height = 1, width = 20, text = "Turn Achievements On")
 
     # lists containing buttons that will have coloration
     shapeButtonList = [pointButton,lineButton,circleButton]
@@ -331,24 +333,27 @@ def setUp(Main):
 
     # Shape types
     shapeLabel.grid(row=1, column=1, padx=PADX, pady=PADY)
-    placeRow([pointButton,lineButton,circleButton],2,2)
+    placeRow([pointButton,lineButton,circleButton],2,1)
     changeButtonColor(pointButton)
 
     # Operation Types
     operationLabel.grid(row=3, column = 1, padx=PADX, pady=PADY)
-    placeRow([drawButton, movePointButton,moveObjectButton,deleteButton,selectButton],4,1)
+    placeRow([drawButton, movePointButton,moveObjectButton,deleteButton,clearButton],4,0)
     changeButtonColor(drawButton)
 
-    # Other Operations
-    placeRow([clearButton,showAnglesButton,showMetricsButton], 5,2)
-
-    # scaling operations
-    scaleShapeButton.grid(row=6,column=2)
-    scaleSlider.grid(row=6,column=3)
+    # Measurement Buttons
+    def showSlider():
+        scaleSlider.grid(row=5,column=2,columnspan=2)
+    placeRow([showAnglesButton,showMetricsButton],5,0)
+    showSlider()
+    scaleShapeButton.grid(row=5,column=4,padx=PADX, pady=PADY)
     scaleSlider.set(100)
 
-    #achievements and save figure Buttons
-    placeRow([achievementsOnButton,saveFigureButton,openFigureLibraryButton],8,2)
+    # figure library tools
+    placeRow([selectButton,saveFigureButton,openFigureLibraryButton],6,1)
+
+    # placing achievements option
+    achievementsOnButton.grid(row=7,column = 1, padx=PADX, pady=PADY)
 
     # placing the TOOLBAR on the Tkinter window
     TOOLBAR.pack()

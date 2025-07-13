@@ -37,7 +37,7 @@ ACHIEVEMENTSDICT["createCircle"] = Achievement("Define a Circle","A circle is a 
 
 
 # frame/window settings
-PADX = 10
+PADX = 5
 PADY = 5
 PLOTSIZE = 400
 DEFAULTPOINTSIZE = 50

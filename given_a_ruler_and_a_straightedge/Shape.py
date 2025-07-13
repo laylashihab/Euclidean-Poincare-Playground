@@ -67,9 +67,6 @@ class Shape():
 
                 # finds the angle of the line connecting the midpoint to point
                 dx = (currentStart.getX() - midpoint.getX())
-                if dx == 0:
-                    break
-
                 dy = (currentStart.getY() - midpoint.getY())
                 angle = math.atan(dx/dy)   
                 
@@ -83,12 +80,11 @@ class Shape():
                     deltaX *= -1
 
                 newX = currentStart.getX() - deltaX
-                newY = currentStart.getY() + ((dy/dx)) * (newX-currentStart.getX())
+                newY = currentStart.getY() + ((dy/dx) * (newX-currentStart.getX()))
 
                 # sets the new startpoint
                 newPoint = Point(newX,newY)
-                if (not newPoint.equals(midpoint)):
-                    component.setStartPoint(newPoint)
+                component.setStartPoint(newPoint)
                 
                 # dealing with the endpoint 
                 currentEnd = component.getEndPoint()
@@ -97,10 +93,6 @@ class Shape():
 
                 # finds the angle
                 dx = (currentEnd.getX() - midpoint.getX())
-
-                if (dx == 0):
-                    break
-
                 dy = (currentEnd.getY() - midpoint.getY())
                 angle = math.atan(dx/dy)   
                 if dy*dx < 0 :
@@ -113,8 +105,7 @@ class Shape():
                 newY = currentEnd.getY() + ((dy/dx)) * (newX-currentEnd.getX())
 
                 newPoint = Point(newX,newY)
-                if (not newPoint.equals(midpoint)):
-                    component.setEndPoint(newPoint)
+                component.setEndPoint(newPoint)
 
                 # deals w plotting
                 component.removeShape(canvas)
@@ -174,8 +165,7 @@ class Shape():
 
                 # sets the new startpoint
                 newPoint = Point(newX,newY)
-                if (not newPoint.equals(midpoint)):
-                    component.setStartPoint(newPoint)
+                component.setStartPoint(newPoint)
                 
                 # dealing with the endpoint 
                 currentEnd = component.getEndPoint()
@@ -200,8 +190,7 @@ class Shape():
                 newY = currentEnd.getY() + ((dy/dx)) * (newX-currentEnd.getX())
 
                 newPoint = Point(newX,newY)
-                if (not newPoint.equals(midpoint)):
-                    component.setEndPoint(newPoint)
+                component.setEndPoint(newPoint)
 
                 # deals w plotting
                 component.removeShape(canvas)
@@ -224,7 +213,9 @@ class Shape():
 
     # sets the end point of the last figure drawn
     def setEndPoint(self, endPoint):
-        self.__components[-1].setEndPoint(endPoint)
+        component = self.__components[-1]
+        if type(component) != Point:
+            component.setEndPoint(endPoint)
 
     # gets the last drawn point of the figure
     def getEndPoint(self):
@@ -386,7 +377,8 @@ class Shape():
 
     def hideMetrics(self, canvas):
         for component in self.__components:
-            component.hideMetrics(canvas)
+            if type(component) != Point:
+                component.hideMetrics(canvas)
             
     # provides data about the shape
     def measure(self):

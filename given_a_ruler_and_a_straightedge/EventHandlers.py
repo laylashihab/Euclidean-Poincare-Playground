@@ -54,14 +54,24 @@ def click_handler(event):
                     return
 
                 case c.DRAW:
+                    # if drawing from a point, remove the point since the endpoint of the new shape will replace it
+
                     point = shape.getPoint(currentPoint)
                     new = newBasicShape(point)
-
-                    currentShape = newShape(shape, new)
                     
+                    if type(shape) == Point:
+                        shapeList.remove(shape)
+                        shape.removeShape(CANVAS)
+                        currentShape = new
+                    else:
+                        currentShape = newShape(shape, new)
+                    
+                    # hides angles and metrics
                     if (type(currentShape) == Shape): 
                         currentShape.hideAngles(CANVAS)
                     currentShape.hideMetrics(CANVAS)
+
+                    currentShape.plotShape(PLOT,CANVAS,THINLINE)
 
                     return
                 case c.DELETE:
@@ -87,7 +97,7 @@ def click_handler(event):
                     shape.removeShape(CANVAS)
                     shape.plotShape(PLOT, CANVAS,THICKLINE)
 
-                    FrameSetUp.saveFigureButton.grid(row=6, column=3,padx=FrameSetUp.PADX,pady=FrameSetUp.PADY)
+                    FrameSetUp.saveFigureButton.grid(row=6, column=2,padx=FrameSetUp.PADX,pady=FrameSetUp.PADY)
 
                     # updates data display
                     FrameSetUp.dataDisplay.config(text=shape.measure())
