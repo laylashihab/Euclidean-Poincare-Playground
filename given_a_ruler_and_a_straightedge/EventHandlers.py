@@ -119,7 +119,7 @@ def drag_handler(event):
     if not event.inaxes or not mouseDown or currentShape == None:
         return
     
-    lastPoint = currentPoint.copy()
+    lastPoint = copy.deepcopy(currentPoint)
     currentPoint = Point(event.xdata,event.ydata)
 
     match toolMode:
@@ -240,7 +240,7 @@ def newBasicShape(startPoint):
         if (c.ACHIEVEMENTSDICT["createPoint"].isComplete() == False and MAIN.achievementsOn):
             c.ACHIEVEMENTSDICT["createPoint"].showAchievement()
 
-        shape =startPoint.copy()
+        shape = copy.deepcopy(startPoint)
         shape.plotShape(PLOT)
         shapeList.append(shape)
     else:
@@ -259,7 +259,17 @@ def newShape(oldShape, newShape):
     if (c.ACHIEVEMENTSDICT["createAngle"].isComplete() == False and type(newShape) == Line and type(oldShape) == Line and MAIN.achievementsOn):
         c.ACHIEVEMENTSDICT["createAngle"].showAchievement()
 
-    numComponents = oldShape.getNumComponents() + newShape.getNumComponents()
+    if type(oldShape) == Shape:
+        oldShapeNumC = oldShape.getNumComponents()
+    else:
+        oldShapeNumC = 1
+
+    if type(newShape) == Shape:
+        newShapeNumC = newShape.getNumComponents()
+    else:
+        newShapeNumC = 1
+
+    numComponents = oldShapeNumC + newShapeNumC
     shapes = [oldShape,newShape]
 
     #removes old shapes from shape list
@@ -276,7 +286,7 @@ def newShape(oldShape, newShape):
         arcPlots.extend(oldShape.getArcPlotLists())
 
     # creates new shape object
-    newlyCreatedShape = Shape(shapes, numComponents, arcPlots)
+    newlyCreatedShape = Shape(shapes, arcPlots)
     shapeList.append(newlyCreatedShape)
     return newlyCreatedShape
 

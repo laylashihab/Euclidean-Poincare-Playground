@@ -15,15 +15,9 @@ class Main:
     def __init__(self):
         self.achievementsOn = False
 
-        # sets the epsilon value for points (allowable error for .equals)
-        Point.setEpsilon(20)
-
         # set up the frame and eventHandlers
         FrameSetUp.setUp(self)
         EventHandlers.bindEvents(self)
-
-        # sets dps and lw
-        Point.setDPS(c.DEFAULTPOINTSIZE)
         
     def run(self):
         FrameSetUp.ROOT.mainloop()

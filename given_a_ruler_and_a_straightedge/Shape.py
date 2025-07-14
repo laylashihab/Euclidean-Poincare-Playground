@@ -11,11 +11,10 @@ import constants as c
 
 class Shape():
     __components = []
-    __numComponents = 0
     __arcPlotLists = [] # stores both the arc and measurement plot
 
     # takes in a list of shape (line, point, shape, or circle) objects and an integer number of components
-    def __init__(self, components, numComponents, arcPlotLists):
+    def __init__(self, components, arcPlotLists):
         # breaks apart Shape components into their constituent parts and ensures order is preserved
         for component in components:
             if type(component) == Shape:
@@ -26,7 +25,6 @@ class Shape():
                     components.insert(index, component)
                     index +=1
         self.__components = components
-        self.__numComponents = numComponents
         self.__arcPlotLists = arcPlotLists
 
     # plots each part of the shape
@@ -280,7 +278,8 @@ class Shape():
     def getLength(self):
         totalLength = 0
         for component in self.__components:
-            totalLength += component.getLength()
+            if type(component!= Point):
+                totalLength += component.getLength()
         return totalLength
     
     # returns a list of pairs of connected lines stored as tuples
@@ -377,16 +376,13 @@ class Shape():
             
     # provides data about the shape
     def measure(self):
-        returnString = "Num Components: {0}\n Total Length: {1}".format(self.__numComponents, round(self.getLength(),3))
+        returnString = "Num Components: {0}\n Total Length: {1}".format(self.getNumComponents(), round(self.getLength(),3))
         return returnString
     
     # getters and setters for the number of components in the shape
     def getNumComponents(self):
-        return self.__numComponents
+        return len(self.__components)
     
-    def setNumComponents(self, numComponents):
-        self.__numComponents = numComponents
-
     def getComponents(self):
         return self.__components
     
@@ -397,7 +393,7 @@ class Shape():
         return self.__arcPlotLists
     
     def print(self):
-        print("Components: " + str(self.__numComponents) + "\tNum Arc Plots: " + str(len(self.__arcPlotLists)))
+        print("Components: " + str(self.getNumComponents()) + "\tNum Arc Plots: " + str(len(self.__arcPlotLists)))
         for component in self.__components:
             print("\t",end="")
             component.print()

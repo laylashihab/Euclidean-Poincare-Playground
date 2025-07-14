@@ -218,10 +218,7 @@ class Line:
     
     def getShape(self):
         return self.__line
-    
-    def getNumComponents(self):
-        return 1
-    
+        
     def isClosedFigure(self):
         return False
     
