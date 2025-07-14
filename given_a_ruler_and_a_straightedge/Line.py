@@ -1,6 +1,7 @@
 import numpy as np
 import math
 import copy 
+import constants as c
 
 from Point import *
 """"
@@ -23,21 +24,19 @@ class Line:
     def __init__(self):
         pass
 
-    # plots the line in the given plot and updates the canvas
-    def plotShape(self, plot, canvas,linewidth):
+    # plots the line in the given plot 
+    def plotShape(self, plot,linewidth = c.THINLINE):
         if self.__endPoint != None:
             x_data = np.linspace(self.__startPoint.getX(), self.__endPoint.getX(), 100)
             y_data = np.linspace(self.__startPoint.getY(), self.__endPoint.getY(),100)
             self.__line, = plot.plot(x_data,y_data, color = "black", lw= linewidth)
 
             #plots endpoints
-            self.__endPointPlot = self.__endPoint.plotShape(plot,canvas,linewidth)
-            self.__startPointPlot = self.__startPoint.plotShape(plot,canvas,linewidth)
-
-            canvas.draw()
+            self.__endPointPlot = self.__endPoint.plotShape(plot,linewidth)
+            self.__startPointPlot = self.__startPoint.plotShape(plot,linewidth)
 
     #plots the line on a scaled canvas
-    def plotShapeScaledPlotsize(self,plot,canvas,oldPlotSize, newPlotSize):
+    def plotShapeScaledPlotsize(self,plot,oldPlotSize, newPlotSize):
         # calculates scalefactor
         scaleFactor = newPlotSize / oldPlotSize
 
@@ -50,9 +49,9 @@ class Line:
         endPoint.setPointSize(Point.getDPS()*scaleFactor)
         figure.setStartPoint(startPoint)
         figure.setEndPoint(endPoint)
-        figure.plotShape(plot,canvas,1)
+        figure.plotShape(plot,c.THINLINE)
 
-    def scale(self,scaleVal,plot,canvas):
+    def scale(self,scaleVal,plot):
         scaler = scaleVal / 100
         dx,dy = self.getSlope()
         if (dx != 0):
@@ -98,15 +97,15 @@ class Line:
         if newLeft.getX() >= newRight.getX():
             return
 
-        self.removeShape(canvas)
+        self.removeShape()
         self.setStartPoint(newLeft)
         self.setEndPoint(newRight)
-        self.plotShape(plot,canvas,1)
+        self.plotShape(plot,c.THINLINE)
         self.setStartPoint(oldStart)
         self.setEndPoint(oldEnd)
 
 
-    def confirmScaleSize(self,scaleVal,plot,canvas):
+    def confirmScaleSize(self,scaleVal,plot):
         scaler = scaleVal / 100
         dx,dy = self.getSlope()
         if (dx != 0):
@@ -152,7 +151,7 @@ class Line:
         if newLeft.getX() >= newRight.getX():
             return
 
-        self.removeShape(canvas)
+        self.removeShape()
         # ensures start and end points are not altered in relative position
         if oldStart.getX() < oldEnd.getX():
             self.setStartPoint(newLeft)
@@ -161,10 +160,10 @@ class Line:
             self.setStartPoint(newRight)
             self.setEndPoint(newLeft)
             
-        self.plotShape(plot,canvas,1)
+        self.plotShape(plot,c.THINLINE)
             
     # removes the endpoints and lines associated with the plotted line
-    def removeShape(self,canvas):
+    def removeShape(self):
         if self.__line != None:
             # removes line and endPoint
             self.__line.remove()
@@ -172,9 +171,7 @@ class Line:
             self.__endPointPlot.remove()
             self.__line = None
 
-        self.hideMetrics(canvas)
-
-        canvas.draw()
+        self.hideMetrics()
 
     # moves the entire line by a given amount
     def moveShape(self, deltaX,deltaY):
@@ -183,28 +180,28 @@ class Line:
         self.setEndPoint(newEnd)
         self.setStartPoint(newStart)
 
-    def showMetrics(self,plot,canvas):
+    def showMetrics(self,plot):
         textX = (self.getEndPoint().getX() + self.getStartPoint().getX())/ 2
         textY = (self.getEndPoint().getY() + self.getStartPoint().getY())/ 2
         lengthText = plot.text(textX, textY, round(self.getLength(),3), fontsize=10, color='red', rotation = self.getTerminalAngle(), horizontalalignment = 'center',verticalalignment = 'top')
 
         # store the plots
         self.__measurementText.append(lengthText)
-        canvas.draw()
 
-    def hideMetrics(self, canvas):
+    def hideMetrics(self):
         for measurement in self.__measurementText:
             measurement.remove()
 
         self.__measurementText = []
-        canvas.draw()
 
     # moves the given point to a new location
-    def movePoint(self,point, newPoint):
-        if self.getEndPoint() == point:
+    def movePoint(self,pointToMove, newPoint):
+        if self.getEndPoint().exactEquals(pointToMove):
             self.setEndPoint(newPoint)
-        else:
+        elif self.getStartPoint().exactEquals(pointToMove):
             self.setStartPoint(newPoint)
+        else:
+            print("Error: given point is not in shape")
 
     # mutators and accessors
     def setStartPoint(self, startPoint):

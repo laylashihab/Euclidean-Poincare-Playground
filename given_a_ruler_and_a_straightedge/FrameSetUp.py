@@ -61,20 +61,23 @@ def changeToolMode(newTool):
     # ensures that any thick lines are cleared 
     if EventHandlers.toolMode == c.SELECT and newTool != c.SELECT:
         for shape in EventHandlers.shapeList:
-            shape.removeShape(CANVAS)
-            shape.plotShape(PLOT, CANVAS,EventHandlers.THINLINE)
+            shape.removeShape()
+            shape.plotShape(PLOT)
+            CANVAS.draw()
+    # ensures that scaled values are saved
     elif EventHandlers.toolMode == c.SCALE and newTool != c.SCALE:
         scaleVal = float(scaleSlider.get())
         currentShape = EventHandlers.currentShape
-        currentShape.confirmScaleSize(scaleVal,PLOT,CANVAS)
+        currentShape.confirmScaleSize(scaleVal,PLOT)
+        CANVAS.draw()
+
         dataDisplay.config(text=currentShape.measure())
         dataDisplay.update()
-    
-    # ensures the scale slider is hidden
-    if newTool != c.SCALE:
+
+        # ensures the scale slider is hidden
         scaleSlider.set(100)
         scaleSlider.grid_forget()
-
+    
     EventHandlers.toolMode = newTool
     match newTool:
         case c.DRAW:
@@ -90,8 +93,8 @@ def changeToolMode(newTool):
     
     # ensures that all lines are thin
     for shape in EventHandlers.shapeList:
-        shape.removeShape(CANVAS)
-        shape.plotShape(PLOT, CANVAS, EventHandlers.THINLINE)
+        shape.removeShape()
+        shape.plotShape(PLOT)
 
 def achievementsOnOff(Main):
     Main.achievementsOn = not Main.achievementsOn
@@ -120,25 +123,28 @@ def showAngles():
     if showAnglesButton.cget("text") == "Show Angles":
         for shape in EventHandlers.shapeList:
             if (type(shape) == Shape):
-                shape.showAngles(PLOT,CANVAS)
+                shape.showAngles(PLOT)
+                CANVAS.draw()
         showAnglesButton.config(text= "Hide Angles")
 
     else:
         for shape in EventHandlers.shapeList:
             if (type(shape) == Shape):
-                shape.hideAngles(CANVAS)
+                shape.hideAngles()
+                CANVAS.draw()
         showAnglesButton.config(text= "Show Angles")
 
 def showMetrics():
     if (showMetricsButton.cget("text") == "Show Metrics"):
         for shape in EventHandlers.shapeList:
-            shape.showMetrics(PLOT, CANVAS)
+            shape.showMetrics(PLOT)
         showMetricsButton.config(text = "Hide Metrics")
     else:
         for shape in EventHandlers.shapeList:
-            shape.hideMetrics(CANVAS)
+            shape.hideMetrics()
 
         showMetricsButton.config(text = "Show Metrics")
+    CANVAS.draw()
 
 def saveFigure(shape):
     global savedFiguresList
@@ -153,7 +159,8 @@ def saveFigure(shape):
 def addFigure(figure):
     # ensures a copy of the saved figure is added
     figure = copy.deepcopy(figure)
-    figure.plotShape(PLOT, CANVAS, 1)
+    figure.plotShape(PLOT)
+    CANVAS.draw()
     EventHandlers.shapeList.append(figure)
     EventHandlers.currentShape = None
 
@@ -198,7 +205,8 @@ def openFigureLibrary():
         item.pack()
                 
         # plots the shape in scale to the figure library plotsize
-        figure.plotShapeScaledPlotsize(plot,canvas,oldPlotSize = PLOTSIZE, newPlotSize=plotsize)
+        figure.plotShapeScaledPlotsize(plot,oldPlotSize = PLOTSIZE, newPlotSize=plotsize)
+        CANVAS.draw()
 
 def styleButton(button):
     button.config(fg=buttonTextCol)
@@ -210,7 +218,8 @@ def scaleChange(value):
     currentShape = EventHandlers.currentShape
     if (type(currentShape) != Point):
         value = float(value)
-        currentShape.scale(value, PLOT,CANVAS)
+        currentShape.scale(value, PLOT)
+        CANVAS.draw()
 
 # constants
 ROOT = None

@@ -1,4 +1,5 @@
 import math
+import constants as c
 """"
 Class to define a point in a graph
 Points are defined by an x and y value
@@ -58,6 +59,11 @@ class Point:
         else:
             return False
         
+    # checks if the x and y values of a point match
+    def exactEquals(self,otherPoint):
+        if (self.getX() == otherPoint.getX() and self.getY() == otherPoint.getY()):
+            return True
+        return False
     # checks if the Point shape contains a given point (essentially checks if they are close to equivalent)
     def containsPoint(self, point):
         return self.equals(point)
@@ -76,24 +82,15 @@ class Point:
         return False
     
     # plots the point
-    def plotShape(self, plot, canvas, linewidth):
+    def plotShape(self, plot, linewidth = c.THINLINE):
         self.__plot = plot.scatter(self.__x,self.__y, color="blue", s=self.__pointSize)
-        canvas.draw()
         return self.__plot
 
-    # updates value for point and plots
-    def draw(self,plot,canvas,endPoint,linewidth):
-        self.removeShape(canvas)
-        self.movePoint(self,endPoint)
-        self.plotShape(plot,canvas,linewidth)
-
     # removes the plotted point from the canvas
-    def removeShape(self,canvas):
+    def removeShape(self):
         if (self.__plot != None):
             self.__plot.remove()
             self.__plot = None
-
-            canvas.draw()
 
     # moves the point to a new location
     def movePoint(self,point, newPoint):

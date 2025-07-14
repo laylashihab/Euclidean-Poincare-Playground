@@ -6,7 +6,7 @@ shape and figure are used interchangeably
 
 from Line import *
 from Circle import *
-import copy
+import constants as c
 
 
 class Shape():
@@ -30,16 +30,16 @@ class Shape():
         self.__arcPlotLists = arcPlotLists
 
     # plots each part of the shape
-    def plotShape(self,plot,canvas, linewidth):
+    def plotShape(self,plot, linewidth = c.THINLINE):
         for component in self.__components:
-            component.plotShape(plot,canvas,linewidth)
+            component.plotShape(plot,linewidth)
 
     # plots a scaled version of the shape
-    def plotShapeScaledPlotsize(self,plot,canvas,oldPlotSize, newPlotSize):
+    def plotShapeScaledPlotsize(self,plot,oldPlotSize, newPlotSize):
         for component in self.__components:
-            component.plotShapeScaledPlotsize(plot,canvas,oldPlotSize, newPlotSize)
+            component.plotShapeScaledPlotsize(plot,oldPlotSize, newPlotSize)
 
-    def scale(self,scaleVal,plot,canvas):
+    def scale(self,scaleVal,plot):
         scaler = scaleVal / 100 
 
         # finds the midpoint of the shape
@@ -108,16 +108,16 @@ class Shape():
                 component.setEndPoint(newPoint)
 
                 # deals w plotting
-                component.removeShape(canvas)
-                component.plotShape(plot,canvas, 1)
+                component.removeShape()
+                component.plotShape(plot, c.THINLINE)
 
                 # resets start and endpoints
                 component.setStartPoint(currentStart)
                 component.setEndPoint(currentEnd)
             else: # dealing w circles
-                component.scale(scaleVal,plot,canvas)
+                component.scale(scaleVal,plot)
 
-    def confirmScaleSize(self,scaleVal,plot,canvas):
+    def confirmScaleSize(self,scaleVal,plot):
         scaler = scaleVal / 100 
 
         # finds the midpoint of the shape
@@ -193,20 +193,18 @@ class Shape():
                 component.setEndPoint(newPoint)
 
                 # deals w plotting
-                component.removeShape(canvas)
-                component.plotShape(plot,canvas, 1)
+                component.removeShape()
+                component.plotShape(plot)
 
             else: # dealing w circles
-                component.confirmScaleSize(scaleVal,plot,canvas)
+                component.confirmScaleSize(scaleVal,plot)
 
     # removes each part of the shape
-    def removeShape(self,canvas):
+    def removeShape(self):
         for component in self.__components:
-            component.removeShape(canvas)
+            component.removeShape()
 
         self.__arcPlotLists = []
-
-        canvas.draw()
 
     def getStartPoint(self):
         return self.__components[0].getStartPoint()
@@ -309,7 +307,7 @@ class Shape():
             
     # shows the angles between lines on a shape
     # returns a list of angle measures 
-    def showAngles(self,plot,canvas):
+    def showAngles(self,plot):
         pairList = self.findConnectedLines()
         angleList = []
         self.__arcPlotLists =[]
@@ -357,10 +355,9 @@ class Shape():
             # store the plots
             self.__arcPlotLists.append(arc)
             self.__arcPlotLists.append(arcText)
-            canvas.draw()
         return angleList
 
-    def hideAngles(self,canvas):
+    def hideAngles(self):
         # iterating over a copy of the list reduces risk of unpredictable behavior
         for arc in self.__arcPlotLists[:]:
             self.__arcPlotLists.remove(arc)
@@ -369,16 +366,14 @@ class Shape():
         if len(self.__arcPlotLists) != 0:
             print("Failed to remove all angle plots")
 
-        canvas.draw()
-
-    def showMetrics(self,plot, canvas):
+    def showMetrics(self,plot):
         for component in self.__components:
-            component.showMetrics(plot,canvas)
+            component.showMetrics(plot)
 
-    def hideMetrics(self, canvas):
+    def hideMetrics(self):
         for component in self.__components:
             if type(component) != Point:
-                component.hideMetrics(canvas)
+                component.hideMetrics()
             
     # provides data about the shape
     def measure(self):

@@ -1,7 +1,7 @@
 import math
 import matplotlib.patches as patches
 import copy
-from constants import PLOTSIZE
+import constants as c
 
 """"
 class to create Euclidean Circle objects
@@ -24,17 +24,16 @@ class Circle:
         pass
 
     # plots the circle and center point in a given plot and updates canvas
-    def plotShape(self, plot, canvas, linewidth):
+    def plotShape(self, plot, linewidth = c.THINLINE):
         if self.__centerPoint != None:
             self.__circle = patches.Circle((self.__centerPoint.getX(), self.__centerPoint.getY()), radius=self.__radius, edgecolor='black', facecolor = 'None', linewidth= linewidth)
 
             #plots circle and radius point
             plot.add_patch(self.__circle)
-            self.__centerPointPlot = self.__centerPoint.plotShape(plot,canvas,linewidth)
-            canvas.draw()
+            self.__centerPointPlot = self.__centerPoint.plotShape(plot,linewidth)
 
     #plots the line on a scaled canvas
-    def plotShapeScaledPlotsize(self,plot,canvas,oldPlotSize, newPlotSize):
+    def plotShapeScaledPlotsize(self,plot,oldPlotSize, newPlotSize):
         # calculates scalefactor
         scaleFactor = newPlotSize / oldPlotSize
 
@@ -45,47 +44,41 @@ class Circle:
         centerPoint.setPointSize(Point.getDPS()*scaleFactor)
         figure.setCenterPoint(centerPoint)
         figure.setRadius(figure.getRadius() *scaleFactor)
-        figure.plotShape(plot,canvas,1)
+        figure.plotShape(plot,c.THINLINE)
 
     #scales the whole circle by a given amount, but preserves original radius
-    def scale(self,scaleVal,plot,canvas):
-        self.removeShape(canvas)
+    def scale(self,scaleVal,plot):
+        self.removeShape()
         oldRadius = self.getRadius()
         newRadius = oldRadius + (float(scaleVal) * oldRadius)
-        if (newRadius > PLOTSIZE or newRadius <= 0):
-            return
         self.setRadius(newRadius)
-        self.plotShape(plot,canvas,1)
+        self.plotShape(plot,c.THINLINE)
         self.setRadius(oldRadius)
 
     # modifies original radius and scales
-    def confirmScaleSize(self,scaleVal,plot,canvas):
-        self.removeShape(canvas)
+    def confirmScaleSize(self,scaleVal,plot):
+        self.removeShape()
         oldRadius = self.getRadius()
         newRadius = oldRadius + (float(scaleVal) * oldRadius)
-        if (newRadius > PLOTSIZE or newRadius <= 0):
-            return
         self.setRadius(newRadius)
-        self.plotShape(plot,canvas,1)
+        self.plotShape(plot,c.THINLINE)
 
     # removes circle and center point associated with the plotted circle
-    def removeShape(self,canvas):
+    def removeShape(self):
         if self.__circle != None:
             # removes line and endPoint
             self.__circle.remove()
             self.__circle = None
             self.__centerPointPlot.remove()
 
-            canvas.draw()
-
     # moves the entire shape by a given amount
     def moveShape(self, deltaX, deltaY):
         self.__centerPoint = Point(self.getCenterPoint().getX()+deltaX, self.getCenterPoint().getY() + deltaY)
     
-    def showMetrics(self,plot, canvas):
+    def showMetrics(self,plot):
         pass
 
-    def hideMetrics(self, canvas):
+    def hideMetrics(self):
         pass
 
     # mutators and accessors
@@ -95,8 +88,8 @@ class Circle:
     def setCenterPoint(self, centerPoint):
         self.__centerPoint = centerPoint
     
-    def movePoint(self, point, newPoint):
-        self.setEndPoint(newPoint)
+    def movePoint(self, pointToMove, newPoint):
+        self.setCenterPoint(newPoint)
 
     # updates the part of the circle that moves (either radius or center point)
     def setEndPoint(self, endPoint):
