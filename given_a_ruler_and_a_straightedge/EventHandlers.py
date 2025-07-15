@@ -39,6 +39,7 @@ def click_handler(event):
                     if (type(currentShape) == Shape): 
                         currentShape.hideAngles()
                     currentShape.hideMetrics()
+                    
                     CANVAS.draw()
 
                     # sets the point to move as the exact point from the figure
@@ -102,10 +103,6 @@ def click_handler(event):
                     shape.plotShape(PLOT,c.THICKLINE)
                     CANVAS.draw()
                     FrameSetUp.saveFigureButton.grid(row=6, column=2,padx=FrameSetUp.PADX,pady=FrameSetUp.PADY)
-
-                    return
-                case c.SCALE:
-                    currentShape = shape
 
                     return
 
@@ -227,6 +224,41 @@ def unclick_handler(event):
                 elif c.ACHIEVEMENTSDICT["createObtuseAngle"].isComplete() == False and angle > 90:
                     c.ACHIEVEMENTSDICT["createObtuseAngle"].showAchievement()
 
+def slider_click(event):
+    # turns off metrics and angles
+    currentShape.hideMetrics()
+    if type(currentShape) == Shape:
+        currentShape.hideAngles()
+
+def slider_drag(event):
+    if (type(currentShape) != Point):
+        value = FrameSetUp.scaleSlider.get()
+        value = float(value)
+        currentShape.scale(value, PLOT)
+        CANVAS.draw()
+
+def slider_unclick(event):
+    scaleVal = float(FrameSetUp.scaleSlider.get())
+    currentShape.confirmScaleSize(scaleVal,PLOT)
+    
+    CANVAS.draw()
+
+    FrameSetUp.dataDisplay.config(text=currentShape.measure())
+    FrameSetUp.dataDisplay.update()
+
+    # ensures the scale slider is hidden
+    FrameSetUp.scaleSlider.set(100)
+
+    # ensures angles and metrics are shown that must be displayed
+    if (type(currentShape) == Shape and FrameSetUp.showAnglesButton.cget("text") == "Hide Angles"):
+        currentShape.showAngles(PLOT)
+    if (currentShape != None and FrameSetUp.showMetricsButton.cget("text") == "Hide Metrics"):
+        currentShape.showMetrics(PLOT)
+
+    # updates the canvas
+    CANVAS.draw()
+
+
 # initializes a new Basic shape (Point, Line, Circle)
 # for points, creates a new point object
 # for lines and circles, sets the endpoint and startpoint to the given start point 
@@ -316,5 +348,10 @@ def bindEvents(Main):
     CANVAS.mpl_connect("button_press_event", click_handler)
     CANVAS.mpl_connect("motion_notify_event", drag_handler)
     CANVAS.mpl_connect("button_release_event", unclick_handler)
+
+    # binds scale slider to event functions
+    FrameSetUp.scaleSlider.bind("<Button-1>", slider_click)
+    FrameSetUp.scaleSlider.bind("<B1-Motion>", slider_drag)
+    FrameSetUp.scaleSlider.bind("<ButtonRelease-1>", slider_unclick)
 
 

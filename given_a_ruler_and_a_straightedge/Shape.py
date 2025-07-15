@@ -309,7 +309,7 @@ class Shape():
     def showAngles(self,plot):
         pairList = self.findConnectedLines()
         angleList = []
-        self.__arcPlotLists =[]
+        self.__arcPlotLists = []
         for pair in pairList:
             # shared point
             point = pair[0].getStartPoint() if pair[1].containsPoint(pair[0].getStartPoint()) else pair[0].getEndPoint()
@@ -357,13 +357,12 @@ class Shape():
         return angleList
 
     def hideAngles(self):
-        # iterating over a copy of the list reduces risk of unpredictable behavior
-        for arc in self.__arcPlotLists[:]:
-            self.__arcPlotLists.remove(arc)
+        for arc in self.__arcPlotLists:
             arc.remove()
+        self.__arcPlotLists = []
 
         if len(self.__arcPlotLists) != 0:
-            print("Failed to remove all angle plots")
+            raise("Failed to remove all angle plots")
 
     def showMetrics(self,plot):
         for component in self.__components:

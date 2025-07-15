@@ -64,19 +64,10 @@ def changeToolMode(newTool):
             shape.removeShape()
             shape.plotShape(PLOT)
             CANVAS.draw()
-    # ensures that scaled values are saved
+    # ensures that the scale bar is removed
     elif EventHandlers.toolMode == c.SCALE and newTool != c.SCALE:
-        scaleVal = float(scaleSlider.get())
-        currentShape = EventHandlers.currentShape
-        currentShape.confirmScaleSize(scaleVal,PLOT)
-        CANVAS.draw()
-
-        dataDisplay.config(text=currentShape.measure())
-        dataDisplay.update()
-
-        # ensures the scale slider is hidden
-        scaleSlider.set(100)
         scaleSlider.grid_forget()
+
     
     EventHandlers.toolMode = newTool
     match newTool:
@@ -91,10 +82,6 @@ def changeToolMode(newTool):
         case c.SELECT:
             changeButtonColor(selectButton)
     
-    # ensures that all lines are thin
-    for shape in EventHandlers.shapeList:
-        shape.removeShape()
-        shape.plotShape(PLOT)
 
 def achievementsOnOff(Main):
     Main.achievementsOn = not Main.achievementsOn
@@ -214,13 +201,6 @@ def styleButton(button):
 def styleLabel(label):
     label.config(fg=textCol, bg=backgroundCol)
 
-def scaleChange(value):
-    currentShape = EventHandlers.currentShape
-    if (type(currentShape) != Point):
-        value = float(value)
-        currentShape.scale(value, PLOT)
-        CANVAS.draw()
-
 # constants
 ROOT = None
 LIBRARYROOT = None
@@ -303,7 +283,7 @@ def setUp(Main):
     showMetricsButton = tk.Button(TOOLBAR, command = lambda: [showMetrics()],height = 2, width = 15, text = "Show Metrics")
 
     scaleShapeButton = tk.Button(TOOLBAR,command=lambda: [showSlider(),changeButtonColor(scaleShapeButton),changeToolMode(c.SCALE)],height=2,width=15,text="Scale")
-    scaleSlider = tk.Scale(TOOLBAR, from_=0, to=200, orient=tk.HORIZONTAL,command=scaleChange, resolution=1,width=20)
+    scaleSlider = tk.Scale(TOOLBAR, from_=0, to=200, orient=tk.HORIZONTAL, resolution=1,width=20)
 
     # bottom TOOLBAR setup
     EXTRATOOLS = tk.Frame(ROOT,bg=backgroundCol)
