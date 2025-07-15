@@ -105,10 +105,29 @@ def click_handler(event):
                     FrameSetUp.saveFigureButton.grid(row=6, column=2,padx=FrameSetUp.PADX,pady=FrameSetUp.PADY)
 
                     return
+                case c.SCALE:
+                    # ensures any previously selected shape is plotted with thin lines
+                    if currentShape != None:
+                        currentShape.removeShape()
+                        currentShape.plotShape(PLOT)
+                        CANVAS.draw()
+
+                        
+                    currentShape = shape
+
+                    # ensures the new selection is plotted with thick lines
+                    if currentShape != None:
+                        currentShape.removeShape()
+                        currentShape.plotShape(PLOT,c.THICKLINE)
+                        CANVAS.draw()
+
+                    return
 
     # if the user is clicking on a clear space of the CANVAS
     if (toolMode == c.DRAW):
         currentShape = newBasicShape(currentPoint)
+    else:
+        currentShape = None
 
 def drag_handler(event):
     global shapeType,currentShape,currentPoint,shapeList,toolMode,movePoint
@@ -225,12 +244,18 @@ def unclick_handler(event):
                     c.ACHIEVEMENTSDICT["createObtuseAngle"].showAchievement()
 
 def slider_click(event):
+    if currentShape == None:
+        return 
+
     # turns off metrics and angles
     currentShape.hideMetrics()
     if type(currentShape) == Shape:
         currentShape.hideAngles()
 
 def slider_drag(event):
+    if currentShape == None:
+        return 
+
     if (type(currentShape) != Point):
         value = FrameSetUp.scaleSlider.get()
         value = float(value)
@@ -238,16 +263,23 @@ def slider_drag(event):
         CANVAS.draw()
 
 def slider_unclick(event):
+
+    if currentShape == None:
+        # ensures the scale slider is hidden
+        FrameSetUp.scaleSlider.set(100)
+
+        return 
+    
     scaleVal = float(FrameSetUp.scaleSlider.get())
     currentShape.confirmScaleSize(scaleVal,PLOT)
     
     CANVAS.draw()
 
-    FrameSetUp.dataDisplay.config(text=currentShape.measure())
-    FrameSetUp.dataDisplay.update()
-
     # ensures the scale slider is hidden
     FrameSetUp.scaleSlider.set(100)
+
+    FrameSetUp.dataDisplay.config(text=currentShape.measure())
+    FrameSetUp.dataDisplay.update()
 
     # ensures angles and metrics are shown that must be displayed
     if (type(currentShape) == Shape and FrameSetUp.showAnglesButton.cget("text") == "Hide Angles"):
@@ -322,6 +354,21 @@ def newShape(oldShape, newShape):
     shapeList.append(newlyCreatedShape)
     return newlyCreatedShape
 
+def zoom_click(event):
+    pass
+
+def zoom_drag(event):
+    scaleVal = FrameSetUp.zoomSlider.get()
+    plotsize = c.PLOTSIZE - (scaleVal * 10)
+    PLOT.set_xlim(0,plotsize)
+    PLOT.set_ylim(0,plotsize)
+    PLOT.set_axis_off()
+    CANVAS.draw()
+
+
+def zoom_unclick(event):
+    pass
+
 # class variables
 currentShape = None
 currentPoint = None
@@ -353,5 +400,10 @@ def bindEvents(Main):
     FrameSetUp.scaleSlider.bind("<Button-1>", slider_click)
     FrameSetUp.scaleSlider.bind("<B1-Motion>", slider_drag)
     FrameSetUp.scaleSlider.bind("<ButtonRelease-1>", slider_unclick)
+
+    # binds zoom slider to event functions
+    FrameSetUp.zoomSlider.bind("<Button-1>", zoom_click)
+    FrameSetUp.zoomSlider.bind("<B1-Motion>", zoom_drag)
+    FrameSetUp.zoomSlider.bind("<ButtonRelease-1>", zoom_unclick)
 
 

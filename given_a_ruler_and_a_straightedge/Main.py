@@ -18,7 +18,7 @@ class Main:
         # set up the frame and eventHandlers
         FrameSetUp.setUp(self)
         EventHandlers.bindEvents(self)
-        
+            
     def run(self):
         FrameSetUp.ROOT.mainloop()
 

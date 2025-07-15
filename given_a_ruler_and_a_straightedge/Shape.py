@@ -107,7 +107,7 @@ class Shape():
 
                 # deals w plotting
                 component.removeShape()
-                component.plotShape(plot, c.THINLINE)
+                component.plotShape(plot, c.THICKLINE)
 
                 # resets start and endpoints
                 component.setStartPoint(currentStart)
@@ -192,7 +192,7 @@ class Shape():
 
                 # deals w plotting
                 component.removeShape()
-                component.plotShape(plot)
+                component.plotShape(plot,c.THICKLINE)
 
             else: # dealing w circles
                 component.confirmScaleSize(scaleVal,plot)

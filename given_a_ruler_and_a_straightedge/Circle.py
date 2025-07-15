@@ -52,7 +52,7 @@ class Circle:
         oldRadius = self.getRadius()
         newRadius = oldRadius + (float(scaleVal) * oldRadius)
         self.setRadius(newRadius)
-        self.plotShape(plot,c.THINLINE)
+        self.plotShape(plot,c.THICKLINE)
         self.setRadius(oldRadius)
 
     # modifies original radius and scales
@@ -61,7 +61,7 @@ class Circle:
         oldRadius = self.getRadius()
         newRadius = oldRadius + (float(scaleVal) * oldRadius)
         self.setRadius(newRadius)
-        self.plotShape(plot,c.THINLINE)
+        self.plotShape(plot,c.THICKLINE)
 
     # removes circle and center point associated with the plotted circle
     def removeShape(self):

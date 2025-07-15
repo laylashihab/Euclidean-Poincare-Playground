@@ -100,7 +100,7 @@ class Line:
         self.removeShape()
         self.setStartPoint(newLeft)
         self.setEndPoint(newRight)
-        self.plotShape(plot,c.THINLINE)
+        self.plotShape(plot,c.THICKLINE)
         self.setStartPoint(oldStart)
         self.setEndPoint(oldEnd)
 
@@ -160,7 +160,7 @@ class Line:
             self.setStartPoint(newRight)
             self.setEndPoint(newLeft)
             
-        self.plotShape(plot,c.THINLINE)
+        self.plotShape(plot,c.THICKLINE)
             
     # removes the endpoints and lines associated with the plotted line
     def removeShape(self):

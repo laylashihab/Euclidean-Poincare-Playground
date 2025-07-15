@@ -64,9 +64,14 @@ def changeToolMode(newTool):
             shape.removeShape()
             shape.plotShape(PLOT)
             CANVAS.draw()
-    # ensures that the scale bar is removed
+    # ensures that the scale bar is removed and line is thin again
     elif EventHandlers.toolMode == c.SCALE and newTool != c.SCALE:
         scaleSlider.grid_forget()
+        currentShape = EventHandlers.currentShape
+        if currentShape != None:
+            currentShape.removeShape()
+            currentShape.plotShape(PLOT)
+            CANVAS.draw()
 
     
     EventHandlers.toolMode = newTool
@@ -220,6 +225,7 @@ clearButton,showAnglesButton, showMetricsButton,selectButton= None, None, None, 
 achievementsOnButton, saveFigureButton = None, None
 shapeButtonList,operationButtonList = None, None
 scaleShapeButton,scaleSlider = None,None
+zoomLabel,zoomSlider = None,None
 savedFiguresList =[]
 figureButtonList = []
 
@@ -238,6 +244,7 @@ def setUp(Main):
     global achievementsOnButton,selectButton,saveFigureButton,openFigureLibraryButton
     global shapeButtonList,operationButtonList
     global scaleShapeButton,scaleSlider
+    global zoomLabel,zoomSlider
     
     # creating the root TKinter component
     ROOT = tk.Tk()
@@ -265,7 +272,8 @@ def setUp(Main):
     TOOLBAR = tk.Frame(ROOT, bg=backgroundCol)
     shapeLabel = tk.Label(TOOLBAR, text="Shape Library")
     operationLabel = tk.Label(TOOLBAR, text="Operations")
-    
+    zoomLabel = tk.Label(TOOLBAR, text="Zoom")
+
     # Shape Buttons
     pointButton = tk.Button(TOOLBAR, command=lambda: [changeShape(c.POINT), changeButtonColor(pointButton)], height = 2, width = 10, text = "Point")
     lineButton = tk.Button(TOOLBAR, command=lambda: [changeShape(c.LINE), changeButtonColor(lineButton)], height = 2, width = 10, text = "Line")
@@ -285,6 +293,8 @@ def setUp(Main):
     scaleShapeButton = tk.Button(TOOLBAR,command=lambda: [showSlider(),changeButtonColor(scaleShapeButton),changeToolMode(c.SCALE)],height=2,width=15,text="Scale")
     scaleSlider = tk.Scale(TOOLBAR, from_=0, to=200, orient=tk.HORIZONTAL, resolution=1,width=20)
 
+    zoomSlider = tk.Scale(TOOLBAR, from_=-100, to =100, orient=tk.HORIZONTAL, resolution = 1, width=20,length = 150)
+
     # bottom TOOLBAR setup
     EXTRATOOLS = tk.Frame(ROOT,bg=backgroundCol)
 
@@ -303,7 +313,7 @@ def setUp(Main):
     buttons = [pointButton,lineButton,circleButton,clearButton,movePointButton,deleteButton,selectButton,drawButton,showAnglesButton,
                showMetricsButton,achievementsOnButton,saveFigureButton,openFigureLibraryButton, moveObjectButton]
     # list containing all label components
-    labels = [dataDisplay,descriptLabel,shapeLabel,operationLabel]
+    labels = [dataDisplay,descriptLabel,shapeLabel,operationLabel,zoomLabel]
 
     # styles all buttons and labels
     for button in buttons:
@@ -333,10 +343,21 @@ def setUp(Main):
     # Measurement Buttons
     def showSlider():
         scaleSlider.grid(row=5,column=2,columnspan=2)
+        # makes the current shape bold
+        currentShape = EventHandlers.currentShape
+        if currentShape != None:
+            currentShape.removeShape()
+            currentShape.plotShape(PLOT,linewidth=c.THICKLINE)
+            CANVAS.draw()
+
     placeRow([showAnglesButton,showMetricsButton],5,0)
     showSlider()
     scaleShapeButton.grid(row=5,column=4,padx=PADX, pady=PADY)
     scaleSlider.set(100)
+
+    zoomLabel.grid(row=6,column=1,padx=PADX,pady=PADY)
+    zoomSlider.grid(row=7,column=1,padx=PADX,pady=PADY,columnspan=3)
+    zoomSlider.set(0)
 
     # figure library tools
     placeRow([selectButton,saveFigureButton,openFigureLibraryButton],6,1)
