@@ -354,20 +354,14 @@ def newShape(oldShape, newShape):
     shapeList.append(newlyCreatedShape)
     return newlyCreatedShape
 
-def zoom_click(event):
-    pass
-
 def zoom_drag(event):
     scaleVal = FrameSetUp.zoomSlider.get()
-    plotsize = c.PLOTSIZE - (scaleVal * 10)
-    PLOT.set_xlim(0,plotsize)
-    PLOT.set_ylim(0,plotsize)
+    plotbounds = c.PLOTBOUNDS - (scaleVal * 10)
+    PLOT.set_xlim(0,c.PLOTBOUNDS)
+    PLOT.set_ylim(0,c.PLOTBOUNDS)
     PLOT.set_axis_off()
     CANVAS.draw()
 
-
-def zoom_unclick(event):
-    pass
 
 # class variables
 currentShape = None
@@ -402,8 +396,6 @@ def bindEvents(Main):
     FrameSetUp.scaleSlider.bind("<ButtonRelease-1>", slider_unclick)
 
     # binds zoom slider to event functions
-    FrameSetUp.zoomSlider.bind("<Button-1>", zoom_click)
     FrameSetUp.zoomSlider.bind("<B1-Motion>", zoom_drag)
-    FrameSetUp.zoomSlider.bind("<ButtonRelease-1>", zoom_unclick)
 
 

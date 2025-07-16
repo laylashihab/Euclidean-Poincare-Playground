@@ -34,6 +34,12 @@ class Line:
             #plots endpoints
             self.__endPointPlot = self.__endPoint.plotShape(plot,linewidth)
             self.__startPointPlot = self.__startPoint.plotShape(plot,linewidth)
+    
+    def getEuclideanPlotPoints(self):
+        if self.__endPoint != None:
+            x_data = np.linspace(self.__startPoint.getX(), self.__endPoint.getX(), 100)
+            y_data = np.linspace(self.__startPoint.getY(), self.__endPoint.getY(),100)
+        return (x_data,y_data)
 
     #plots the line on a scaled canvas
     def plotShapeScaledPlotsize(self,plot,oldPlotSize, newPlotSize):

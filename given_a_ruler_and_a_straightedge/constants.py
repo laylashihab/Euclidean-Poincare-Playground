@@ -40,6 +40,7 @@ ACHIEVEMENTSDICT["createCircle"] = Achievement("Define a Circle","A circle is a 
 PADX = 5
 PADY = 5
 PLOTSIZE = 400
+PLOTBOUNDS = 5
 DEFAULTPOINTSIZE = 50
 THINLINE = 1
 THICKLINE = 3

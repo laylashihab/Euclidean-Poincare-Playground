@@ -32,6 +32,15 @@ class Shape():
         for component in self.__components:
             component.plotShape(plot,linewidth)
 
+    def getEuclideanPlotPoints(self):
+        x_data = []
+        y_data = []
+        for component in self.__components:
+            (newXData,newYData) = component.getEuclideanPlotPoints()
+            x_data = np.concatenate((x_data,newXData))
+            y_data = np.concatenate((y_data,newYData))
+        return (x_data,y_data)
+
     # plots a scaled version of the shape
     def plotShapeScaledPlotsize(self,plot,oldPlotSize, newPlotSize):
         for component in self.__components:

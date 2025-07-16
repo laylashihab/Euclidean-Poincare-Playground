@@ -2,6 +2,7 @@ import math
 import matplotlib.patches as patches
 import copy
 import constants as c
+import numpy as np
 
 """"
 class to create Euclidean Circle objects
@@ -32,6 +33,13 @@ class Circle:
             plot.add_patch(self.__circle)
             self.__centerPointPlot = self.__centerPoint.plotShape(plot,linewidth)
 
+    def getEuclideanPlotPoints(self):
+        theta_range = np.linspace(0, 2 * np.pi,100)
+        r = self.getRadius()
+        x_data = r * np.cos(theta_range)
+        y_data = r * np.sin(theta_range)
+        return (x_data, y_data)
+    
     #plots the line on a scaled canvas
     def plotShapeScaledPlotsize(self,plot,oldPlotSize, newPlotSize):
         # calculates scalefactor

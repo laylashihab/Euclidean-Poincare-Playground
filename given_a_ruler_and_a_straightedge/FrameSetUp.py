@@ -7,6 +7,7 @@ from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg)
 import tkinter as tk
 
 import EventHandlers
+import poincareDisk
 import constants as c
 
 
@@ -105,8 +106,8 @@ def clear():
 
     EventHandlers.shapeList = []
     PLOT.cla()
-    PLOT.set_xlim(0,PLOTSIZE)
-    PLOT.set_ylim(0,PLOTSIZE)
+    PLOT.set_xlim(-c.PLOTBOUNDS,c.PLOTBOUNDS)
+    PLOT.set_ylim(-c.PLOTBOUNDS,c.PLOTBOUNDS)
     PLOT.set_axis_off()
     CANVAS.draw()
 
@@ -181,8 +182,8 @@ def openFigureLibrary():
 
         # creates a plot 
         plot = fig.add_subplot(111)
-        plot.set_xlim(0,plotsize)
-        plot.set_ylim(0,plotsize)
+        plot.set_xlim(-c.PLOTBOUNDS,c.PLOTBOUNDS)
+        plot.set_ylim(-c.PLOTBOUNDS,c.PLOTBOUNDS)
         plot.set_axis_off()
 
         # creates a button associated with the plot
@@ -197,7 +198,7 @@ def openFigureLibrary():
         item.pack()
                 
         # plots the shape in scale to the figure library plotsize
-        figure.plotShapeScaledPlotsize(plot,oldPlotSize = PLOTSIZE, newPlotSize=plotsize)
+        figure.plotShapeScaledPlotsize(plot,oldPlotSize = c.PLOTBOUNDS, newPlotSize=plotsize)
         CANVAS.draw()
 
 def styleButton(button):
@@ -226,6 +227,7 @@ achievementsOnButton, saveFigureButton = None, None
 shapeButtonList,operationButtonList = None, None
 scaleShapeButton,scaleSlider = None,None
 zoomLabel,zoomSlider = None,None
+theScaryButton = None
 savedFiguresList =[]
 figureButtonList = []
 
@@ -245,6 +247,7 @@ def setUp(Main):
     global shapeButtonList,operationButtonList
     global scaleShapeButton,scaleSlider
     global zoomLabel,zoomSlider
+    global theScaryButton
     
     # creating the root TKinter component
     ROOT = tk.Tk()
@@ -262,8 +265,8 @@ def setUp(Main):
 
     # creates a plot 
     PLOT = FIG.add_subplot(111)
-    PLOT.set_xlim(0,PLOTSIZE)
-    PLOT.set_ylim(0,PLOTSIZE)
+    PLOT.set_xlim(-c.PLOTBOUNDS,c.PLOTBOUNDS)
+    PLOT.set_ylim(-c.PLOTBOUNDS,c.PLOTBOUNDS)
     PLOT.set_axis_off()
 
     # buttons and labels
@@ -287,13 +290,18 @@ def setUp(Main):
     drawButton = tk.Button(TOOLBAR, command = lambda:[changeToolMode(c.DRAW),changeButtonColor(drawButton)],height = 2, width = 12, text = "Draw")
     
     # Measurements Buttons
-    showAnglesButton = tk.Button(TOOLBAR, command= lambda: [showAngles()],height = 2, width = 15, text = "Show Angles")
-    showMetricsButton = tk.Button(TOOLBAR, command = lambda: [showMetrics()],height = 2, width = 15, text = "Show Metrics")
-
-    scaleShapeButton = tk.Button(TOOLBAR,command=lambda: [showSlider(),changeButtonColor(scaleShapeButton),changeToolMode(c.SCALE)],height=2,width=15,text="Scale")
+    showAnglesButton = tk.Button(TOOLBAR, command= lambda: [showAngles],height = 2, width = 15, text = "Show Angles")
+    showMetricsButton = tk.Button(TOOLBAR, command = lambda: [showMetrics],height = 2, width = 15, text = "Show Metrics")
+    
+    # scale buttons
+    scaleShapeButton = tk.Button(TOOLBAR,command=lambda: [showSlider,changeButtonColor(scaleShapeButton),changeToolMode(c.SCALE)],height=2,width=15,text="Scale")
     scaleSlider = tk.Scale(TOOLBAR, from_=0, to=200, orient=tk.HORIZONTAL, resolution=1,width=20)
 
+    # zoom slider
     zoomSlider = tk.Scale(TOOLBAR, from_=-100, to =100, orient=tk.HORIZONTAL, resolution = 1, width=20,length = 150)
+
+    # poincare disc model button
+    theScaryButton = tk.Button(TOOLBAR,command=lambda: [poincareDisk.run(theScaryButton)],height = 2, width = 12, text = "Poincare Disc")
 
     # bottom TOOLBAR setup
     EXTRATOOLS = tk.Frame(ROOT,bg=backgroundCol)
@@ -358,6 +366,9 @@ def setUp(Main):
     zoomLabel.grid(row=6,column=1,padx=PADX,pady=PADY)
     zoomSlider.grid(row=7,column=1,padx=PADX,pady=PADY,columnspan=3)
     zoomSlider.set(0)
+
+    # places the scary button
+    theScaryButton.grid(row=8, column = 0,padx=PADX,pady=PADY)
 
     # figure library tools
     placeRow([selectButton,saveFigureButton,openFigureLibraryButton],6,1)
