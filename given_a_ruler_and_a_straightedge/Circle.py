@@ -3,6 +3,7 @@ import matplotlib.patches as patches
 import copy
 import constants as c
 import numpy as np
+import poincareDisk
 
 """"
 class to create Euclidean Circle objects
@@ -25,7 +26,10 @@ class Circle:
         pass
 
     # plots the circle and center point in a given plot and updates canvas
-    def plotShape(self, plot, linewidth = c.THINLINE):
+    def plotShape(self, plot, linewidth = c.THINLINE, poincare = False):
+        if poincare == True:
+            self.plotShapePoincare(plot, linewidth=linewidth)
+            return
         if self.__centerPoint != None:
             self.__circle = patches.Circle((self.__centerPoint.getX(), self.__centerPoint.getY()), radius=self.__radius, edgecolor='black', facecolor = 'None', linewidth= linewidth)
 
@@ -33,13 +37,23 @@ class Circle:
             plot.add_patch(self.__circle)
             self.__centerPointPlot = self.__centerPoint.plotShape(plot,linewidth)
 
-    def getEuclideanPlotPoints(self):
-        theta_range = np.linspace(0, 2 * np.pi,100)
-        r = self.getRadius()
-        x_data = r * np.cos(theta_range)
-        y_data = r * np.sin(theta_range)
-        return (x_data, y_data)
-    
+    def plotShapePoincare(self,plot,linewidth=c.THINLINE):
+        if self.__endPoint != None:
+            theta_range = np.linspace(0, 2 * np.pi,100)
+            r = self.getRadius()
+            x_data = r * np.cos(theta_range)
+            y_data = r * np.sin(theta_range)
+            x_dataNew = []
+            y_dataNew = []
+            for i in range(0,len(x_data)):
+                (x,y) = poincareDisk.euclideanToPoincareFunc(x_data[i],y_data[i])
+                x_dataNew.append(x)
+                y_dataNew.append(y)
+            self.__circle, = plot.plot(x_dataNew,y_dataNew, color = "black")
+
+            #plots center point
+            self.__centerPointPlot = self.__centerPoint.plotShape(plot,linewidth)
+
     #plots the line on a scaled canvas
     def plotShapeScaledPlotsize(self,plot,oldPlotSize, newPlotSize):
         # calculates scalefactor

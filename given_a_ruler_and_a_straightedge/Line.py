@@ -2,6 +2,7 @@ import numpy as np
 import math
 import copy 
 import constants as c
+import poincareDisk
 
 from Point import *
 """"
@@ -25,7 +26,10 @@ class Line:
         pass
 
     # plots the line in the given plot 
-    def plotShape(self, plot,linewidth = c.THINLINE):
+    def plotShape(self, plot,linewidth = c.THINLINE, poincare = False):
+        if poincare == True:
+            self.plotShapePoincare(plot, linewidth=linewidth)
+            return
         if self.__endPoint != None:
             x_data = np.linspace(self.__startPoint.getX(), self.__endPoint.getX(), 100)
             y_data = np.linspace(self.__startPoint.getY(), self.__endPoint.getY(),100)
@@ -34,12 +38,22 @@ class Line:
             #plots endpoints
             self.__endPointPlot = self.__endPoint.plotShape(plot,linewidth)
             self.__startPointPlot = self.__startPoint.plotShape(plot,linewidth)
-    
-    def getEuclideanPlotPoints(self):
+
+    def plotShapePoincare(self,plot,linewidth=c.THINLINE):
         if self.__endPoint != None:
             x_data = np.linspace(self.__startPoint.getX(), self.__endPoint.getX(), 100)
             y_data = np.linspace(self.__startPoint.getY(), self.__endPoint.getY(),100)
-        return (x_data,y_data)
+            x_dataNew = []
+            y_dataNew = []
+            for i in range(0,len(x_data)):
+                (x,y) = poincareDisk.euclideanToPoincareFunc(x_data[i],y_data[i])
+                x_dataNew.append(x)
+                y_dataNew.append(y)
+            self.__line, = plot.plot(x_dataNew,y_dataNew, color = "black")
+
+            #plots endpoints
+            self.__endPointPlot = self.__endPoint.plotShape(plot,linewidth)
+            self.__startPointPlot = self.__startPoint.plotShape(plot,linewidth)
 
     #plots the line on a scaled canvas
     def plotShapeScaledPlotsize(self,plot,oldPlotSize, newPlotSize):

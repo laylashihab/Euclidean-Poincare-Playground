@@ -74,7 +74,7 @@ def click_handler(event):
                         currentShape.hideAngles()
                     currentShape.hideMetrics()
 
-                    currentShape.plotShape(PLOT)
+                    currentShape.plotShape(PLOT, poincare=poincareMode)
                     CANVAS.draw()
 
                     return
@@ -95,7 +95,7 @@ def click_handler(event):
                 case c.SELECT:
                     if (selectedShape != None):
                         selectedShape.removeShape()
-                        selectedShape.plotShape(PLOT)
+                        selectedShape.plotShape(PLOT, poincare=poincareMode)
 
                     selectedShape = shape
                     #plots selected shape w a thick line
@@ -109,7 +109,7 @@ def click_handler(event):
                     # ensures any previously selected shape is plotted with thin lines
                     if currentShape != None:
                         currentShape.removeShape()
-                        currentShape.plotShape(PLOT)
+                        currentShape.plotShape(PLOT, poincare=poincareMode)
                         CANVAS.draw()
 
                         
@@ -118,7 +118,7 @@ def click_handler(event):
                     # ensures the new selection is plotted with thick lines
                     if currentShape != None:
                         currentShape.removeShape()
-                        currentShape.plotShape(PLOT,c.THICKLINE)
+                        currentShape.plotShape(PLOT,linewidth=c.THICKLINE, poincare=poincareMode)
                         CANVAS.draw()
 
                     return
@@ -141,7 +141,7 @@ def drag_handler(event):
     match toolMode:
         case c.DRAW:
             # if the user is trying to draw a point but drags instead, creates a line
-            if shapeType == c.POINT:
+            if type(currentShape) == Point:
                 currentShape.removeShape()
                 if currentShape in shapeList:
                     shapeList.remove(currentShape)
@@ -151,7 +151,7 @@ def drag_handler(event):
             else:
                 currentShape.removeShape()
                 currentShape.setEndPoint(currentPoint)
-                currentShape.plotShape(PLOT)
+                currentShape.plotShape(PLOT, poincare=poincareMode)
             CANVAS.draw()
 
         case c.MOVEPOINT:
@@ -160,7 +160,7 @@ def drag_handler(event):
             currentShape.movePoint(pointToMove=movePoint, newPoint=currentPoint)
             movePoint = currentPoint #cmovepoint represents the point that will be moving/moved
 
-            currentShape.plotShape(PLOT)
+            currentShape.plotShape(PLOT, poincare=poincareMode)
 
             CANVAS.draw()
 
@@ -170,7 +170,7 @@ def drag_handler(event):
             deltaX = currentPoint.getX() - lastPoint.getX()
             deltaY = currentPoint.getY() - lastPoint.getY()
             currentShape.moveShape(deltaX, deltaY)
-            currentShape.plotShape(PLOT)
+            currentShape.plotShape(PLOT, poincare=poincareMode)
             CANVAS.draw()
 
 def unclick_handler(event):
@@ -194,7 +194,7 @@ def unclick_handler(event):
 
                 # plots the "snapped" position
                 currentShape.removeShape()
-                currentShape.plotShape(PLOT)
+                currentShape.plotShape(PLOT, poincare=poincareMode)
 
         # checks if user is connecting the figure to another figure
         for shape in shapeList:
@@ -211,7 +211,7 @@ def unclick_handler(event):
                 
                 # changes lines to thin for all other shapes
                 currentShape.removeShape()
-                currentShape.plotShape(PLOT)
+                currentShape.plotShape(PLOT, poincare=poincareMode)
         
     # ensures angles and metrics are shown that must be displayed
     if (type(currentShape) == Shape and FrameSetUp.showAnglesButton.cget("text") == "Hide Angles"):
@@ -305,7 +305,7 @@ def newBasicShape(startPoint):
             c.ACHIEVEMENTSDICT["createPoint"].showAchievement()
 
         shape = copy.deepcopy(startPoint)
-        shape.plotShape(PLOT)
+        shape.plotShape(PLOT, poincare=poincareMode)
         shapeList.append(shape)
     else:
         # creates lines and circles
@@ -323,17 +323,6 @@ def newShape(oldShape, newShape):
     if (c.ACHIEVEMENTSDICT["createAngle"].isComplete() == False and type(newShape) == Line and type(oldShape) == Line and MAIN.achievementsOn):
         c.ACHIEVEMENTSDICT["createAngle"].showAchievement()
 
-    if type(oldShape) == Shape:
-        oldShapeNumC = oldShape.getNumComponents()
-    else:
-        oldShapeNumC = 1
-
-    if type(newShape) == Shape:
-        newShapeNumC = newShape.getNumComponents()
-    else:
-        newShapeNumC = 1
-
-    numComponents = oldShapeNumC + newShapeNumC
     shapes = [oldShape,newShape]
 
     #removes old shapes from shape list
@@ -357,8 +346,8 @@ def newShape(oldShape, newShape):
 def zoom_drag(event):
     scaleVal = FrameSetUp.zoomSlider.get()
     plotbounds = c.PLOTBOUNDS - (scaleVal * 10)
-    PLOT.set_xlim(0,c.PLOTBOUNDS)
-    PLOT.set_ylim(0,c.PLOTBOUNDS)
+    PLOT.set_xlim(0,plotbounds)
+    PLOT.set_ylim(0,plotbounds)
     PLOT.set_axis_off()
     CANVAS.draw()
 
@@ -372,6 +361,7 @@ shapeList = []
 toolMode = c.DRAW
 movePoint = None
 selectedShape = None
+poincareMode = False
 
 # constant variables to set from Main
 CANVAS = None

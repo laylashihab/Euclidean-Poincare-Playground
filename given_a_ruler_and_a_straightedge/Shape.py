@@ -28,18 +28,9 @@ class Shape():
         self.__arcPlotLists = arcPlotLists
 
     # plots each part of the shape
-    def plotShape(self,plot, linewidth = c.THINLINE):
+    def plotShape(self,plot, linewidth = c.THINLINE,poincare=False):
         for component in self.__components:
-            component.plotShape(plot,linewidth)
-
-    def getEuclideanPlotPoints(self):
-        x_data = []
-        y_data = []
-        for component in self.__components:
-            (newXData,newYData) = component.getEuclideanPlotPoints()
-            x_data = np.concatenate((x_data,newXData))
-            y_data = np.concatenate((y_data,newYData))
-        return (x_data,y_data)
+            component.plotShape(plot,linewidth,poincare)
 
     # plots a scaled version of the shape
     def plotShapeScaledPlotsize(self,plot,oldPlotSize, newPlotSize):

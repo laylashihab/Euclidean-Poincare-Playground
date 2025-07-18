@@ -6,8 +6,7 @@ Points are defined by an x and y value
 """
 
 class Point:
-    """
-    A class used to represent a Point object defined by an x and y value
+    """A class used to represent a Point object defined by an x and y value
 
     Attributes
     ----------
@@ -163,7 +162,7 @@ class Point:
         """
         return math.sqrt(((self.getX()-otherPoint.getX()))**2+(self.getY()-otherPoint.getY())**2)
         
-    def plotShape(self, plot, linewidth = c.THINLINE):
+    def plotShape(self, plot, linewidth = c.THINLINE, poincare = False):
         """ Plots the point 
 
         Parameters
@@ -182,8 +181,7 @@ class Point:
         return self.__plot
 
     def removeShape(self):
-        """ 
-        removes the plotted point from the canvas 
+        """ removes the plotted point from the canvas 
         """
 
         if (self.__plot != None):

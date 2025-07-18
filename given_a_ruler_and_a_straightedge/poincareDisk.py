@@ -1,5 +1,4 @@
 import EventHandlers
-import FrameSetUp
 import constants as c
 import matplotlib.patches as patches
 
@@ -11,9 +10,7 @@ from Shape import *
 import numpy as np
 import math
 
-roundVal = 3
 boundary = None
-poincareShapePlots = []
 
 # maps a point in the euclidean plane to a point in the poincare disc
 def euclideanToPoincareFunc(Xe,Ye):
@@ -21,9 +18,9 @@ def euclideanToPoincareFunc(Xe,Ye):
     numerator = Xe
     if denom == 0:
         return None
-    Xp = round(numerator/denom,roundVal)
+    Xp = numerator/denom
     numerator = Ye
-    Yp = round(numerator/denom,roundVal)
+    Yp = numerator/denom
 
     return (Xp,Yp)
 
@@ -37,22 +34,13 @@ def run(button):
 
 
 def euclideanToPoincare():
-    shapeList = EventHandlers.shapeList
+    EventHandlers.poincareMode = True
     plot = EventHandlers.PLOT
-    canvas = EventHandlers.CANVAS
 
     # finds mapping of each point into poincare disc
-    for shape in shapeList:
+    for shape in EventHandlers.shapeList:
         shape.removeShape()
-        (x_data,y_data) = shape.getEuclideanPlotPoints()
-        x_dataNew = []
-        y_dataNew = []
-        for i in range(0,len(x_data)):
-            (x,y) = euclideanToPoincareFunc(x_data[i],y_data[i])
-            x_dataNew.append(x)
-            y_dataNew.append(y)
-        shape, = plot.plot(x_dataNew,y_dataNew, color = "black")
-        poincareShapePlots.append(shape)
+        shape.plotShape(plot,poincare=True)
         
     # sets the plot limit to the poincare disc
     plot.set_xlim(-1,1)
@@ -63,18 +51,13 @@ def euclideanToPoincare():
     global boundary
     boundary = patches.Circle((0,0), radius=1, edgecolor='pink', facecolor = 'None')
     plot.add_patch(boundary)   
-    canvas.draw()
+    EventHandlers.CANVAS.draw()
         
 # reverts all plotted shapes and the plot itself to standards for euclidean display
 def poincareToEuclidean():
-    global poincareShapePlots
+    EventHandlers.poincareMode = False
     if boundary != None:
         boundary.remove()
-
-    for plot in poincareShapePlots:
-        plot.remove()
-
-    poincareShapePlots = []
 
     # resets plot limits to normal
     plot = EventHandlers.PLOT
@@ -83,6 +66,7 @@ def poincareToEuclidean():
     plot.set_axis_off()
 
     for shape in EventHandlers.shapeList:
+        shape.removeShape()
         shape.plotShape(plot)
 
     EventHandlers.CANVAS.draw()
