@@ -104,7 +104,12 @@ def clear():
     changeShape(c.POINT)
     changeButtonColor(pointButton)
 
+    # change sliders to original value
+    zoomSlider.set(100)
+    scaleSlider.set(100)
+
     EventHandlers.shapeList = []
+    EventHandlers.plotbounds = c.PLOTBOUNDS
     PLOT.cla()
     PLOT.set_xlim(-c.PLOTBOUNDS,c.PLOTBOUNDS)
     PLOT.set_ylim(-c.PLOTBOUNDS,c.PLOTBOUNDS)
@@ -182,8 +187,8 @@ def openFigureLibrary():
 
         # creates a plot 
         plot = fig.add_subplot(111)
-        plot.set_xlim(-c.PLOTBOUNDS,c.PLOTBOUNDS)
-        plot.set_ylim(-c.PLOTBOUNDS,c.PLOTBOUNDS)
+        plot.set_xlim(-EventHandlers.plotbounds,EventHandlers.plotbounds)
+        plot.set_ylim(-EventHandlers.plotbounds,EventHandlers.plotbounds)
         plot.set_axis_off()
 
         # creates a button associated with the plot
@@ -198,7 +203,7 @@ def openFigureLibrary():
         item.pack()
                 
         # plots the shape in scale to the figure library plotsize
-        figure.plotShapeScaledPlotsize(plot,oldPlotSize = c.PLOTBOUNDS, newPlotSize=plotsize)
+        figure.plotShapeScaledPlotsize(plot,oldPlotSize = EventHandlers.plotbounds, newPlotSize=plotsize)
         CANVAS.draw()
 
 def styleButton(button):
@@ -298,7 +303,7 @@ def setUp(Main):
     scaleSlider = tk.Scale(TOOLBAR, from_=0, to=200, orient=tk.HORIZONTAL, resolution=1,width=20)
 
     # zoom slider
-    zoomSlider = tk.Scale(TOOLBAR, from_=-100, to =100, orient=tk.HORIZONTAL, resolution = 1, width=20,length = 150)
+    zoomSlider = tk.Scale(TOOLBAR, from_=1, to =200, orient=tk.HORIZONTAL, resolution = 1, width=20,length = 150)
 
     # poincare disc model button
     theScaryButton = tk.Button(TOOLBAR,command=lambda: [poincareDisk.run(theScaryButton)],height = 2, width = 12, text = "Poincare Disc")
@@ -365,7 +370,7 @@ def setUp(Main):
 
     zoomLabel.grid(row=6,column=1,padx=PADX,pady=PADY)
     zoomSlider.grid(row=7,column=1,padx=PADX,pady=PADY,columnspan=3)
-    zoomSlider.set(0)
+    zoomSlider.set(100)
 
     # places the scary button
     theScaryButton.grid(row=8, column = 0,padx=PADX,pady=PADY)

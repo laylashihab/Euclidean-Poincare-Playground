@@ -41,15 +41,31 @@ class Line:
 
     def plotShapePoincare(self,plot,linewidth=c.THINLINE):
         if self.__endPoint != None:
-            x_data = np.linspace(self.__startPoint.getX(), self.__endPoint.getX(), 100)
-            y_data = np.linspace(self.__startPoint.getY(), self.__endPoint.getY(),100)
-            x_dataNew = []
-            y_dataNew = []
-            for i in range(0,len(x_data)):
-                (x,y) = poincareDisk.euclideanToPoincareFunc(x_data[i],y_data[i])
-                x_dataNew.append(x)
-                y_dataNew.append(y)
-            self.__line, = plot.plot(x_dataNew,y_dataNew, color = "black")
+            endX = self.getEndPoint().getX()
+            endY = self.getEndPoint().getY()
+            startX = self.getStartPoint().getX()
+            startY = self.getStartPoint().getY()
+            r, Xc,Yc = poincareDisk.findConnectingCircle(endX,endY,startX,startY)
+            angle1 = np.atan2(endY - Yc, endX - Xc)
+            angle2 = np.atan2(startY - Yc, startX - Xc) 
+            
+            # calculate ccw and cw sweep
+            sweep1 = (angle2 - angle1) % (2 * np.pi)
+            sweep2 = (angle1 - angle2) % (2 * np.pi)
+
+            # select the smallest sweep
+            if sweep1 < sweep2:
+                start = angle1
+                sweep = sweep1
+            else:
+                start = angle2
+                sweep = sweep2
+
+            # plot the arc
+            angles = np.linspace(start,start+sweep,100)
+            arc_x = Xc + (r * np.cos(angles))
+            arc_y = Yc + (r * np.sin(angles))
+            self.__line, = plot.plot(arc_x,arc_y, color = "black", lw= linewidth)
 
             #plots endpoints
             self.__endPointPlot = self.__endPoint.plotShape(plot,linewidth)

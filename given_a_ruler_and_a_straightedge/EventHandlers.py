@@ -1,11 +1,12 @@
 from Point import *
-from Line import *
+import Line
 from Circle import *
 from Shape import *
 from Achievement import *
 
 import FrameSetUp
 import constants as c 
+import poincareDisk
 
 """
 Series of functions to deal with mouseEvents
@@ -21,7 +22,6 @@ def click_handler(event):
     global shapeList,currentPoint,currentShape,mouseDown,movePoint,selectedShape
 
     currentPoint = Point(event.xdata, event.ydata)
-
     mouseDown = True
 
     # removes option to save shape
@@ -122,6 +122,7 @@ def click_handler(event):
                         CANVAS.draw()
 
                     return
+    currentPoint = Point(event.xdata, event.ydata)
 
     # if the user is clicking on a clear space of the CANVAS
     if (toolMode == c.DRAW):
@@ -136,7 +137,7 @@ def drag_handler(event):
         return
     
     lastPoint = copy.deepcopy(currentPoint)
-    currentPoint = Point(event.xdata,event.ydata)
+    currentPoint = Point(event.xdata, event.ydata)
 
     match toolMode:
         case c.DRAW:
@@ -177,11 +178,11 @@ def unclick_handler(event):
     global currentPoint,currentShape,mouseDown,toolMode
     mouseDown = False
 
-    currentPoint = Point(event.xdata,event.ydata)
-
     if currentShape == None:
         return
-    
+    currentPoint = Point(event.xdata, event.ydata)
+
+
     # updates data display
     FrameSetUp.dataDisplay.config(text=currentShape.measure())
     FrameSetUp.dataDisplay.update()
@@ -309,7 +310,7 @@ def newBasicShape(startPoint):
         shapeList.append(shape)
     else:
         # creates lines and circles
-        shape = Line() if shapeType == c.LINE else Circle()
+        shape = Line.Line() if shapeType == c.LINE else Circle()
         shape.setStartPoint(startPoint)
         shape.setEndPoint(startPoint)
         shapeList.append(shape)
@@ -344,10 +345,11 @@ def newShape(oldShape, newShape):
     return newlyCreatedShape
 
 def zoom_drag(event):
-    scaleVal = FrameSetUp.zoomSlider.get()
-    plotbounds = c.PLOTBOUNDS - (scaleVal * 10)
-    PLOT.set_xlim(0,plotbounds)
-    PLOT.set_ylim(0,plotbounds)
+    global plotbounds
+    scaleVal = 100 / FrameSetUp.zoomSlider.get() 
+    plotbounds = c.PLOTBOUNDS * scaleVal
+    PLOT.set_xlim(-plotbounds,plotbounds)
+    PLOT.set_ylim(-plotbounds,plotbounds)
     PLOT.set_axis_off()
     CANVAS.draw()
 
@@ -362,6 +364,7 @@ toolMode = c.DRAW
 movePoint = None
 selectedShape = None
 poincareMode = False
+plotbounds = c.PLOTBOUNDS
 
 # constant variables to set from Main
 CANVAS = None

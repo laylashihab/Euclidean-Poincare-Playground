@@ -38,7 +38,7 @@ class Circle:
             self.__centerPointPlot = self.__centerPoint.plotShape(plot,linewidth)
 
     def plotShapePoincare(self,plot,linewidth=c.THINLINE):
-        if self.__endPoint != None:
+        if self.__centerPoint != None:
             theta_range = np.linspace(0, 2 * np.pi,100)
             r = self.getRadius()
             x_data = r * np.cos(theta_range)
@@ -52,6 +52,8 @@ class Circle:
             self.__circle, = plot.plot(x_dataNew,y_dataNew, color = "black")
 
             #plots center point
+            newCenterPointX,newCenterPointY = poincareDisk.euclideanToPoincareFunc(self.__centerPoint.getX(),self.__centerPoint.getY())
+            newCenter = Point(newCenterPointX,newCenterPointY)
             self.__centerPointPlot = self.__centerPoint.plotShape(plot,linewidth)
 
     #plots the line on a scaled canvas
