@@ -135,6 +135,11 @@ class Point:
         self.setX(newX)
         self.setY(newY)
 
+    def convertToEuclidean(self):
+        newX,newY = poincareDisk.poincareToEuclideanFunc(self.getX(), self.getY())
+        self.setX(newX)
+        self.setY(newY)
+
     # given the two endpoints and radius of the disc, returns the radius and center points of the Euclidean circle connecting them
     def findConnectingCircle(self, otherPoint, radius):
         x0 = self.getX()

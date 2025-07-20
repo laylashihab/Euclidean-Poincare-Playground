@@ -87,6 +87,10 @@ class Line:
         self.getEndPoint().convertToPoincare()
         self.getStartPoint().convertToPoincare()
 
+    def convertToEuclidean(self):
+        self.getEndPoint().convertToEuclidean()
+        self.getStartPoint().convertToEuclidean()
+
     def scale(self,scaleVal,plot):
         scaler = scaleVal / 100
         dx,dy = self.getSlope()

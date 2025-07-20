@@ -41,6 +41,10 @@ class Shape():
         for component in self.__components:
             component.convertToPoincare()
 
+    def convertToEuclidean(self):
+        for component in self.__components:
+            component.convertToEuclidean()
+
     def scale(self,scaleVal,plot):
         scaler = scaleVal / 100 
 

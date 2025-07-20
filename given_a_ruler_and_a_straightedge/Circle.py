@@ -57,6 +57,9 @@ class Circle:
     def convertToPoincare(self):
         self.getCenterPoint().convertToPoincare()
 
+    def convertToEuclidean(self):
+        self.getCenterPoint().convertToEuclidean()
+
     #plots the line on a scaled canvas
     def plotShapeScaledPlotsize(self,plot,oldPlotSize, newPlotSize):
         # calculates scalefactor
