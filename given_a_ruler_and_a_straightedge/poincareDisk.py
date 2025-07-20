@@ -2,11 +2,6 @@ import EventHandlers
 import constants as c
 import matplotlib.patches as patches
 
-from Point import *
-import Line
-from Circle import *
-from Shape import *
-
 import math
 
 boundary = None
@@ -15,6 +10,7 @@ poincareToEuclideanDict = {}
 
 # maps a point in the euclidean plane to a point in the poincare disc
 def euclideanToPoincareFunc(Xe,Ye):
+    return (Xe,Ye)
     t = 0.5 * EventHandlers.plotbounds**2 - (Xe**2 + Ye**2)
     if (t < 0):
         return Xe,Ye
@@ -29,7 +25,7 @@ def euclideanToPoincareFunc(Xe,Ye):
     return (Xp,Yp)
 
 def poincareToEuclideanFunc(Xp,Yp):
-    t = EventHandlers.plotbounds**2 - (Xe**2 + Ye**2)
+    pass
 
 # given the two endpoints and radius of the disc, returns the radius and center points of the Euclidean circle connecting them
 def findConnectingCircle(x0,y0,x1,y1, radius = EventHandlers.plotbounds):
@@ -52,31 +48,12 @@ def run(button):
 
 def euclideanToPoincare():
     EventHandlers.poincareMode = True
-    Point.epsilon = c.EPSILON 
     plot = EventHandlers.PLOT
 
     # finds mapping of each point into poincare disc
     for shape in EventHandlers.shapeList:
         shape.removeShape()
-        # moves endpoints
-        if type(shape) == Line.Line:
-            newEndPointX,newEndPointY = euclideanToPoincareFunc(shape.getEndPoint().getX(), shape.getEndPoint().getY())
-            newEnd = Point(newEndPointX,newEndPointY)
-            newStartPointX,newStartPointY = euclideanToPoincareFunc(shape.getStartPoint().getX(), shape.getStartPoint().getY())
-            newStart = Point(newStartPointX,newStartPointY)
-
-            shape.setEndPoint(newEnd)
-            shape.setStartPoint(newStart)
-
-        elif type(shape) == Circle:
-            newCenterPointX,newCenterPointY = euclideanToPoincareFunc(shape.getCenterPoint().getX(), shape.getCenterPoint().getY())
-            newCenter = Point(newCenterPointX,newCenterPointY)
-
-            shape.setPoincareEndPoint(newCenter)
-        else:
-            newX,newY = euclideanToPoincareFunc(shape.getX(), shape.getY())
-            shape.setX(newX)
-            shape.setY(newY)
+        shape.convertToPoincare()
         shape.plotShape(plot,poincare=True)
         
     plotbounds = EventHandlers.plotbounds
@@ -88,7 +65,6 @@ def euclideanToPoincare():
         
 # reverts all plotted shapes and the plot itself to standards for euclidean display
 def poincareToEuclidean():
-    Point.epsilon = c.EPSILON
     EventHandlers.poincareMode = False
     if boundary != None:
         boundary.remove()
@@ -97,25 +73,6 @@ def poincareToEuclidean():
 
     for shape in EventHandlers.shapeList:
         shape.removeShape()
-        # moves endpoints
-        if type(shape) == Line.Line:
-            newEndPointX,newEndPointY = poincareToEuclideanDict[shape.getEndPoint().getX(),shape.getEndPoint().getY()]
-            newEnd = Point(newEndPointX,newEndPointY)
-            newStartPointX,newStartPointY = poincareToEuclideanDict[shape.getStartPoint().getX(),shape.getStartPoint().getY()]
-            newStart = Point(newStartPointX,newStartPointY)
-
-            shape.setEndPoint(newEnd)
-            shape.setStartPoint(newStart)
-
-        elif type(shape) == Circle:
-            newCenterX,newCenterY = poincareToEuclideanDict[shape.getCenterPoint().getX(),shape.getCenterPoint().getY()]
-            newCenter = Point(newCenterX,newCenterY)
-
-            shape.setCenterPoint(newCenter)
-        else:
-            newX,newY = euclideanToPoincareFunc(shape.getX(), shape.getY())
-            shape.setX(newX)
-            shape.setY(newY)
         shape.plotShape(plot,poincare=False)
 
     EventHandlers.CANVAS.draw()

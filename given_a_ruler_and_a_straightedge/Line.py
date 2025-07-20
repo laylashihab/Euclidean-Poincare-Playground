@@ -2,9 +2,9 @@ import numpy as np
 import math
 import copy 
 import constants as c
-import poincareDisk
+import EventHandlers
 
-from Point import *
+import Point
 """"
 Class to create Euclidean Line objects
 
@@ -41,13 +41,9 @@ class Line:
 
     def plotShapePoincare(self,plot,linewidth=c.THINLINE):
         if self.__endPoint != None:
-            endX = self.getEndPoint().getX()
-            endY = self.getEndPoint().getY()
-            startX = self.getStartPoint().getX()
-            startY = self.getStartPoint().getY()
-            r, Xc,Yc = poincareDisk.findConnectingCircle(endX,endY,startX,startY)
-            angle1 = np.atan2(endY - Yc, endX - Xc)
-            angle2 = np.atan2(startY - Yc, startX - Xc) 
+            r,Xc,Yc = self.getEndPoint().findConnectingCircle(self.getStartPoint(), radius = EventHandlers.plotbounds)
+            angle1 = np.atan2(self.getEndPoint().getY() - Yc, self.getEndPoint().getX() - Xc)
+            angle2 = np.atan2(self.getStartPoint().getY() - Yc, self.getStartPoint().getX() - Xc) 
             
             # calculate ccw and cw sweep
             sweep1 = (angle2 - angle1) % (2 * np.pi)
@@ -79,13 +75,17 @@ class Line:
         # ensures that the shape is not mutated
         figure = copy.deepcopy(self)
 
-        startPoint = Point(figure.getStartPoint().getX() *scaleFactor,figure.getStartPoint().getY() *scaleFactor)
+        startPoint = Point.Point(figure.getStartPoint().getX() *scaleFactor,figure.getStartPoint().getY() *scaleFactor)
         startPoint.setPointSize(Point.getDPS()*scaleFactor)
-        endPoint = Point(figure.getEndPoint().getX()*scaleFactor,self.getEndPoint().getY() *scaleFactor)
+        endPoint = Point.Point(figure.getEndPoint().getX()*scaleFactor,self.getEndPoint().getY() *scaleFactor)
         endPoint.setPointSize(Point.getDPS()*scaleFactor)
         figure.setStartPoint(startPoint)
         figure.setEndPoint(endPoint)
         figure.plotShape(plot,c.THINLINE)
+
+    def convertToPoincare(self):
+        self.getEndPoint().convertToPoincare()
+        self.getStartPoint().convertToPoincare()
 
     def scale(self,scaleVal,plot):
         scaler = scaleVal / 100
@@ -125,9 +125,9 @@ class Line:
         newRightX = rightPoint.getX() + deltaX
         newRightY = rightPoint.getY() + (slope * (newRightX-rightPoint.getX()))
 
-        newLeft = Point(newLeftX,newLeftY)
+        newLeft = Point.Point(newLeftX,newLeftY)
 
-        newRight = Point(newRightX,newRightY)
+        newRight = Point.Point(newRightX,newRightY)
 
         # ensures the points aren't flipping sides
         if newLeft.getX() >= newRight.getX():
@@ -179,9 +179,9 @@ class Line:
         newRightX = rightPoint.getX() + deltaX
         newRightY = rightPoint.getY() + (slope * (newRightX-rightPoint.getX()))
 
-        newLeft = Point(newLeftX,newLeftY)
+        newLeft = Point.Point(newLeftX,newLeftY)
 
-        newRight = Point(newRightX,newRightY)
+        newRight = Point.Point(newRightX,newRightY)
 
         # ensures the points aren't flipping sides
         if newLeft.getX() >= newRight.getX():
@@ -211,8 +211,8 @@ class Line:
 
     # moves the entire line by a given amount
     def moveShape(self, deltaX,deltaY):
-        newStart = Point(self.getStartPoint().getX() + deltaX, self.getStartPoint().getY() + deltaY)
-        newEnd = Point(self.getEndPoint().getX() + deltaX, self.getEndPoint().getY() + deltaY)
+        newStart = Point.Point(self.getStartPoint().getX() + deltaX, self.getStartPoint().getY() + deltaY)
+        newEnd = Point.Point(self.getEndPoint().getX() + deltaX, self.getEndPoint().getY() + deltaY)
         self.setEndPoint(newEnd)
         self.setStartPoint(newStart)
 
@@ -294,13 +294,13 @@ class Line:
         return math.sqrt(((self.getStartPoint().getX()-self.getEndPoint().getX()))**2+(self.getStartPoint().getY()-self.getEndPoint().getY())**2)
             
     # returns the components of the slope of the line
-    def getSlope(self, origin = Point(0,0)):
+    def getSlope(self):
         if (self.getEndPoint() == None or self.getStartPoint() == None):
             return 0
-        if (self.getStartPoint().equals(origin)):
+        if (self.getStartPoint() == 0):
             firstPoint = self.getStartPoint()
             secondPoint = self.getEndPoint()
-        elif (self.getEndPoint().equals(origin)):
+        elif (self.getEndPoint() == 0):
             firstPoint = self.getEndPoint()
             secondPoint = self.getStartPoint()
         # ensures the slope is calculated correctly by having the first point as the point with the smallest x value
@@ -316,8 +316,8 @@ class Line:
         return dx,dy
     
     # returns the angle betweeen the line the terminal angle
-    def getTerminalAngle(self, reference = Point(0,0)):
-        dx,dy = self.getSlope(reference)
+    def getTerminalAngle(self):
+        dx,dy = self.getSlope()
         angle = math.atan2(dy,dx)
         angle_deg = math.degrees(angle) % 360
         return angle_deg

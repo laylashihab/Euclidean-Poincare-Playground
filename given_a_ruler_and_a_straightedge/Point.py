@@ -1,5 +1,6 @@
 import math
 import constants as c
+import poincareDisk
 """"
 Class to define a point in a graph
 Points are defined by an x and y value
@@ -128,7 +129,26 @@ class Point:
             return True
         else:
             return False
-        
+    
+    def convertToPoincare(self):
+        newX,newY = poincareDisk.euclideanToPoincareFunc(self.getX(), self.getY())
+        self.setX(newX)
+        self.setY(newY)
+
+    # given the two endpoints and radius of the disc, returns the radius and center points of the Euclidean circle connecting them
+    def findConnectingCircle(self, otherPoint, radius):
+        x0 = self.getX()
+        y0 = self.getY()
+        x1 = otherPoint.getX()
+        y1 = otherPoint.getY()
+        numX = y0 * (x1**2 + y1**2 + radius**2)-y1 * (x0**2 + y0**2 + radius**2)
+        numY = x1 * (x0**2 + y0**2 + radius**2)-x0 * (x1**2 + y1**2 + radius**2)
+        denom = 2 * ( (x1 * y0) - (x0 * y1))
+        centerX = numX/denom
+        centerY = numY/denom
+        r = math.sqrt(centerX**2 + centerY ** 2 - radius**2)
+        return r,centerX,centerY
+
     # checks if the x and y values of a point match
     def exactEquals(self,otherPoint):
         """ Checks if the Point is exactly equal to another point in X and Y value
@@ -147,7 +167,20 @@ class Point:
         if (self.getX() == otherPoint.getX() and self.getY() == otherPoint.getY()):
             return True
         return False
-            
+
+    def containsPoint(self, point):
+        if self.equals(point):
+            return True
+        return False
+
+    def getPoint(self,point):
+        if self.containsPoint(point):
+            return self
+    
+    def setEndPoint(self, point):
+        self.setX(point.getX())
+        self.setY(point.getY())
+
     def getDistance(self, otherPoint):
         """ Finds the EUCLIDEAN distance between the Point object and another point
         Parameters
@@ -161,7 +194,7 @@ class Point:
             the calculated Euclidean distance between points
         """
         return math.sqrt(((self.getX()-otherPoint.getX()))**2+(self.getY()-otherPoint.getY())**2)
-        
+
     def plotShape(self, plot, linewidth = c.THINLINE, poincare = False):
         """ Plots the point 
 

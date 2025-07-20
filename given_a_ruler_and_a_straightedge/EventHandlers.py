@@ -1,4 +1,4 @@
-from Point import *
+import Point
 import Line
 from Circle import *
 from Shape import *
@@ -6,7 +6,6 @@ from Achievement import *
 
 import FrameSetUp
 import constants as c 
-import poincareDisk
 
 """
 Series of functions to deal with mouseEvents
@@ -21,7 +20,7 @@ def click_handler(event):
     
     global shapeList,currentPoint,currentShape,mouseDown,movePoint,selectedShape
 
-    currentPoint = Point(event.xdata, event.ydata)
+    currentPoint =Point.Point(event.xdata, event.ydata)
     mouseDown = True
 
     # removes option to save shape
@@ -122,7 +121,7 @@ def click_handler(event):
                         CANVAS.draw()
 
                     return
-    currentPoint = Point(event.xdata, event.ydata)
+    currentPoint =Point.Point(event.xdata, event.ydata)
 
     # if the user is clicking on a clear space of the CANVAS
     if (toolMode == c.DRAW):
@@ -137,12 +136,12 @@ def drag_handler(event):
         return
     
     lastPoint = copy.deepcopy(currentPoint)
-    currentPoint = Point(event.xdata, event.ydata)
+    currentPoint =Point.Point(event.xdata, event.ydata)
 
     match toolMode:
         case c.DRAW:
             # if the user is trying to draw a point but drags instead, creates a line
-            if type(currentShape) == Point:
+            if type(currentShape) == Point.Point:
                 currentShape.removeShape()
                 if currentShape in shapeList:
                     shapeList.remove(currentShape)
@@ -180,7 +179,7 @@ def unclick_handler(event):
 
     if currentShape == None:
         return
-    currentPoint = Point(event.xdata, event.ydata)
+    currentPoint =Point.Point(event.xdata, event.ydata)
 
 
     # updates data display
@@ -310,7 +309,7 @@ def newBasicShape(startPoint):
         shapeList.append(shape)
     else:
         # creates lines and circles
-        shape = Line.Line() if shapeType == c.LINE else Circle()
+        shape = Line() if shapeType == c.LINE else Circle()
         shape.setStartPoint(startPoint)
         shape.setEndPoint(startPoint)
         shapeList.append(shape)

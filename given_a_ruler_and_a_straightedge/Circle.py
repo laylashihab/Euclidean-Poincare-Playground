@@ -11,7 +11,7 @@ class to create Euclidean Circle objects
 Cirles are defined by a center point and radius
 """
 
-from Point import *
+import Point
 
 class Circle:
     __circle = None
@@ -41,8 +41,8 @@ class Circle:
         if self.__centerPoint != None:
             theta_range = np.linspace(0, 2 * np.pi,100)
             r = self.getRadius()
-            x_data = r * np.cos(theta_range)
-            y_data = r * np.sin(theta_range)
+            x_data = (r * np.cos(theta_range)) + self.__centerPoint.getX()
+            y_data = (r * np.sin(theta_range)) + self.__centerPoint.getY()
             x_dataNew = []
             y_dataNew = []
             for i in range(0,len(x_data)):
@@ -52,9 +52,10 @@ class Circle:
             self.__circle, = plot.plot(x_dataNew,y_dataNew, color = "black")
 
             #plots center point
-            newCenterPointX,newCenterPointY = poincareDisk.euclideanToPoincareFunc(self.__centerPoint.getX(),self.__centerPoint.getY())
-            newCenter = Point(newCenterPointX,newCenterPointY)
             self.__centerPointPlot = self.__centerPoint.plotShape(plot,linewidth)
+
+    def convertToPoincare(self):
+        self.getCenterPoint().convertToPoincare()
 
     #plots the line on a scaled canvas
     def plotShapeScaledPlotsize(self,plot,oldPlotSize, newPlotSize):
@@ -64,7 +65,7 @@ class Circle:
         # ensures that the shape is not mutated
         figure = copy.deepcopy(self)
 
-        centerPoint = Point(figure.getCenterPoint().getX() *scaleFactor,figure.getCenterPoint().getY() *scaleFactor)
+        centerPoint =Point.Point(figure.getCenterPoint().getX() *scaleFactor,figure.getCenterPoint().getY() *scaleFactor)
         centerPoint.setPointSize(Point.getDPS()*scaleFactor)
         figure.setCenterPoint(centerPoint)
         figure.setRadius(figure.getRadius() *scaleFactor)
@@ -97,7 +98,7 @@ class Circle:
 
     # moves the entire shape by a given amount
     def moveShape(self, deltaX, deltaY):
-        self.__centerPoint = Point(self.getCenterPoint().getX()+deltaX, self.getCenterPoint().getY() + deltaY)
+        self.__centerPoint =Point.Point(self.getCenterPoint().getX()+deltaX, self.getCenterPoint().getY() + deltaY)
     
     def showMetrics(self,plot):
         pass

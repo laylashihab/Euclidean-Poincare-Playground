@@ -37,6 +37,10 @@ class Shape():
         for component in self.__components:
             component.plotShapeScaledPlotsize(plot,oldPlotSize, newPlotSize)
 
+    def convertToPoincare(self):
+        for component in self.__components:
+            component.convertToPoincare()
+
     def scale(self,scaleVal,plot):
         scaler = scaleVal / 100 
 
