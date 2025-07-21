@@ -67,7 +67,7 @@ def changeToolMode(newTool):
             CANVAS.draw()
     # ensures that the scale bar is removed and line is thin again
     elif EventHandlers.toolMode == c.SCALE and newTool != c.SCALE:
-        scaleSlider.grid_forget()
+        scaleSlider.grid_remove()
         currentShape = EventHandlers.currentShape
         if currentShape != None:
             currentShape.removeShape()
@@ -212,6 +212,15 @@ def styleButton(button):
 def styleLabel(label):
     label.config(fg=textCol, bg=backgroundCol)
 
+def showSlider():
+    scaleSlider.grid()
+    # makes the current shape bold
+    currentShape = EventHandlers.currentShape
+    if currentShape != None:
+        currentShape.removeShape()
+        currentShape.plotShape(PLOT,linewidth=c.THICKLINE)
+        CANVAS.draw()
+
 # constants
 ROOT = None
 LIBRARYROOT = None
@@ -232,7 +241,7 @@ achievementsOnButton, saveFigureButton = None, None
 shapeButtonList,operationButtonList = None, None
 scaleShapeButton,scaleSlider = None,None
 zoomLabel,zoomSlider = None,None
-theScaryButton = None
+poincareButton = None
 savedFiguresList =[]
 figureButtonList = []
 
@@ -252,7 +261,7 @@ def setUp(Main):
     global shapeButtonList,operationButtonList
     global scaleShapeButton,scaleSlider
     global zoomLabel,zoomSlider
-    global theScaryButton
+    global poincareButton
     
     # creating the root TKinter component
     ROOT = tk.Tk()
@@ -295,18 +304,18 @@ def setUp(Main):
     drawButton = tk.Button(TOOLBAR, command = lambda:[changeToolMode(c.DRAW),changeButtonColor(drawButton)],height = 2, width = 12, text = "Draw")
     
     # Measurements Buttons
-    showAnglesButton = tk.Button(TOOLBAR, command= lambda: [showAngles],height = 2, width = 15, text = "Show Angles")
-    showMetricsButton = tk.Button(TOOLBAR, command = lambda: [showMetrics],height = 2, width = 15, text = "Show Metrics")
+    showAnglesButton = tk.Button(TOOLBAR, command= lambda: [showAngles()],height = 2, width = 15, text = "Show Angles")
+    showMetricsButton = tk.Button(TOOLBAR, command = lambda: [showMetrics()],height = 2, width = 15, text = "Show Metrics")
     
     # scale buttons
-    scaleShapeButton = tk.Button(TOOLBAR,command=lambda: [showSlider,changeButtonColor(scaleShapeButton),changeToolMode(c.SCALE)],height=2,width=15,text="Scale")
+    scaleShapeButton = tk.Button(TOOLBAR,command=lambda: [showSlider(),changeButtonColor(scaleShapeButton),changeToolMode(c.SCALE)],height=2,width=15,text="Scale")
     scaleSlider = tk.Scale(TOOLBAR, from_=0, to=200, orient=tk.HORIZONTAL, resolution=1,width=20)
 
     # zoom slider
     zoomSlider = tk.Scale(TOOLBAR, from_=1, to =200, orient=tk.HORIZONTAL, resolution = 1, width=20,length = 150)
 
     # poincare disc model button
-    theScaryButton = tk.Button(TOOLBAR,command=lambda: [poincareDisk.run(theScaryButton)],height = 2, width = 12, text = "Poincare Disc")
+    poincareButton = tk.Button(TOOLBAR,command=lambda: [poincareDisk.run()],height = 2, width = 12, text = "Poincare Disc")
 
     # bottom TOOLBAR setup
     EXTRATOOLS = tk.Frame(ROOT,bg=backgroundCol)
@@ -354,17 +363,8 @@ def setUp(Main):
     changeButtonColor(drawButton)
 
     # Measurement Buttons
-    def showSlider():
-        scaleSlider.grid(row=5,column=2,columnspan=2)
-        # makes the current shape bold
-        currentShape = EventHandlers.currentShape
-        if currentShape != None:
-            currentShape.removeShape()
-            currentShape.plotShape(PLOT,linewidth=c.THICKLINE)
-            CANVAS.draw()
-
     placeRow([showAnglesButton,showMetricsButton],5,0)
-    showSlider()
+    scaleSlider.grid(row=5,column=2,columnspan=2)
     scaleShapeButton.grid(row=5,column=4,padx=PADX, pady=PADY)
     scaleSlider.set(100)
 
@@ -373,7 +373,7 @@ def setUp(Main):
     zoomSlider.set(100)
 
     # places the scary button
-    theScaryButton.grid(row=8, column = 0,padx=PADX,pady=PADY)
+    poincareButton.grid(row=8, column = 0,padx=PADX,pady=PADY)
 
     # figure library tools
     placeRow([selectButton,saveFigureButton,openFigureLibraryButton],6,1)
@@ -391,5 +391,5 @@ def setUp(Main):
     dataDisplay.pack()
 
     EXTRATOOLS.pack()
-    saveFigureButton.grid_forget()
-    scaleSlider.grid_forget()
+    saveFigureButton.grid_remove()
+    scaleSlider.grid_remove()

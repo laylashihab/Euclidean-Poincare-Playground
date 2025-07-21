@@ -1,4 +1,5 @@
 import EventHandlers
+import FrameSetUp
 import constants as c
 import matplotlib.patches as patches
 
@@ -54,12 +55,19 @@ def findConnectingCircle(x0,y0,x1,y1, radius = EventHandlers.plotbounds):
     r = math.sqrt(centerX**2 + centerY ** 2 - radius**2)
     return r,centerX,centerY
     
-def run(button):
-    if button.cget("text") == "Poincare Disc":
-        button.config(text = "Euclidean Plane")
+def run():
+    poincareButton = FrameSetUp.poincareButton
+    showAnglesButton = FrameSetUp.showAnglesButton
+    showMetricsButton = FrameSetUp.showMetricsButton
+    if poincareButton.cget("text") == "Poincare Disc":
+        poincareButton.config(text = "Euclidean Plane")
+        showAnglesButton.grid_remove()
+        showMetricsButton.grid_remove()
         euclideanToPoincare()
     else:
-        button.config(text = "Poincare Disc")
+        poincareButton.config(text = "Poincare Disc")
+        showAnglesButton.grid()
+        showMetricsButton.grid()
         poincareToEuclidean()
 
 

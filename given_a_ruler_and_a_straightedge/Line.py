@@ -93,7 +93,7 @@ class Line:
 
     def scale(self,scaleVal,plot):
         scaler = scaleVal / 100
-        dx,dy = self.getSlope()
+        dx,dy = self.getSlope(self.getStartPoint())
         if (dx != 0):
             slope = dy/dx
         else:
@@ -147,7 +147,7 @@ class Line:
 
     def confirmScaleSize(self,scaleVal,plot):
         scaler = scaleVal / 100
-        dx,dy = self.getSlope()
+        dx,dy = self.getSlope(self.getStartPoint())
         if (dx != 0):
             slope = dy/dx
         else:
@@ -223,7 +223,7 @@ class Line:
     def showMetrics(self,plot):
         textX = (self.getEndPoint().getX() + self.getStartPoint().getX())/ 2
         textY = (self.getEndPoint().getY() + self.getStartPoint().getY())/ 2
-        lengthText = plot.text(textX, textY, round(self.getLength(),3), fontsize=10, color='red', rotation = self.getTerminalAngle(), horizontalalignment = 'center',verticalalignment = 'top')
+        lengthText = plot.text(textX, textY, round(self.getLength(),3), fontsize=10, color='red', rotation = self.getTerminalAngle(self.getStartPoint()), horizontalalignment = 'center',verticalalignment = 'top')
 
         # store the plots
         self.__measurementText.append(lengthText)
@@ -298,13 +298,13 @@ class Line:
         return math.sqrt(((self.getStartPoint().getX()-self.getEndPoint().getX()))**2+(self.getStartPoint().getY()-self.getEndPoint().getY())**2)
             
     # returns the components of the slope of the line
-    def getSlope(self):
+    def getSlope(self, reference):
         if (self.getEndPoint() == None or self.getStartPoint() == None):
             return 0
-        if (self.getStartPoint() == 0):
+        if (self.getStartPoint().equals(reference)):
             firstPoint = self.getStartPoint()
             secondPoint = self.getEndPoint()
-        elif (self.getEndPoint() == 0):
+        elif (self.getEndPoint().equals(reference)):
             firstPoint = self.getEndPoint()
             secondPoint = self.getStartPoint()
         # ensures the slope is calculated correctly by having the first point as the point with the smallest x value
@@ -320,15 +320,15 @@ class Line:
         return dx,dy
     
     # returns the angle betweeen the line the terminal angle
-    def getTerminalAngle(self):
-        dx,dy = self.getSlope()
+    def getTerminalAngle(self,point):
+        dx,dy = self.getSlope(point)
         angle = math.atan2(dy,dx)
         angle_deg = math.degrees(angle) % 360
         return angle_deg
     
     # returns details about the line
     def measure(self):
-        dx,dy = self.getSlope()
+        dx,dy = self.getSlope(self.getStartPoint())
         if dx ==0:
             dx = 0.00000001
         returnString = "Length: {0}\nSlope: {1}".format(round(self.getLength(),3),round(dy/dx,3))

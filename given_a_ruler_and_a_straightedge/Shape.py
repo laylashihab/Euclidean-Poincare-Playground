@@ -8,7 +8,6 @@ from Line import *
 from Circle import *
 import constants as c
 
-
 class Shape():
     __components = []
     __arcPlotLists = [] # stores both the arc and measurement plot
@@ -60,7 +59,7 @@ class Shape():
             xTotal += p.getX()
             yTotal += p.getY()
 
-        midpoint = Point(xTotal/numPoints, yTotal/numPoints)
+        midpoint = Point.Point(xTotal/numPoints, yTotal/numPoints)
 
         for component in self.getComponents():
             if (type(component) == Line):
@@ -89,8 +88,9 @@ class Shape():
                 newY = currentStart.getY() + ((dy/dx) * (newX-currentStart.getX()))
 
                 # sets the new startpoint
-                newPoint = Point(newX,newY)
-                component.setStartPoint(newPoint)
+                startPoint = component.getStartPoint()
+                startPoint.setX(newX)
+                startPoint.setY(newY)
                 
                 # dealing with the endpoint 
                 currentEnd = component.getEndPoint()
@@ -110,12 +110,14 @@ class Shape():
                 newX = currentEnd.getX() - deltaX
                 newY = currentEnd.getY() + ((dy/dx)) * (newX-currentEnd.getX())
 
-                newPoint = Point(newX,newY)
-                component.setEndPoint(newPoint)
+                # sets the new endpoint
+                endPoint = component.getEndPoint()
+                endPoint.setX(newX)
+                endPoint.setY(newY)
 
                 # deals w plotting
                 component.removeShape()
-                component.plotShape(plot, c.THICKLINE)
+                component.plotShape(plot, c.THICKLINE,poincare=EventHandlers.poincareMode)
 
                 # resets start and endpoints
                 component.setStartPoint(currentStart)
@@ -138,7 +140,7 @@ class Shape():
             xTotal += p.getX()
             yTotal += p.getY()
 
-        midpoint = Point(xTotal/numPoints, yTotal/numPoints)
+        midpoint = Point.Point(xTotal/numPoints, yTotal/numPoints)
 
         for component in self.getComponents():
             if (type(component) == Line):
@@ -170,8 +172,9 @@ class Shape():
                 newY = currentStart.getY() + ((dy/dx)) * (newX-currentStart.getX())
 
                 # sets the new startpoint
-                newPoint = Point(newX,newY)
-                component.setStartPoint(newPoint)
+                startPoint = component.getStartPoint()
+                startPoint.setX(newX)
+                startPoint.setY(newY)
                 
                 # dealing with the endpoint 
                 currentEnd = component.getEndPoint()
@@ -195,12 +198,14 @@ class Shape():
                 newX = currentEnd.getX() - deltaX
                 newY = currentEnd.getY() + ((dy/dx)) * (newX-currentEnd.getX())
 
-                newPoint = Point(newX,newY)
-                component.setEndPoint(newPoint)
+                # sets the new endpoint
+                endPoint = component.getEndPoint()
+                endPoint.setX(newX)
+                endPoint.setY(newY)
 
                 # deals w plotting
                 component.removeShape()
-                component.plotShape(plot,c.THICKLINE)
+                component.plotShape(plot,c.THICKLINE, poincare=EventHandlers.poincareMode)
 
             else: # dealing w circles
                 component.confirmScaleSize(scaleVal,plot)
@@ -325,7 +330,8 @@ class Shape():
             # find a good radius based on length of lines
             l1 = pair[0].getLength()
             l2 = pair[1].getLength()
-            radius = min(l1-5,l2-5,40)
+            minLine = min(l1,l2)
+            radius = min(minLine/2,EventHandlers.plotbounds / 2)
 
             # find start and end angles based on the lines
             angle_start = pair[0].getTerminalAngle(point) % 360
@@ -354,9 +360,9 @@ class Shape():
 
             # plot the measurement
             midAngle = (start + start + sweep) / 2
-            textDistance = radius + 25
+            textDistance = radius * 1.25
             textX = point.getX() + textDistance * np.cos(np.radians(midAngle))
-            textY = point.getY() + textDistance  * np.sin(np.radians(midAngle))
+            textY = point.getY() + textDistance * np.sin(np.radians(midAngle))
             arcText = plot.text(textX, textY, round(sweep,3), fontsize=10, color='red', horizontalalignment= "center")
 
             # store the plots
