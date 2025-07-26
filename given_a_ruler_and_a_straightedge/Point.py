@@ -252,6 +252,16 @@ class Point:
         self.setX(self.getX() + deltaX)
         self.setY(self.getY() + deltaY)
 
+    def moveShapePoincare(self,deltaX=0,deltaY=0):
+        x,y = poincareDisk.poincareToEuclideanFunc(self.getX(), self.getY(), scaler= 1 )
+
+        x += deltaX
+        y += deltaY
+
+        x,y = poincareDisk.euclideanToPoincareFunc(x,y, scaler= 1 )
+        self.setX(x)
+        self.setY(y)
+
     def getX(self):
         """ provides the Point's current X value
 

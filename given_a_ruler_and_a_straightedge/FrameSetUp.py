@@ -111,10 +111,7 @@ def clear():
     EventHandlers.shapeList = []
     EventHandlers.plotbounds = c.PLOTBOUNDS
     PLOT.cla()
-    PLOT.set_xlim(-c.PLOTBOUNDS,c.PLOTBOUNDS)
-    PLOT.set_ylim(-c.PLOTBOUNDS,c.PLOTBOUNDS)
-    PLOT.set_axis_off()
-    
+
     # updates data display
     dataDisplay.config(text="")
     dataDisplay.update()
@@ -122,6 +119,15 @@ def clear():
     # ensures the boundary is drawn again
     if EventHandlers.poincareMode == True:
         poincareDisk.drawBoundary()
+        PLOT.set_xlim(-1,1)
+        PLOT.set_ylim(-1,1)
+    else:
+        plotBounds = EventHandlers.plotBounds
+        EventHandlers.PLOT.set_xlim(- plotBounds + EventHandlers.xBoundDelta,plotBounds + EventHandlers.xBoundDelta)
+        EventHandlers.PLOT.set_ylim(- plotBounds + EventHandlers.yBoundDelta,plotBounds + EventHandlers.yBoundDelta)
+    PLOT.grid()
+    #PLOT.set_xticklabels([])
+    #PLOT.set_yticklabels([])
 
     CANVAS.draw()
 
@@ -289,7 +295,9 @@ def setUp(Main):
     PLOT = FIG.add_subplot(111)
     PLOT.set_xlim(-c.PLOTBOUNDS,c.PLOTBOUNDS)
     PLOT.set_ylim(-c.PLOTBOUNDS,c.PLOTBOUNDS)
-    PLOT.set_axis_off()
+    PLOT.grid()
+    #PLOT.set_xticklabels([])
+    #PLOT.set_yticklabels([])
 
     # buttons and labels
     dataDisplay = tk.Label(ROOT, text="")

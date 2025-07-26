@@ -7,6 +7,7 @@ shape and figure are used interchangeably
 from Line import *
 from Circle import *
 import constants as c
+import EventHandlers
 
 class Shape():
     __components = []
@@ -234,6 +235,10 @@ class Shape():
     def moveShape(self, deltaX,deltaY):
         for component in self.__components:
             component.moveShape(deltaX,deltaY)
+
+    def moveShapePoincare(self, deltaX=0,deltaY=0):
+        for component in self.__components:
+            component.moveShapePoincare(deltaX,deltaY)
 
     # moves a particular point in the shape and updates the components that use that point 
     def movePoint(self, pointToMove, newPoint):

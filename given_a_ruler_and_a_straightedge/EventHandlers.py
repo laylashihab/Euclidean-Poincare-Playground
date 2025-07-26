@@ -18,7 +18,7 @@ def click_handler(event):
     if (not event.inaxes):
         return
     # ensures that the user isn't clicking outside the circle
-    if poincareMode == True and (event.xdata**2 + event.ydata** 2 > plotbounds**2):
+    if poincareMode == True and (event.xdata**2 + event.ydata** 2 > 1):
         return
 
 
@@ -140,7 +140,7 @@ def drag_handler(event):
     if not event.inaxes or not mouseDown or currentShape == None:
         return
     # ensures that the user isn't clicking outside the circle
-    if poincareMode == True and (event.xdata**2 + event.ydata** 2 > plotbounds**2):
+    if poincareMode == True and (event.xdata**2 + event.ydata** 2 > 1):
         return
 
     lastPoint = copy.deepcopy(currentPoint)
@@ -355,14 +355,79 @@ def newShape(oldShape, newShape):
     return newlyCreatedShape
 
 def zoom_drag(event):
-    global plotbounds
+    global xBoundDelta, yBoundDelta,plotBounds
     scaleVal = 100 / FrameSetUp.zoomSlider.get() 
-    plotbounds = c.PLOTBOUNDS * scaleVal
-    PLOT.set_xlim(-plotbounds,plotbounds)
-    PLOT.set_ylim(-plotbounds,plotbounds)
-    PLOT.set_axis_off()
+    if poincareMode == False:
+        plotBounds = c.PLOTBOUNDS * scaleVal
+        PLOT.set_xlim(- plotBounds + xBoundDelta,plotBounds + xBoundDelta)
+        PLOT.set_ylim(- plotBounds + yBoundDelta,plotBounds + yBoundDelta)
+    else:
+        PLOT.set_xlim(- scaleVal,scaleVal)
+        PLOT.set_ylim(- scaleVal,scaleVal)
     CANVAS.draw()
 
+def move_left(event):
+    global xBoundDelta
+    scaleVal = 100 / FrameSetUp.zoomSlider.get() 
+    scaleVal *= c.EUCLIDEANSCALER
+
+    if poincareMode == False:
+        xBoundDelta -= scaleVal
+        PLOT.set_xlim(- plotBounds + xBoundDelta,plotBounds + xBoundDelta)
+    else:
+        for shape in shapeList:
+            shape.removeShape()
+            shape.moveShapePoincare(deltaX=-c.POINCAREDELTA)
+            shape.plotShapePoincare(PLOT)
+    CANVAS.draw()
+
+def move_right(event):
+    global xBoundDelta
+    scaleVal = 100 / FrameSetUp.zoomSlider.get() 
+    scaleVal *= c.EUCLIDEANSCALER
+
+    if poincareMode == False:
+        xBoundDelta += scaleVal
+        PLOT.set_xlim(- plotBounds + xBoundDelta,plotBounds + xBoundDelta)
+    else:
+        for shape in shapeList:
+            shape.removeShape()
+            shape.moveShapePoincare(deltaX=c.POINCAREDELTA)
+            shape.plotShapePoincare(PLOT)
+
+    CANVAS.draw()
+
+def move_up(event):
+    global yBoundDelta
+    scaleVal = 100 / FrameSetUp.zoomSlider.get() 
+    scaleVal *= c.EUCLIDEANSCALER
+
+    if poincareMode == False:
+        yBoundDelta += scaleVal
+        PLOT.set_ylim(- plotBounds + yBoundDelta,plotBounds + yBoundDelta)
+    else:
+        for shape in shapeList:
+            shape.removeShape()
+            shape.moveShapePoincare(deltaY=c.POINCAREDELTA)
+            shape.plotShapePoincare(PLOT)
+
+    CANVAS.draw()
+
+def move_down(event):
+    global yBoundDelta
+    scaleVal = 100 / FrameSetUp.zoomSlider.get() 
+    scaleVal *= c.EUCLIDEANSCALER
+
+    if poincareMode == False:
+        yBoundDelta -= scaleVal
+        PLOT.set_ylim(- plotBounds + yBoundDelta,plotBounds + yBoundDelta)
+    else:
+        for shape in shapeList:
+            shape.removeShape()
+            shape.moveShapePoincare(deltaY=-c.POINCAREDELTA)
+            shape.plotShapePoincare(PLOT)
+
+    CANVAS.draw()
 
 # class variables
 currentShape = None
@@ -374,7 +439,9 @@ toolMode = c.DRAW
 movePoint = None
 selectedShape = None
 poincareMode = False
-plotbounds = c.PLOTBOUNDS
+plotBounds = c.PLOTBOUNDS
+xBoundDelta = 0
+yBoundDelta = 0
 
 # constant variables to set from Main
 CANVAS = None
@@ -400,5 +467,12 @@ def bindEvents(Main):
 
     # binds zoom slider to event functions
     FrameSetUp.zoomSlider.bind("<B1-Motion>", zoom_drag)
+
+    # arrow keys
+    FrameSetUp.ROOT.bind("<Left>", move_left)
+    FrameSetUp.ROOT.bind("<Right>", move_right)
+    FrameSetUp.ROOT.bind("<Up>", move_up)
+    FrameSetUp.ROOT.bind("<Down>", move_down)
+
 
 

@@ -2,7 +2,7 @@ import numpy as np
 import math
 import copy 
 import constants as c
-import EventHandlers
+import poincareDisk
 
 import Point
 """"
@@ -41,7 +41,7 @@ class Line:
 
     def plotShapePoincare(self,plot,linewidth=c.THINLINE):
         if self.__endPoint != None:
-            r,Xc,Yc = self.getEndPoint().findConnectingCircle(self.getStartPoint(), radius = EventHandlers.plotbounds)
+            r,Xc,Yc = self.getEndPoint().findConnectingCircle(self.getStartPoint(), radius = 1)
             angle1 = np.atan2(self.getEndPoint().getY() - Yc, self.getEndPoint().getX() - Xc)
             angle2 = np.atan2(self.getStartPoint().getY() - Yc, self.getStartPoint().getX() - Xc) 
             
@@ -219,6 +219,11 @@ class Line:
         newEnd = Point.Point(self.getEndPoint().getX() + deltaX, self.getEndPoint().getY() + deltaY)
         self.setEndPoint(newEnd)
         self.setStartPoint(newStart)
+
+    # takes a euclidean x and y to move 
+    def moveShapePoincare(self,deltaX=0,deltaY=0):
+        self.getStartPoint().moveShapePoincare(deltaX,deltaY)
+        self.getEndPoint().moveShapePoincare(deltaX,deltaY)
 
     def showMetrics(self,plot):
         textX = (self.getEndPoint().getX() + self.getStartPoint().getX())/ 2

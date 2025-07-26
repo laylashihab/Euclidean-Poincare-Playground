@@ -45,3 +45,5 @@ DEFAULTPOINTSIZE = 50
 THINLINE = 1
 THICKLINE = 3
 EPSILON = 1
+POINCAREDELTA = 0.01 #how much the arrow keys move the canvas in poincare mode
+EUCLIDEANSCALER = 0.1 # scaler for how much the arrow keys affect canvas position in euclidean mode

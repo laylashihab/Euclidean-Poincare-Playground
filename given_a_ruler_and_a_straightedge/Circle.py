@@ -106,6 +106,10 @@ class Circle:
     def moveShape(self, deltaX, deltaY):
         self.__centerPoint =Point.Point(self.getCenterPoint().getX()+deltaX, self.getCenterPoint().getY() + deltaY)
     
+    # takes a euclidean x and y to move 
+    def moveShapePoincare(self,deltaX=0,deltaY=0):
+        self.getCenterPoint().moveShapePoincare(deltaX,deltaY)
+
     def showMetrics(self,plot):
         pass
 
