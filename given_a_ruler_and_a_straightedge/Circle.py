@@ -41,14 +41,17 @@ class Circle:
         if self.__centerPoint != None:
             theta_range = np.linspace(0, 2 * np.pi,100)
             r = self.getRadius()
-            x_data = (r * np.cos(theta_range)) + self.__centerPoint.getX()
-            y_data = (r * np.sin(theta_range)) + self.__centerPoint.getY()
+
             x_dataNew = []
             y_dataNew = []
-            for i in range(0,len(x_data)):
-                (x,y) = poincareDisk.euclideanToPoincareFunc(x_data[i],y_data[i])
-                x_dataNew.append(x)
-                y_dataNew.append(y)
+            a = self.__centerPoint.getX()
+            b = self.__centerPoint.getY()
+            for theta in theta_range:
+                x = (r * np.cos(theta)) + a
+                y = (r * np.sin(theta)) + b
+                xNew,yNew = poincareDisk.euclideanToPoincareFunc(x,y)
+                x_dataNew.append(xNew)
+                y_dataNew.append(yNew)
             self.__circle, = plot.plot(x_dataNew,y_dataNew, color = "black")
 
             #plots center point

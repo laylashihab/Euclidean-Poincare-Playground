@@ -17,10 +17,15 @@ Series of functions to deal with mouseEvents
 def click_handler(event):
     if (not event.inaxes):
         return
-    
+    # ensures that the user isn't clicking outside the circle
+    if poincareMode == True and (event.xdata**2 + event.ydata** 2 > plotbounds**2):
+        return
+
+
     global shapeList,currentPoint,currentShape,mouseDown,movePoint,selectedShape
 
     currentPoint =Point.Point(event.xdata, event.ydata)
+    
     mouseDown = True
 
     # removes option to save shape
@@ -134,7 +139,10 @@ def drag_handler(event):
 
     if not event.inaxes or not mouseDown or currentShape == None:
         return
-    
+    # ensures that the user isn't clicking outside the circle
+    if poincareMode == True and (event.xdata**2 + event.ydata** 2 > plotbounds**2):
+        return
+
     lastPoint = copy.deepcopy(currentPoint)
     currentPoint =Point.Point(event.xdata, event.ydata)
 
@@ -190,7 +198,10 @@ def unclick_handler(event):
         if (toolMode == c.DRAW):
             # checks if the user is connecting a figure back to itself and cleans up point location
             if currentShape.containsPoint(currentPoint):
-                currentShape.setEndPoint(currentShape.getPoint(currentPoint))
+                if shapeType == c.CIRCLE:
+                    currentShape.setEndPoint(currentPoint)
+                else:
+                    currentShape.setEndPoint(currentShape.getPoint(currentPoint))
 
                 # plots the "snapped" position
                 currentShape.removeShape()

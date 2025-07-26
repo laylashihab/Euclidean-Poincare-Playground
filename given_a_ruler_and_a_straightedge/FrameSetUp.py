@@ -114,6 +114,15 @@ def clear():
     PLOT.set_xlim(-c.PLOTBOUNDS,c.PLOTBOUNDS)
     PLOT.set_ylim(-c.PLOTBOUNDS,c.PLOTBOUNDS)
     PLOT.set_axis_off()
+    
+    # updates data display
+    dataDisplay.config(text="")
+    dataDisplay.update()
+
+    # ensures the boundary is drawn again
+    if EventHandlers.poincareMode == True:
+        poincareDisk.drawBoundary()
+
     CANVAS.draw()
 
 
@@ -122,15 +131,14 @@ def showAngles():
         for shape in EventHandlers.shapeList:
             if (type(shape) == Shape):
                 shape.showAngles(PLOT)
-                CANVAS.draw()
         showAnglesButton.config(text= "Hide Angles")
-
     else:
         for shape in EventHandlers.shapeList:
             if (type(shape) == Shape):
                 shape.hideAngles()
-                CANVAS.draw()
         showAnglesButton.config(text= "Show Angles")
+    CANVAS.draw()
+
 
 def showMetrics():
     if (showMetricsButton.cget("text") == "Show Metrics"):

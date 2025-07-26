@@ -2,15 +2,14 @@ import EventHandlers
 import FrameSetUp
 import constants as c
 import matplotlib.patches as patches
+from Shape import *
 
 import math
 import numpy as np
 
-# TODO: link references and credits
+# TODO link references and citations
 
 boundary = None
-# takes poincare tuples as keys and euclidean tuples as values
-poincareToEuclideanDict = {}
 
 # maps a point in the euclidean plane to a point in the poincare disc
 def euclideanToPoincareFunc(Xe,Ye):
@@ -63,28 +62,51 @@ def run():
         poincareButton.config(text = "Euclidean Plane")
         showAnglesButton.grid_remove()
         showMetricsButton.grid_remove()
+
+        # removes all angles and metrics
+        for shape in EventHandlers.shapeList:
+            shape.hideMetrics()
+            if type(shape) == Shape:
+                shape.hideAngles()
+                
         euclideanToPoincare()
     else:
         poincareButton.config(text = "Poincare Disc")
         showAnglesButton.grid()
         showMetricsButton.grid()
+
         poincareToEuclidean()
 
+        if FrameSetUp.showAnglesButton.cget("text") == "Hide Angles":
+            for shape in EventHandlers.shapeList:
+                if (type(shape) == Shape):
+                    shape.showAngles(EventHandlers.PLOT)
+        
+        if FrameSetUp.showMetricsButton.cget("text") == "Hide Metrics":
+            for shape in EventHandlers.shapeList:
+                shape.showMetrics(EventHandlers.PLOT)
+
+        EventHandlers.CANVAS.draw()
+
+
+
+def drawBoundary():
+    # draws the poincare disc boundaries
+    global boundary
+    boundary = patches.Circle((0,0), radius=EventHandlers.plotbounds, edgecolor='pink', facecolor = 'None')
+    EventHandlers.PLOT.add_patch(boundary)   
 
 def euclideanToPoincare():
     EventHandlers.poincareMode = True
-    plot = EventHandlers.PLOT
 
     # finds mapping of each point into poincare disc
     for shape in EventHandlers.shapeList:
         shape.removeShape()
         shape.convertToPoincare()
-        shape.plotShape(plot,poincare=True)
+        shape.plotShape(EventHandlers.PLOT,poincare=True)
+    
+    drawBoundary()
 
-    # draws the poincare disc boundaries
-    global boundary
-    boundary = patches.Circle((0,0), radius=EventHandlers.plotbounds, edgecolor='pink', facecolor = 'None')
-    plot.add_patch(boundary)   
     EventHandlers.CANVAS.draw()
         
 # reverts all plotted shapes and the plot itself to standards for euclidean display
