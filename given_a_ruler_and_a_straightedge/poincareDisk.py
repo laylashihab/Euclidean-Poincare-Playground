@@ -11,34 +11,56 @@ import numpy as np
 
 boundary = None
 
-# maps a point in the euclidean plane to a point in the poincare disc
-def euclideanToPoincareFunc(Xe,Ye, scaler = c.PLOTBOUNDS):
-    theta = np.atan2(Ye,Xe)
-    # finds the euclidean distance to origin such that the original euclidean distance and new hyperbolic distance are equal
-    d = math.sqrt(Xe**2 + Ye**2) 
-    numerator = math.e**(2*d) - 1
-    denominator = math.e**(2*d) + 1
-    r = numerator/denominator
-    r /= scaler
+# maps a point in the euclidean plane to a point in the poincare disc based on a stereographic projection of a hyperboloid
+def euclideanToPoincareFunc(Xe,Ye):
+    s = (Xe**2 + Ye **2 + 1)
 
-    Xp = r * np.cos(theta)
-    Yp = r * np.sin(theta)
+    Xp = Xe / (1 + np.sqrt(s))
+    Yp = Ye / (1 + np.sqrt(s))
 
     return (Xp,Yp)
 
-def poincareToEuclideanFunc(Xp,Yp, scaler = c.PLOTBOUNDS):
-    theta = np.atan2(Yp,Xp)
-    # finds the new euclidean distance to origin such that the original hyperbolic distance and new euclidean distances are equal
-    d = math.sqrt(Xp**2 + Yp**2) 
-    d *= scaler
-    # caps d so that there are no floating point errors leading to domain error
-    d = min(max(d, 1e-10), 0.999999)
-    r = 0.5 * math.log(((1+d)/(1-d)))
+# maps a point in the poincare plane to a point in the euclidean place based on a stereographic projection of a hyperboloid
+def poincareToEuclideanFunc(Xp,Yp):
+    d = (Xp**2 + Yp**2 -1)
 
-    Xe = r * np.cos(theta)
-    Ye = r * np.sin(theta)
+    Ye = -(2 * Yp) / d 
+    Xe =  -(2 * Xp) / d 
 
-    return (Xe,Ye)
+    return Xe, Ye
+
+def findPQPrime(Px,Py, Qx,Qy):
+    r,Cx,Cy = findConnectingCircle(Px,Py,Qx,Qy)
+
+    # https://math.stackexchange.com/questions/256100/how-can-i-find-the-points-at-which-two-circles-intersect
+    d = np.sqrt((Cx)**2+(Cy)**2)
+    l = (1 - (r**2) + d**2)/ (2 * d)
+    h = np.sqrt(1-l**2)
+
+    x1 = (l/d) * (Cx) + (h/d) * (Cy)
+    x2 = (l/d) * (Cx) - (h/d) * (Cy)
+    y1 = (l/d) * (Cy) - (h/d) * (Cx)
+    y2 = (l/d) * (Cy) + (h/d) * (Cx)
+
+    pPrime = Point.Point(x1,y1)
+    qPrime = Point.Point(x2,y2)
+
+    return pPrime, qPrime
+
+def findHyperbolicDistance(P,Q):
+    #https://math.stackexchange.com/questions/3910376/how-to-determine-distance-between-two-points-in-poincare
+    pPrime, qPrime = findPQPrime(P.getX(),P.getY(),Q.getX(),Q.getY())
+    
+
+    PQprime = P.getDistance(qPrime)
+    QPprime = Q.getDistance(pPrime)
+    PPprime = P.getDistance(pPrime)
+    QQprime = Q.getDistance(qPrime)
+
+
+    distance = np.log((PQprime * QPprime)/(PPprime * QQprime))
+
+    return distance
 
 # given the two endpoints and radius of the disc, returns the radius and center points of the Euclidean circle connecting them
 def findConnectingCircle(x0,y0,x1,y1, radius = 1):
@@ -68,8 +90,6 @@ def run():
 
         poincareToEuclidean()
 
-
-
 def drawBoundary():
     # draws the poincare disc boundaries
     global boundary
@@ -82,7 +102,7 @@ def euclideanToPoincare():
     FrameSetUp.PLOT.set_xlim(-1,1)
     FrameSetUp.PLOT.set_ylim(-1,1)
     FrameSetUp.zoomSlider.set(100)
-    Point.epsilon = (0.05)
+    Point.Point.setEpsilon(c.POINCAREEPSILON)
 
 
     # finds mapping of each point into poincare disc
@@ -114,7 +134,7 @@ def poincareToEuclidean():
     plotBounds = EventHandlers.plotBounds
     EventHandlers.PLOT.set_xlim(- plotBounds + EventHandlers.xBoundDelta,plotBounds + EventHandlers.xBoundDelta)
     EventHandlers.PLOT.set_ylim(- plotBounds + EventHandlers.yBoundDelta,plotBounds + EventHandlers.yBoundDelta)
-    Point.epsilon = (c.EPSILON)
+    Point.Point.setEpsilon(c.EPSILON)
 
     if FrameSetUp.showAnglesButton.cget("text") == "Hide Angles":
         for shape in EventHandlers.shapeList:

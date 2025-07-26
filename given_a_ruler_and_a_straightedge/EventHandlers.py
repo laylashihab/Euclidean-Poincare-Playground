@@ -166,7 +166,7 @@ def drag_handler(event):
             currentShape.removeShape()
 
             currentShape.movePoint(pointToMove=movePoint, newPoint=currentPoint)
-            movePoint = currentPoint #cmovepoint represents the point that will be moving/moved
+            movePoint = currentPoint #movepoint represents the point that will be moving/moved
 
             currentShape.plotShape(PLOT, poincare=poincareMode)
 
@@ -377,7 +377,7 @@ def move_left(event):
     else:
         for shape in shapeList:
             shape.removeShape()
-            shape.moveShapePoincare(deltaX=-c.POINCAREDELTA)
+            shape.moveShapePoincare(deltaX=c.POINCAREDELTA)
             shape.plotShapePoincare(PLOT)
     CANVAS.draw()
 
@@ -392,7 +392,7 @@ def move_right(event):
     else:
         for shape in shapeList:
             shape.removeShape()
-            shape.moveShapePoincare(deltaX=c.POINCAREDELTA)
+            shape.moveShapePoincare(deltaX=-c.POINCAREDELTA)
             shape.plotShapePoincare(PLOT)
 
     CANVAS.draw()
@@ -408,7 +408,7 @@ def move_up(event):
     else:
         for shape in shapeList:
             shape.removeShape()
-            shape.moveShapePoincare(deltaY=c.POINCAREDELTA)
+            shape.moveShapePoincare(deltaY=-c.POINCAREDELTA)
             shape.plotShapePoincare(PLOT)
 
     CANVAS.draw()
@@ -424,7 +424,7 @@ def move_down(event):
     else:
         for shape in shapeList:
             shape.removeShape()
-            shape.moveShapePoincare(deltaY=-c.POINCAREDELTA)
+            shape.moveShapePoincare(deltaY=c.POINCAREDELTA)
             shape.plotShapePoincare(PLOT)
 
     CANVAS.draw()

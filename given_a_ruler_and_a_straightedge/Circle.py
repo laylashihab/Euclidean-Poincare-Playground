@@ -37,24 +37,39 @@ class Circle:
             plot.add_patch(self.__circle)
             self.__centerPointPlot = self.__centerPoint.plotShape(plot,linewidth)
 
+
+    def pythag(self,a,b,c):
+        d = b**2 -(4 * a * c)
+        print(d)
+        if d < 0:
+            return None, None
+        sol1 = (-b + np.sqrt(d))/ ( 2 * a)
+        sol2 = (-b - np.sqrt(d))/ ( 2 * a)
+        return sol1,sol2
+
+
     def plotShapePoincare(self,plot,linewidth=c.THINLINE):
         if self.__centerPoint != None:
-            theta_range = np.linspace(0, 2 * np.pi,100)
             r = self.getRadius()
+            x0 = self.getCenterPoint().getX()
+            y0 = self.getCenterPoint().getY()
+            const = (1 - x0**2 - y0**2)
 
-            x_dataNew = []
-            y_dataNew = []
-            a = self.__centerPoint.getX()
-            b = self.__centerPoint.getY()
-            for theta in theta_range:
-                x = (r * np.cos(theta)) + a
-                y = (r * np.sin(theta)) + b
-                xNew,yNew = poincareDisk.euclideanToPoincareFunc(x,y)
-                x_dataNew.append(xNew)
-                y_dataNew.append(yNew)
-            self.__circle, = plot.plot(x_dataNew,y_dataNew, color = "black")
+            xrange = np.linspace(-1, 1, 500)
+            yrange = np.linspace(-1, 1, 500)
+            X, Y = np.meshgrid(xrange,yrange)
+            
+            mask = (X**2 + Y**2 >= 1)
 
-            #plots center point
+            F = 4 * ((x0 - X)**2 + (y0 - Y)**2)
+            G = const * (1 - X**2 - Y**2)
+
+            # creates an array of np.nan with the same shape as X
+            Z = np.full_like(X, np.nan)
+            # fills the array when the inputs are inside the unit circle
+            Z[~mask] = F[~mask] / G[~mask] - r
+
+            self.__circle = plot.contour(X,Y,Z,[0], colors="black")
             self.__centerPointPlot = self.__centerPoint.plotShape(plot,linewidth)
 
     def convertToPoincare(self):

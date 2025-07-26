@@ -80,6 +80,9 @@ class Point:
         self.__x = x
         self.__y = y
 
+    def setEpsilon(newEpsilon):
+        Point.epsilon = newEpsilon
+
     def setX(self, x):
         """ Sets the Point's X value to the new value
 
@@ -218,6 +221,10 @@ class Point:
         self.__plot = plot.scatter(self.__x,self.__y, color="blue", s=self.__pointSize)
         return self.__plot
 
+    def plotShapePoincare(self,plot,linewidth=c.THINLINE):
+        self.__plot = plot.scatter(self.__x,self.__y, color="blue", s=self.__pointSize)
+        return self.__plot
+
     def removeShape(self):
         """ removes the plotted point from the canvas 
         """
@@ -253,12 +260,12 @@ class Point:
         self.setY(self.getY() + deltaY)
 
     def moveShapePoincare(self,deltaX=0,deltaY=0):
-        x,y = poincareDisk.poincareToEuclideanFunc(self.getX(), self.getY(), scaler= 1 )
+        x,y = poincareDisk.poincareToEuclideanFunc(self.getX(), self.getY())
 
         x += deltaX
         y += deltaY
 
-        x,y = poincareDisk.euclideanToPoincareFunc(x,y, scaler= 1 )
+        x,y = poincareDisk.euclideanToPoincareFunc(x,y)
         self.setX(x)
         self.setY(y)
 
@@ -303,3 +310,6 @@ class Point:
         string = "Point: " + str(self)
         string += "\n\tX: " + str(self.getX()) + "\tY: " + str(self.getY())
         print(string)
+
+    def hideMetrics(self):
+        pass

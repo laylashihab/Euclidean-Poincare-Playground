@@ -37,6 +37,10 @@ class Shape():
         for component in self.__components:
             component.plotShapeScaledPlotsize(plot,oldPlotSize, newPlotSize)
 
+    def plotShapePoincare(self, plot, linewidth = c.THINLINE):
+        for component in self.__components:
+            component.plotShapePoincare(plot,linewidth)
+
     def convertToPoincare(self):
         for component in self.__components:
             component.convertToPoincare()
