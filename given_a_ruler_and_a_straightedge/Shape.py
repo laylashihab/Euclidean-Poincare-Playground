@@ -49,9 +49,7 @@ class Shape():
         for component in self.__components:
             component.convertToEuclidean()
 
-    def scale(self,scaleVal,plot):
-        scaler = scaleVal / 100 
-
+    def scale(self,scaleVal,plot,poincare=False):
         # finds the midpoint of the shape
         points = set()
         for component in self.getComponents():
@@ -68,12 +66,14 @@ class Shape():
 
         for component in self.getComponents():
             if (type(component) == Line):
+                if (poincare == True):
+                    component.convertToEuclidean()
                 # dealing with start point
                 currentStart = component.getStartPoint()
 
                 # finds the distance the startpoint must move
                 curDistanceToMid = currentStart.getDistance(midpoint)
-                newDistance = curDistanceToMid * scaler
+                newDistance = curDistanceToMid * scaleVal
 
                 # finds the angle of the line connecting the midpoint to point
                 dx = (currentStart.getX() - midpoint.getX())
@@ -100,7 +100,7 @@ class Shape():
                 # dealing with the endpoint 
                 currentEnd = component.getEndPoint()
                 curDistanceToMid = currentEnd.getDistance(midpoint)
-                newDistance = curDistanceToMid * scaler
+                newDistance = curDistanceToMid * scaleVal
 
                 # finds the angle
                 dx = (currentEnd.getX() - midpoint.getX())
@@ -120,19 +120,24 @@ class Shape():
                 endPoint.setX(newX)
                 endPoint.setY(newY)
 
+                if poincare == True:
+                    component.convertToPoincare()
+
                 # deals w plotting
                 component.removeShape()
-                component.plotShape(plot, c.THICKLINE,poincare=EventHandlers.poincareMode)
+                component.plotShape(plot, c.THICKLINE,poincare=poincare)
 
                 # resets start and endpoints
                 component.setStartPoint(currentStart)
                 component.setEndPoint(currentEnd)
+
+                if poincare == True:
+                    component.convertToPoincare()
+
             else: # dealing w circles
-                component.scale(scaleVal,plot)
+                component.scale(scaleVal,plot,poincare=poincare)
 
-    def confirmScaleSize(self,scaleVal,plot):
-        scaler = scaleVal / 100 
-
+    def confirmScaleSize(self,scaleVal,plot,poincare = False):
         # finds the midpoint of the shape
         points = set()
         for component in self.getComponents():
@@ -149,12 +154,15 @@ class Shape():
 
         for component in self.getComponents():
             if (type(component) == Line):
+                if poincare == True:
+                    component.convertToEuclidean()
+
                 # dealing with start point
                 currentStart = component.getStartPoint()
 
                 # finds the distance the startpoint must move
                 curDistanceToMid = currentStart.getDistance(midpoint)
-                newDistance = curDistanceToMid * scaler
+                newDistance = curDistanceToMid * scaleVal
 
                 # finds the angle of the line connecting the midpoint to point
                 dx = (currentStart.getX() - midpoint.getX())
@@ -184,7 +192,7 @@ class Shape():
                 # dealing with the endpoint 
                 currentEnd = component.getEndPoint()
                 curDistanceToMid = currentEnd.getDistance(midpoint)
-                newDistance = curDistanceToMid * scaler
+                newDistance = curDistanceToMid * scaleVal
 
                 # finds the angle
                 dx = (currentEnd.getX() - midpoint.getX())
@@ -207,6 +215,9 @@ class Shape():
                 endPoint = component.getEndPoint()
                 endPoint.setX(newX)
                 endPoint.setY(newY)
+
+                if poincare == True:
+                    component.convertToPoincare()
 
                 # deals w plotting
                 component.removeShape()

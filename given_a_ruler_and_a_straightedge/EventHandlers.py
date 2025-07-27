@@ -28,11 +28,6 @@ def click_handler(event):
     
     mouseDown = True
 
-    # removes option to save shape
-    if (toolMode != c.SELECT):
-        FrameSetUp.saveFigureButton.grid_forget()
-
-
     # checks if the point where the user clicked is a point in a shape
     for shape in shapeList:
         if shape.containsPoint(currentPoint):
@@ -102,11 +97,13 @@ def click_handler(event):
                         selectedShape.plotShape(PLOT, poincare=poincareMode)
 
                     selectedShape = shape
+                    
                     #plots selected shape w a thick line
                     shape.removeShape()
                     shape.plotShape(PLOT,c.THICKLINE)
                     CANVAS.draw()
-                    FrameSetUp.saveFigureButton.grid(row=6, column=2,padx=FrameSetUp.PADX,pady=FrameSetUp.PADY)
+
+                    FrameSetUp.saveFigure(shape)
 
                     return
                 case c.SCALE:
@@ -253,16 +250,18 @@ def unclick_handler(event):
                     c.ACHIEVEMENTSDICT["createRightAngle"].showAchievement()
                 elif c.ACHIEVEMENTSDICT["createObtuseAngle"].isComplete() == False and angle > 90:
                     c.ACHIEVEMENTSDICT["createObtuseAngle"].showAchievement()
+def clearCurrentShape():
+    global currentShape
+    currentShape = None
 
 def slider_click(event):
     if currentShape == None:
         return 
     
     # makes the current shape bold
-    if currentShape != None:
-        currentShape.removeShape()
-        currentShape.plotShape(PLOT,linewidth=c.THICKLINE,poincare=poincareMode)
-        CANVAS.draw()
+    currentShape.removeShape()
+    currentShape.plotShape(PLOT,linewidth=c.THICKLINE,poincare=poincareMode)
+    CANVAS.draw()
 
     # turns off metrics and angles
     currentShape.hideMetrics()
