@@ -49,6 +49,36 @@ class Shape():
         for component in self.__components:
             component.convertToEuclidean()
 
+    def scaleFunc(self,point,midpoint,scaleVal):
+            # finds the distance the startpoint must move
+            curDistanceToMid = point.getDistance(midpoint)
+            newDistance = curDistanceToMid * scaleVal
+
+            # finds the angle of the line connecting the midpoint to point
+            dx = (point.getX() - midpoint.getX())
+            if dx == 0:
+                return point
+
+            dy = (point.getY() - midpoint.getY())
+            angle = math.atan(dx/dy)   
+            
+            if dy*dx < 0 :
+                angle *= -1
+
+            # finds the new point of point using the angle
+            deltaX = (newDistance-curDistanceToMid) * math.sin(angle)
+
+            if (point.getX() > midpoint.getX()):
+                deltaX *= -1
+
+            newX = point.getX() - deltaX
+            newY = point.getY() + ((dy/dx)) * (newX-point.getX())
+
+            # sets the new startpoint
+            newPoint = Point.Point(newX,newY)
+
+            return newPoint
+
     def scale(self,scaleVal,plot,poincare=False):
         # finds the midpoint of the shape
         points = set()
@@ -65,77 +95,50 @@ class Shape():
         midpoint = Point.Point(xTotal/numPoints, yTotal/numPoints)
 
         for component in self.getComponents():
-            if (type(component) == Line):
-                if (poincare == True):
-                    component.convertToEuclidean()
+            if poincare == True:
+                component.convertToEuclidean()
+
+            if type(component) == Line:
                 # dealing with start point
                 currentStart = component.getStartPoint()
 
-                # finds the distance the startpoint must move
-                curDistanceToMid = currentStart.getDistance(midpoint)
-                newDistance = curDistanceToMid * scaleVal
-
-                # finds the angle of the line connecting the midpoint to point
-                dx = (currentStart.getX() - midpoint.getX())
-                dy = (currentStart.getY() - midpoint.getY())
-                angle = math.atan(dx/dy)   
-                
-                if dy*dx < 0 :
-                    angle *= -1
-
-                # finds the new point of point using the angle
-                deltaX = (newDistance-curDistanceToMid) * math.sin(angle)
-
-                if (currentStart.getX() > midpoint.getX()):
-                    deltaX *= -1
-
-                newX = currentStart.getX() - deltaX
-                newY = currentStart.getY() + ((dy/dx) * (newX-currentStart.getX()))
-
-                # sets the new startpoint
-                startPoint = component.getStartPoint()
-                startPoint.setX(newX)
-                startPoint.setY(newY)
+                newStart = self.scaleFunc(currentStart,midpoint,scaleVal)
+                if (not newStart.equals(midpoint,epsilon=c.EPSILON)):
+                    component.setStartPoint(newStart)
                 
                 # dealing with the endpoint 
                 currentEnd = component.getEndPoint()
-                curDistanceToMid = currentEnd.getDistance(midpoint)
-                newDistance = curDistanceToMid * scaleVal
+                newEnd = self.scaleFunc(currentEnd,midpoint,scaleVal)
+                if (not newEnd.equals(midpoint,epsilon=c.EPSILON)):
+                    component.setEndPoint(newEnd)
+            elif type(component) == Circle:
+                currentCenter = component.getCenterPoint()
 
-                # finds the angle
-                dx = (currentEnd.getX() - midpoint.getX())
-                dy = (currentEnd.getY() - midpoint.getY())
-                angle = math.atan(dx/dy)   
-                if dy*dx < 0 :
-                    angle *= -1
-                deltaX = (newDistance-curDistanceToMid) * math.sin(angle)
-                if (currentEnd.getX() > midpoint.getX()):
-                    deltaX *= -1
+                newCenter = self.scaleFunc(currentCenter,midpoint,scaleVal)
+                if (not newCenter.equals(midpoint,epsilon=c.EPSILON)):
+                    component.setCenterPoint(newCenter)
 
-                newX = currentEnd.getX() - deltaX
-                newY = currentEnd.getY() + ((dy/dx)) * (newX-currentEnd.getX())
+                currentRadius = component.getRadius()
+                newRadius = currentRadius * scaleVal
+                component.setRadius(newRadius)
 
-                # sets the new endpoint
-                endPoint = component.getEndPoint()
-                endPoint.setX(newX)
-                endPoint.setY(newY)
+            if poincare == True:
+                component.convertToPoincare()
 
-                if poincare == True:
-                    component.convertToPoincare()
+            # deals w plotting
+            component.removeShape()
+            component.plotShape(plot, linewidth= c.THICKLINE,poincare=poincare)
 
-                # deals w plotting
-                component.removeShape()
-                component.plotShape(plot, c.THICKLINE,poincare=poincare)
-
-                # resets start and endpoints
+            # resets points
+            if type(component) == Line:
                 component.setStartPoint(currentStart)
                 component.setEndPoint(currentEnd)
+            else:
+                component.setCenterPoint(currentCenter)
+                component.setRadius(currentRadius)
 
-                if poincare == True:
-                    component.convertToPoincare()
-
-            else: # dealing w circles
-                component.scale(scaleVal,plot,poincare=poincare)
+            if poincare == True:
+                component.convertToPoincare()
 
     def confirmScaleSize(self,scaleVal,plot,poincare = False):
         # finds the midpoint of the shape
@@ -153,78 +156,39 @@ class Shape():
         midpoint = Point.Point(xTotal/numPoints, yTotal/numPoints)
 
         for component in self.getComponents():
-            if (type(component) == Line):
-                if poincare == True:
-                    component.convertToEuclidean()
+            if poincare == True:
+                component.convertToEuclidean()
 
+            if type(component) == Line:
                 # dealing with start point
                 currentStart = component.getStartPoint()
 
-                # finds the distance the startpoint must move
-                curDistanceToMid = currentStart.getDistance(midpoint)
-                newDistance = curDistanceToMid * scaleVal
-
-                # finds the angle of the line connecting the midpoint to point
-                dx = (currentStart.getX() - midpoint.getX())
-                if dx == 0:
-                    break
-
-                dy = (currentStart.getY() - midpoint.getY())
-                angle = math.atan(dx/dy)   
-                
-                if dy*dx < 0 :
-                    angle *= -1
-
-                # finds the new point of point using the angle
-                deltaX = (newDistance-curDistanceToMid) * math.sin(angle)
-
-                if (currentStart.getX() > midpoint.getX()):
-                    deltaX *= -1
-
-                newX = currentStart.getX() - deltaX
-                newY = currentStart.getY() + ((dy/dx)) * (newX-currentStart.getX())
-
-                # sets the new startpoint
-                startPoint = component.getStartPoint()
-                startPoint.setX(newX)
-                startPoint.setY(newY)
+                newStart = self.scaleFunc(currentStart,midpoint,scaleVal)
+                if (not newStart.equals(midpoint,epsilon=c.EPSILON)):
+                    component.setStartPoint(newStart)
                 
                 # dealing with the endpoint 
                 currentEnd = component.getEndPoint()
-                curDistanceToMid = currentEnd.getDistance(midpoint)
-                newDistance = curDistanceToMid * scaleVal
+                newEnd = self.scaleFunc(currentEnd,midpoint,scaleVal)
+                if (not newEnd.equals(midpoint,epsilon=c.EPSILON)):
+                    component.setEndPoint(newEnd)
+            elif type(component) == Circle:
+                currentCenter = component.getCenterPoint()
 
-                # finds the angle
-                dx = (currentEnd.getX() - midpoint.getX())
+                newCenter = self.scaleFunc(currentCenter,midpoint,scaleVal)
+                if (not newCenter.equals(midpoint,epsilon=c.EPSILON)):
+                    component.setCenterPoint(newCenter)
 
-                if (dx == 0):
-                    break
+                currentRadius = component.getRadius()
+                newRadius = currentRadius * scaleVal
+                component.setRadius(newRadius)
 
-                dy = (currentEnd.getY() - midpoint.getY())
-                angle = math.atan(dx/dy)   
-                if dy*dx < 0 :
-                    angle *= -1
-                deltaX = (newDistance-curDistanceToMid) * math.sin(angle)
-                if (currentEnd.getX() > midpoint.getX()):
-                    deltaX *= -1
+            if poincare == True:
+                component.convertToPoincare()
 
-                newX = currentEnd.getX() - deltaX
-                newY = currentEnd.getY() + ((dy/dx)) * (newX-currentEnd.getX())
-
-                # sets the new endpoint
-                endPoint = component.getEndPoint()
-                endPoint.setX(newX)
-                endPoint.setY(newY)
-
-                if poincare == True:
-                    component.convertToPoincare()
-
-                # deals w plotting
-                component.removeShape()
-                component.plotShape(plot,c.THICKLINE, poincare=EventHandlers.poincareMode)
-
-            else: # dealing w circles
-                component.confirmScaleSize(scaleVal,plot)
+            # deals w plotting
+            component.removeShape()
+            component.plotShape(plot, linewidth= c.THICKLINE,poincare=poincare)
 
     # removes each part of the shape
     def removeShape(self):

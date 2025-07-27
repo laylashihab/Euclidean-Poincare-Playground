@@ -98,6 +98,7 @@ def drawBoundary():
 
 def euclideanToPoincare():
     EventHandlers.poincareMode = True
+    EventHandlers.clearCurrentShape()
 
     FrameSetUp.PLOT.set_xlim(-1,1)
     FrameSetUp.PLOT.set_ylim(-1,1)
@@ -129,6 +130,8 @@ def poincareToEuclidean():
         boundary.remove()
 
     plot = EventHandlers.PLOT
+
+    EventHandlers.clearCurrentShape()
 
     for shape in EventHandlers.shapeList:
         shape.removeShape()

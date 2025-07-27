@@ -113,13 +113,15 @@ class Point:
         """
         self.__pointSize = newPointSize
     
-    def equals(self, otherPoint):
+    def equals(self, otherPoint,epsilon = epsilon):
         """ Checks if the Point is equal to another point in X and Y value to within some epsilon value 
 
         Parameters
         ----------
         otherPoint : Point
             the point to compare the Point object to
+        epsilon: float
+            the epsilon value that is allowable, defaults to the class value of epsilon
 
         Returns
         ---------

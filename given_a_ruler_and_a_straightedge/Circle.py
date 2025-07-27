@@ -58,7 +58,7 @@ class Circle:
             # fills the array when the inputs are inside the unit circle
             Z[~mask] = F[~mask] / G[~mask] - r
 
-            self.__circle = plot.contour(X,Y,Z,[0], colors="black")
+            self.__circle = plot.contour(X,Y,Z,[0], colors="black",linewidth=linewidth)
             self.__centerPointPlot = self.__centerPoint.plotShape(plot,linewidth)
 
     def convertToPoincare(self):
@@ -85,7 +85,7 @@ class Circle:
     def scale(self,scaleVal,plot,poincare = False):
         self.removeShape()
         oldRadius = self.getRadius()
-        newRadius = oldRadius + (float(scaleVal) * oldRadius)
+        newRadius = scaleVal * oldRadius
         self.setRadius(newRadius)
         self.plotShape(plot,c.THICKLINE, poincare=poincare)
         self.setRadius(oldRadius)
@@ -94,7 +94,7 @@ class Circle:
     def confirmScaleSize(self,scaleVal,plot, poincare = False):
         self.removeShape()
         oldRadius = self.getRadius()
-        newRadius = oldRadius + (float(scaleVal) * oldRadius)
+        newRadius = scaleVal * oldRadius
         self.setRadius(newRadius)
         self.plotShape(plot,c.THICKLINE, poincare=poincare)
 
