@@ -257,6 +257,12 @@ def unclick_handler(event):
 def slider_click(event):
     if currentShape == None:
         return 
+    
+    # makes the current shape bold
+    if currentShape != None:
+        currentShape.removeShape()
+        currentShape.plotShape(PLOT,linewidth=c.THICKLINE,poincare=poincareMode)
+        CANVAS.draw()
 
     # turns off metrics and angles
     currentShape.hideMetrics()
@@ -269,8 +275,8 @@ def slider_drag(event):
 
     if (type(currentShape) != Point):
         value = FrameSetUp.scaleSlider.get()
-        value = float(value)
-        currentShape.scale(value, PLOT)
+        value = float(value) / 100
+        currentShape.scale(value, PLOT, poincare=poincareMode)
         CANVAS.draw()
 
 def slider_unclick(event):
@@ -281,8 +287,8 @@ def slider_unclick(event):
 
         return 
     
-    scaleVal = float(FrameSetUp.scaleSlider.get())
-    currentShape.confirmScaleSize(scaleVal,PLOT)
+    scaleVal = float(FrameSetUp.scaleSlider.get()) / 100
+    currentShape.confirmScaleSize(scaleVal,PLOT, poincare=poincareMode)
     
     CANVAS.draw()
 

@@ -91,8 +91,10 @@ class Line:
         self.getEndPoint().convertToEuclidean()
         self.getStartPoint().convertToEuclidean()
 
-    def scale(self,scaleVal,plot):
-        scaler = scaleVal / 100
+    def scale(self,scaleVal,plot, poincare = False):
+        if poincare == True:
+            self.convertToEuclidean()
+
         dx,dy = self.getSlope(self.getStartPoint())
         if (dx != 0):
             slope = dy/dx
@@ -111,7 +113,7 @@ class Line:
 
         # determines the new length
         oldLength = self.getLength()
-        newLength = oldLength * scaler
+        newLength = oldLength * scaleVal
 
         # determines how much to add to either side of the line
         halfLength = (newLength - oldLength)/2
@@ -136,17 +138,25 @@ class Line:
         # ensures the points aren't flipping sides
         if newLeft.getX() >= newRight.getX():
             return
-
+        
         self.removeShape()
         self.setStartPoint(newLeft)
         self.setEndPoint(newRight)
-        self.plotShape(plot,c.THICKLINE)
+
+        if poincare == True:
+            self.convertToPoincare()
+
+        self.plotShape(plot,c.THICKLINE, poincare=poincare)
         self.setStartPoint(oldStart)
         self.setEndPoint(oldEnd)
 
+        if poincare == True:
+            self.convertToPoincare()
 
-    def confirmScaleSize(self,scaleVal,plot):
-        scaler = scaleVal / 100
+    def confirmScaleSize(self,scaleVal,plot, poincare = False):
+        if poincare == True:
+            self.convertToEuclidean()
+
         dx,dy = self.getSlope(self.getStartPoint())
         if (dx != 0):
             slope = dy/dx
@@ -165,7 +175,7 @@ class Line:
 
         # determines the new length
         oldLength = self.getLength()
-        newLength = oldLength * scaler
+        newLength = oldLength * scaleVal
 
         # determines how much to add to either side of the line
         halfLength = (newLength - oldLength)/2
@@ -200,7 +210,10 @@ class Line:
             self.setStartPoint(newRight)
             self.setEndPoint(newLeft)
             
-        self.plotShape(plot,c.THICKLINE)
+        if poincare == True:
+            self.convertToPoincare()
+
+        self.plotShape(plot,c.THICKLINE, poincare=poincare)
             
     # removes the endpoints and lines associated with the plotted line
     def removeShape(self):

@@ -101,6 +101,7 @@ def euclideanToPoincare():
 
     FrameSetUp.PLOT.set_xlim(-1,1)
     FrameSetUp.PLOT.set_ylim(-1,1)
+    FrameSetUp.PLOT.grid(False)
     FrameSetUp.zoomSlider.set(100)
     Point.Point.setEpsilon(c.POINCAREEPSILON)
 
@@ -134,6 +135,7 @@ def poincareToEuclidean():
     plotBounds = EventHandlers.plotBounds
     EventHandlers.PLOT.set_xlim(- plotBounds + EventHandlers.xBoundDelta,plotBounds + EventHandlers.xBoundDelta)
     EventHandlers.PLOT.set_ylim(- plotBounds + EventHandlers.yBoundDelta,plotBounds + EventHandlers.yBoundDelta)
+    FrameSetUp.showGrid()
     Point.Point.setEpsilon(c.EPSILON)
 
     if FrameSetUp.showAnglesButton.cget("text") == "Hide Angles":

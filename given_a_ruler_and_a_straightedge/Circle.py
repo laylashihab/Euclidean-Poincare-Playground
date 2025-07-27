@@ -37,17 +37,6 @@ class Circle:
             plot.add_patch(self.__circle)
             self.__centerPointPlot = self.__centerPoint.plotShape(plot,linewidth)
 
-
-    def pythag(self,a,b,c):
-        d = b**2 -(4 * a * c)
-        print(d)
-        if d < 0:
-            return None, None
-        sol1 = (-b + np.sqrt(d))/ ( 2 * a)
-        sol2 = (-b - np.sqrt(d))/ ( 2 * a)
-        return sol1,sol2
-
-
     def plotShapePoincare(self,plot,linewidth=c.THINLINE):
         if self.__centerPoint != None:
             r = self.getRadius()
@@ -93,21 +82,21 @@ class Circle:
         figure.plotShape(plot,c.THINLINE)
 
     #scales the whole circle by a given amount, but preserves original radius
-    def scale(self,scaleVal,plot):
+    def scale(self,scaleVal,plot,poincare = False):
         self.removeShape()
         oldRadius = self.getRadius()
         newRadius = oldRadius + (float(scaleVal) * oldRadius)
         self.setRadius(newRadius)
-        self.plotShape(plot,c.THICKLINE)
+        self.plotShape(plot,c.THICKLINE, poincare=poincare)
         self.setRadius(oldRadius)
 
     # modifies original radius and scales
-    def confirmScaleSize(self,scaleVal,plot):
+    def confirmScaleSize(self,scaleVal,plot, poincare = False):
         self.removeShape()
         oldRadius = self.getRadius()
         newRadius = oldRadius + (float(scaleVal) * oldRadius)
         self.setRadius(newRadius)
-        self.plotShape(plot,c.THICKLINE)
+        self.plotShape(plot,c.THICKLINE, poincare=poincare)
 
     # removes circle and center point associated with the plotted circle
     def removeShape(self):

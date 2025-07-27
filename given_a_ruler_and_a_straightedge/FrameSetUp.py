@@ -123,12 +123,9 @@ def clear():
         PLOT.set_ylim(-1,1)
     else:
         plotBounds = EventHandlers.plotBounds
-        EventHandlers.PLOT.set_xlim(- plotBounds + EventHandlers.xBoundDelta,plotBounds + EventHandlers.xBoundDelta)
-        EventHandlers.PLOT.set_ylim(- plotBounds + EventHandlers.yBoundDelta,plotBounds + EventHandlers.yBoundDelta)
-    PLOT.grid()
-    #PLOT.set_xticklabels([])
-    #PLOT.set_yticklabels([])
-
+        PLOT.set_xlim(- plotBounds + EventHandlers.xBoundDelta,plotBounds + EventHandlers.xBoundDelta)
+        PLOT.set_ylim(- plotBounds + EventHandlers.yBoundDelta,plotBounds + EventHandlers.yBoundDelta)
+    showGrid()
     CANVAS.draw()
 
 
@@ -228,12 +225,9 @@ def styleLabel(label):
 
 def showSlider():
     scaleSlider.grid()
-    # makes the current shape bold
-    currentShape = EventHandlers.currentShape
-    if currentShape != None:
-        currentShape.removeShape()
-        currentShape.plotShape(PLOT,linewidth=c.THICKLINE)
-        CANVAS.draw()
+
+def showGrid():
+    PLOT.set_axis_off()
 
 # constants
 ROOT = None
@@ -295,9 +289,7 @@ def setUp(Main):
     PLOT = FIG.add_subplot(111)
     PLOT.set_xlim(-c.PLOTBOUNDS,c.PLOTBOUNDS)
     PLOT.set_ylim(-c.PLOTBOUNDS,c.PLOTBOUNDS)
-    PLOT.grid()
-    #PLOT.set_xticklabels([])
-    #PLOT.set_yticklabels([])
+    showGrid()
 
     # buttons and labels
     dataDisplay = tk.Label(ROOT, text="")
@@ -325,7 +317,7 @@ def setUp(Main):
     
     # scale buttons
     scaleShapeButton = tk.Button(TOOLBAR,command=lambda: [showSlider(),changeButtonColor(scaleShapeButton),changeToolMode(c.SCALE)],height=2,width=15,text="Scale")
-    scaleSlider = tk.Scale(TOOLBAR, from_=0, to=200, orient=tk.HORIZONTAL, resolution=1,width=20)
+    scaleSlider = tk.Scale(TOOLBAR, from_=1, to=200, orient=tk.HORIZONTAL, resolution=1,width=20)
 
     # zoom slider
     zoomSlider = tk.Scale(TOOLBAR, from_=1, to =200, orient=tk.HORIZONTAL, resolution = 1, width=20,length = 150)
