@@ -20,6 +20,7 @@ class Line:
     __startPointPlot = None
 
     __measurementText = []
+    __poincare = False
 
 
     def __init__(self):
@@ -27,9 +28,13 @@ class Line:
 
     # plots the line in the given plot 
     def plotShape(self, plot,linewidth = c.THINLINE, poincare = False):
+        # checks if the shape must be drawn in poincare style
         if poincare == True:
             self.plotShapePoincare(plot, linewidth=linewidth)
             return
+        # ensures the current points are euclidean
+        if self.__poincare == True:
+            self.convertToEuclidean()
         if self.__endPoint != None:
             x_data = np.linspace(self.__startPoint.getX(), self.__endPoint.getX(), 100)
             y_data = np.linspace(self.__startPoint.getY(), self.__endPoint.getY(),100)
@@ -40,6 +45,8 @@ class Line:
             self.__startPointPlot = self.__startPoint.plotShape(plot,linewidth)
 
     def plotShapePoincare(self,plot,linewidth=c.THINLINE):
+        if self.__poincare == False:
+            self.convertToPoincare()
         if self.__endPoint != None:
             r,Xc,Yc = self.getEndPoint().findConnectingCircle(self.getStartPoint(), radius = 1)
             angle1 = np.atan2(self.getEndPoint().getY() - Yc, self.getEndPoint().getX() - Xc)
@@ -75,21 +82,19 @@ class Line:
         # ensures that the shape is not mutated
         figure = copy.deepcopy(self)
 
-        startPoint = Point.Point(figure.getStartPoint().getX() *scaleFactor,figure.getStartPoint().getY() *scaleFactor)
-        startPoint.setPointSize(Point.getDPS()*scaleFactor)
-        endPoint = Point.Point(figure.getEndPoint().getX()*scaleFactor,self.getEndPoint().getY() *scaleFactor)
-        endPoint.setPointSize(Point.getDPS()*scaleFactor)
-        figure.setStartPoint(startPoint)
-        figure.setEndPoint(endPoint)
+        figure.getStartPoint().setPointSize(c.DEFAULTPOINTSIZE*scaleFactor)
+        figure.getEndPoint().setPointSize(c.DEFAULTPOINTSIZE*scaleFactor)
         figure.plotShape(plot,c.THINLINE)
 
     def convertToPoincare(self):
         self.getEndPoint().convertToPoincare()
         self.getStartPoint().convertToPoincare()
+        self.__poincare = True
 
     def convertToEuclidean(self):
         self.getEndPoint().convertToEuclidean()
         self.getStartPoint().convertToEuclidean()
+        self.__poincare = False
 
     def scale(self,scaleVal,plot, poincare = False):
         if poincare == True:

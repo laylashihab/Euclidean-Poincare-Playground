@@ -5,7 +5,7 @@ from Shape import *
 
 import FrameSetUp
 import EventHandlers
-import constants as c
+import constants as c   
 
 """"
 Class to define variables that are used throughout the program and run the program

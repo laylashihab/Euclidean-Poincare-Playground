@@ -67,6 +67,7 @@ class Point:
 
     __pointSize = c.DEFAULTPOINTSIZE
     epsilon = c.EPSILON
+    
 
     def __init__(self, x = 0, y=0):
         """
@@ -112,6 +113,9 @@ class Point:
             the new point size
         """
         self.__pointSize = newPointSize
+
+    def getPointSize(self):
+        return self.__pointSize
     
     def equals(self, otherPoint,epsilon = epsilon):
         """ Checks if the Point is equal to another point in X and Y value to within some epsilon value 

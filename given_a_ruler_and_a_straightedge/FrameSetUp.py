@@ -8,8 +8,7 @@ import constants as c
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg)
 import tkinter as tk
-from tkinter import font    
-
+from tkinter import font,ttk 
 
 """"
 Class dealing with frame details
@@ -18,6 +17,11 @@ Includes setting up the frame and adjusting the frame as users interact with it 
 
 # updates button colors
 def changeButtonColor(button):
+    if button == None:
+        for b in shapeButtonList:
+            b.config(bg=c.unclickedButtonCol)
+        return
+
     button.config(bg=c.clickedButtonCol)
 
     # changes other buttons to other color
@@ -34,7 +38,12 @@ def changeButtonColor(button):
 
 # changes the button color for the selected shape
 def changeShape(newShape):
-    EventHandlers.shapeType = newShape
+    # ensures that the user is in draw mode
+    if EventHandlers.toolMode != c.DRAW:
+        changeButtonColor(None)
+        return
+    if newShape != None:
+        EventHandlers.shapeType = newShape        
     match newShape:
         case c.LINE:
             changeButtonColor(lineButton)
@@ -42,10 +51,13 @@ def changeShape(newShape):
             changeButtonColor(pointButton)
         case c.CIRCLE:
             changeButtonColor(circleButton)
+        case None:
+            changeButtonColor(None)
 
 # changes the button color for the selected tool
 def changeToolMode(newTool):
-    objectSavedLabel.grid_forget()
+    objectSavedLabel.grid_remove()
+
     # ensures that any thick lines are cleared 
     if EventHandlers.toolMode == c.SELECT and newTool != c.SELECT:
         selectObjectLabel.grid_remove()
@@ -53,6 +65,7 @@ def changeToolMode(newTool):
             shape.removeShape()
             shape.plotShape(PLOT)
         CANVAS.draw()
+
     # ensures that the scale bar is removed and line is thin again
     elif EventHandlers.toolMode == c.SCALE and newTool != c.SCALE:
         scaleSlider.grid_remove()
@@ -64,27 +77,42 @@ def changeToolMode(newTool):
             currentShape.plotShape(PLOT)
             CANVAS.draw()
 
+    # ensures that the user is told to choose an object
     if newTool == c.SCALE or newTool == c.SELECT:
         selectObjectLabel.grid()
 
+    # ensures that the scale label and slider are shown
     if newTool == c.SCALE:
         scaleLabel.grid()
+        scaleSlider.grid()
 
+    # changes tool mode
     EventHandlers.toolMode = newTool
+
+    # deals with button coloration
     match newTool:
         case c.DRAW:
             changeButtonColor(drawButton)
+            changeShape(EventHandlers.shapeType)
         case c.MOVEPOINT:
             changeButtonColor(movePointButton)
+            changeShape(None)
         case c.DELETE:
             changeButtonColor(deleteButton)
+            changeShape(None)
         case c.MOVEOBJECT:
             changeButtonColor(moveObjectButton)
+            changeShape(None)
         case c.SCALE:
             changeButtonColor(scaleShapeButton)
             EventHandlers.clearCurrentShape()
+            changeShape(None)
         case c.SAVEFIGURE:
             changeButtonColor(saveFigureButton)
+            changeShape(None)
+        case c.SELECT:
+            changeShape(None)
+
     
 
 def achievementsOnOff(Main):
@@ -167,54 +195,117 @@ def saveFigure(shape):
 def addFigure(figure):
     # ensures a copy of the saved figure is added
     figure = copy.deepcopy(figure)
-    figure.plotShape(PLOT)
+    figure.plotShape(PLOT,poincare=EventHandlers.poincareMode)
     CANVAS.draw()
     EventHandlers.shapeList.append(figure)
     EventHandlers.currentShape = None
 
+def removeFigure(figure):
+    global savedFiguresList
+    global LIBRARYROOT
+    if figure in savedFiguresList:
+        savedFiguresList.remove(figure)
+
+    LIBRARYROOT.destroy()
+    openFigureLibrary()
+
+
 def openFigureLibrary():
-    global savedFiguresList, figureButtonList
+    global savedFiguresList, LIBRARYROOT, figureLibraryOpen
+
+    # if the window is already open, close it and open a new one
+    if LIBRARYROOT != None and LIBRARYROOT.winfo_exists():
+        LIBRARYROOT.destroy()
 
     # sets up the figure library window
-    LIBRARYROOT = tk.Toplevel(ROOT)
+    LIBRARYROOT = tk.Toplevel(ROOT, bg=c.backgroundCol)
     LIBRARYROOT.title("Figure Library")
-    plotsize = 100
+    LIBRARYROOT.geometry("500x400")
+    plotsize = 150
+    figureLibraryTitle = tk.Label(LIBRARYROOT, text="Saved Figures")
+    styleLabel(figureLibraryTitle,titleFont)
+    figureLibraryTitle.pack()
 
+    # checks there are figures saved
+    if len(savedFiguresList) == 0:
+        noFigures = tk.Label(LIBRARYROOT,text="No Figures Saved")
+        styleLabel(noFigures,labelFont)
+        noFigures.pack()
+        return
+
+    # frame to hold the scrollbar region
+    frame = tk.Frame(LIBRARYROOT, width=500,height=400, bg = c.backgroundCol)
+
+    # scroll bar
+    scrollregion = tk.Canvas(frame,bg=c.backgroundCol,scrollregion=(0,0,500, 175 * len(savedFiguresList)))
+    scrollbar = ttk.Scrollbar(frame, orient="vertical",command=scrollregion.yview) 
+    scrollregion.config(yscrollcommand=scrollbar.set)
+    scrollbar.pack(side=tk.RIGHT,fill=tk.Y)                     
+    scrollregion.pack(side=tk.LEFT)      
+    
     # adds all figures to a component
     num = 1
     for figure in savedFiguresList:
-        item = tk.Frame(LIBRARYROOT)
+        item = tk.Frame(frame, bg = c.backgroundCol, borderwidth=2, relief="groove")
 
-        label = tk.Label(item,text = str(num))
-        num +=1
+        label = tk.Label(item,text = "Fig " + str(num))
+        styleLabel(label,otherTextFont)
 
         fig = Figure(figsize = c.figSize, dpi = 100, constrained_layout=True)
 
         # creates the canvas containing the plot
         canvas = FigureCanvasTkAgg(fig, master = item)  
         canvas.get_tk_widget().config(width=plotsize,height=plotsize)
-        canvas.draw()
 
         # creates a plot 
         plot = fig.add_subplot(111)
-        plot.set_xlim(-EventHandlers.plotbounds,EventHandlers.plotbounds)
-        plot.set_ylim(-EventHandlers.plotbounds,EventHandlers.plotbounds)
+        plot.set_xlim(-EventHandlers.plotBounds,EventHandlers.plotBounds)
+        plot.set_ylim(-EventHandlers.plotBounds,EventHandlers.plotBounds)
         plot.set_axis_off()
 
         # creates a button associated with the plot
-        b = tk.Button(item, command=lambda fig=figure: addFigure(fig), height = 2, width = 10, text = "Add to Canvas")
-        figureButtonList.append(b)
+        b = tk.Button(item, command=lambda fig=figure: addFigure(fig), height = 2, width = 20, text = "Add to Canvas")
+        styleButton(b, False)
+
+        # creates a button to remove the figure from saved figures
+        b2 = tk.Button(item, command=lambda fig=figure: removeFigure(fig),height=2, width=20, text = "Remove From Library")
+        styleButton(b2, False)
 
         # packs all components
-        label.grid(row = 0, column = 0,padx=PADX, pady=PADY)
-        canvas.get_tk_widget().grid(row=0,column=1,padx=PADX, pady=PADY)
-        b.grid(row = 0, column =2,padx=PADX, pady=PADY)
+        label.grid(row = 0, column = 0, rowspan = 2, padx=5, pady=PADY)
+        canvas.get_tk_widget().grid(row=0,column=1,rowspan=2, padx=5, pady=PADY)
+        b.grid(row = 0, column =2,padx=5, pady=PADY)
+        b2.grid(row = 1, column = 2,padx=5, pady=PADY)
 
-        item.pack()
-                
+
         # plots the shape in scale to the figure library plotsize
-        figure.plotShapeScaledPlotsize(plot,oldPlotSize = EventHandlers.plotbounds, newPlotSize=plotsize)
-        CANVAS.draw()
+        figure.plotShapeScaledPlotsize(plot,oldPlotSize = c.PLOTSIZE, newPlotSize=plotsize)
+            
+        scrollregion.create_window(0, (num-1) * 175, window=item, anchor="nw")
+        num +=1
+
+    frame.pack()
+    canvas.draw()
+
+
+# styles all buttons and labels
+def styleButton(button, normalizeSize = True):
+    button.config(fg=c.buttonTextCol)
+    button.config(font=buttonFont)
+    if normalizeSize == True:
+        button.config(width = c.buttonWidth)
+        button.config(height = c.buttonHeight)
+
+def styleLabel(label, font):
+    label.config(fg=c.textCol, bg=c.backgroundCol)
+    label.config(font = font)
+
+def defineFonts():
+    global labelFont,otherTextFont,titleFont,buttonFont
+    labelFont = font.Font(family=c.fontFamilyLabels,size = c.fontSizeLabels, weight=c.fontWeightLabels)
+    otherTextFont = font.Font(family = c.fontFamilyOtherText, size = c.fontSizeOtherText, weight=c.fontWeightOtherText)
+    titleFont = font.Font(family=c.fontFamilyTitle,size=c.fontSizeTitle,weight=c.fontWeightTitle)
+    buttonFont = font.Font(family=c.fontFamilyButton,size=c.fontSizeButton,weight=c.fontWeightButton)
 
 # constants
 ROOT = None
@@ -237,8 +328,8 @@ scaleShapeButton,scaleSlider = None,None
 zoomLabel,zoomSlider = None,None
 poincareButton = None
 selectObjectLabel,objectSavedLabel,scaleLabel = None, None,None
+figureLibraryOpen = False
 savedFiguresList =[]
-figureButtonList = []
 
 def setUp(Main):
     # constants
@@ -258,7 +349,8 @@ def setUp(Main):
     global zoomLabel,zoomSlider
     global poincareButton
     global selectObjectLabel,objectSavedLabel,scaleLabel
-    
+    global labelFont,otherTextFont,titleFont,buttonFont
+
     # creating the root TKinter component
     ROOT = tk.Tk()
     ROOT.geometry(c.frameSize)
@@ -308,7 +400,7 @@ def setUp(Main):
     drawButton = tk.Button(TOOLBAR, command = lambda:[changeToolMode(c.DRAW),changeButtonColor(drawButton)],text = "Draw")
     
     # scale buttons
-    scaleShapeButton = tk.Button(TOOLBAR,command=lambda: [showSlider(),changeToolMode(c.SCALE)],text="Scale")
+    scaleShapeButton = tk.Button(TOOLBAR,command=lambda: [changeToolMode(c.SCALE)],text="Scale")
     saveFigureButton = tk.Button(TOOLBAR, command= lambda: [changeToolMode(c.SELECT),changeButtonColor(saveFigureButton)], text = "Save Figure")
     openFigureLibraryButton = tk.Button(TOOLBAR, command= lambda:[openFigureLibrary()], text = "Open Figure Library")
     poincareButton = tk.Button(TOOLBAR,command=lambda: [poincareDisk.run()],text = "Poincare Disc")
@@ -336,24 +428,7 @@ def setUp(Main):
     titles = [descriptLabel]
 
     # sets up fonts
-    labelFont = font.Font(family=c.fontFamilyLabels,size = c.fontSizeLabels, weight=c.fontWeightLabels)
-    otherTextFont = font.Font(family = c.fontFamilyOtherText, size = c.fontSizeOtherText, weight=c.fontWeightOtherText)
-    titleFont = font.Font(family=c.fontFamilyTitle,size=c.fontSizeTitle,weight=c.fontWeightTitle)
-    buttonFont = font.Font(family=c.fontFamilyButton,size=c.fontSizeButton,weight=c.fontWeightButton)
-
-    # styles all buttons and labels
-    def styleButton(button):
-        button.config(fg=c.buttonTextCol)
-        button.config(width = c.buttonWidth)
-        button.config(height = c.buttonHeight)
-        button.config(font=buttonFont)
-
-    def styleLabel(label, font):
-        label.config(fg=c.textCol, bg=c.backgroundCol)
-        label.config(font = font)
-
-    def showSlider():
-        scaleSlider.grid()
+    defineFonts()
 
     for button in buttons:
         styleButton(button)

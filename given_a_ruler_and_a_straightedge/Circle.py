@@ -21,6 +21,7 @@ class Circle:
     __centerPointPlot = None
     __moveCenter = False
     
+    __poincare = False # boolean flag for if points are poincare versions
 
     def __init__(self):
         pass
@@ -30,6 +31,9 @@ class Circle:
         if poincare == True:
             self.plotShapePoincare(plot, linewidth=linewidth)
             return
+        if self.__poincare == True:
+            self.convertToEuclidean()
+            
         if self.__centerPoint != None:
             self.__circle = patches.Circle((self.__centerPoint.getX(), self.__centerPoint.getY()), radius=self.__radius, edgecolor='black', facecolor = 'None', linewidth= linewidth)
 
@@ -38,6 +42,10 @@ class Circle:
             self.__centerPointPlot = self.__centerPoint.plotShape(plot,linewidth)
 
     def plotShapePoincare(self,plot,linewidth=c.THINLINE):
+        # ensure the points got converted to poincare
+        if self.__poincare == False:
+            self.convertToPoincare()
+
         if self.__centerPoint != None:
             r = self.getRadius()
             x0 = self.getCenterPoint().getX()
@@ -63,9 +71,11 @@ class Circle:
 
     def convertToPoincare(self):
         self.getCenterPoint().convertToPoincare()
+        self.__poincare = True
 
     def convertToEuclidean(self):
         self.getCenterPoint().convertToEuclidean()
+        self.__poincare = False
 
     #plots the line on a scaled canvas
     def plotShapeScaledPlotsize(self,plot,oldPlotSize, newPlotSize):
@@ -75,10 +85,7 @@ class Circle:
         # ensures that the shape is not mutated
         figure = copy.deepcopy(self)
 
-        centerPoint =Point.Point(figure.getCenterPoint().getX() *scaleFactor,figure.getCenterPoint().getY() *scaleFactor)
-        centerPoint.setPointSize(Point.getDPS()*scaleFactor)
-        figure.setCenterPoint(centerPoint)
-        figure.setRadius(figure.getRadius() *scaleFactor)
+        figure.getCenterPoint().setPointSize(c.DEFAULTPOINTSIZE*scaleFactor)
         figure.plotShape(plot,c.THINLINE)
 
     #scales the whole circle by a given amount, but preserves original radius
