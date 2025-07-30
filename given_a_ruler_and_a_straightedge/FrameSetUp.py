@@ -17,6 +17,7 @@ Includes setting up the frame and adjusting the frame as users interact with it 
 
 # updates button colors
 def changeButtonColor(button):
+    # None is passed through when there is no shape type selected, removes all coloration from that shape
     if button == None:
         for b in shapeButtonList:
             b.config(bg=c.unclickedButtonCol)
@@ -39,9 +40,7 @@ def changeButtonColor(button):
 # changes the button color for the selected shape
 def changeShape(newShape):
     # ensures that the user is in draw mode
-    if EventHandlers.toolMode != c.DRAW:
-        changeButtonColor(None)
-        return
+    changeToolMode(c.DRAW)
     if newShape != None:
         EventHandlers.shapeType = newShape        
     match newShape:
@@ -63,7 +62,7 @@ def changeToolMode(newTool):
         selectObjectLabel.grid_remove()
         for shape in EventHandlers.shapeList:
             shape.removeShape()
-            shape.plotShape(PLOT)
+            shape.plotShape(PLOT, poincare=EventHandlers.poincareMode)
         CANVAS.draw()
 
     # ensures that the scale bar is removed and line is thin again
@@ -74,7 +73,7 @@ def changeToolMode(newTool):
         currentShape = EventHandlers.currentShape
         if currentShape != None:
             currentShape.removeShape()
-            currentShape.plotShape(PLOT)
+            currentShape.plotShape(PLOT, poincare=EventHandlers.poincareMode)
             CANVAS.draw()
 
     # ensures that the user is told to choose an object
@@ -86,6 +85,10 @@ def changeToolMode(newTool):
         scaleLabel.grid()
         scaleSlider.grid()
 
+    # ensures that shape types are hidden when user clicks off of draw
+    if newTool != c.DRAW and EventHandlers.toolMode == c.DRAW:
+        changeShape(None)
+
     # changes tool mode
     EventHandlers.toolMode = newTool
 
@@ -93,27 +96,17 @@ def changeToolMode(newTool):
     match newTool:
         case c.DRAW:
             changeButtonColor(drawButton)
-            changeShape(EventHandlers.shapeType)
         case c.MOVEPOINT:
             changeButtonColor(movePointButton)
-            changeShape(None)
         case c.DELETE:
             changeButtonColor(deleteButton)
-            changeShape(None)
         case c.MOVEOBJECT:
             changeButtonColor(moveObjectButton)
-            changeShape(None)
         case c.SCALE:
             changeButtonColor(scaleShapeButton)
             EventHandlers.clearCurrentShape()
-            changeShape(None)
         case c.SAVEFIGURE:
             changeButtonColor(saveFigureButton)
-            changeShape(None)
-        case c.SELECT:
-            changeShape(None)
-
-    
 
 def achievementsOnOff(Main):
     Main.achievementsOn = not Main.achievementsOn
@@ -121,7 +114,6 @@ def achievementsOnOff(Main):
         achievementsOnButton.config(text="Turn Achievements Off")
     else:
         achievementsOnButton.config(text="Turn Achievements On")
-
 
 # clears the plot
 def clear():
@@ -154,7 +146,6 @@ def clear():
     PLOT.set_axis_off()
     CANVAS.draw()
 
-
 def showAngles():
     if showAnglesButton.cget("text") == "Show Angles":
         for shape in EventHandlers.shapeList:
@@ -186,15 +177,23 @@ def saveFigure(shape):
     objectSavedLabel.grid()
     # ensures a copy of the shape is saved, not the actual shape object
     shape = copy.deepcopy(shape)
+    if shape.getPoincare() == True:
+        shape.convertToEuclidean()
 
     if (shape == None):
         print("Save Failed: Object type == None")
     else:
         savedFiguresList.append(shape)
 
+# adds a saved figure to the main canvas
 def addFigure(figure):
     # ensures a copy of the saved figure is added
     figure = copy.deepcopy(figure)
+    # ensures the figure has the correct type of coordinates
+    if figure.getPoincare() == True and EventHandlers.poincareMode != True:
+        figure.convertToEuclidean()
+    elif figure.getPoincare() == False and EventHandlers.poincareMode == True:
+        figure.convertToPoincare()
     figure.plotShape(PLOT,poincare=EventHandlers.poincareMode)
     CANVAS.draw()
     EventHandlers.shapeList.append(figure)
@@ -287,7 +286,6 @@ def openFigureLibrary():
     frame.pack()
     canvas.draw()
 
-
 # styles all buttons and labels
 def styleButton(button, normalizeSize = True):
     button.config(fg=c.buttonTextCol)
@@ -377,7 +375,7 @@ def setUp(Main):
     descriptLabel = tk.Label(ROOT, text="You Have Been Given a Straightedge and a Compass")
     TOOLBAR = tk.Frame(ROOT, bg=c.backgroundCol,width=c.frameWidth)
     EXTRATOOLS = tk.Frame(ROOT, bg=c.backgroundCol)
-    shapeLabel = tk.Label(TOOLBAR, text="Shape Library")
+    shapeLabel = tk.Label(TOOLBAR, text="Shape Options")
     operationLabel = tk.Label(TOOLBAR, text="Operations")
     zoomLabel = tk.Label(CANVASBAR, text="Zoom")
     scaleLabel = tk.Label(CANVASBAR, text="Scale")
@@ -388,9 +386,9 @@ def setUp(Main):
     instructionsLabel = tk.Label(EXTRATOOLS, text="Use Arrow Keys to navigate canvas")
 
     # Shape Buttons
-    pointButton = tk.Button(TOOLBAR, command=lambda: [changeShape(c.POINT), changeButtonColor(pointButton)], text = "Point")
-    lineButton = tk.Button(TOOLBAR, command=lambda: [changeShape(c.LINE), changeButtonColor(lineButton)], text = "Line")
-    circleButton = tk.Button(TOOLBAR, command =lambda: [changeShape(c.CIRCLE),changeButtonColor(circleButton)], text = "Circle")
+    pointButton = tk.Button(TOOLBAR, command=lambda: [changeShape(c.POINT)], text = "Point")
+    lineButton = tk.Button(TOOLBAR, command=lambda: [changeShape(c.LINE)], text = "Line")
+    circleButton = tk.Button(TOOLBAR, command =lambda: [changeShape(c.CIRCLE)], text = "Circle")
     
     # Basic Operation Buttons
     clearButton = tk.Button(TOOLBAR,command=lambda:[clear()],text = "Clear")
@@ -453,12 +451,12 @@ def setUp(Main):
 
     # Operation Types
     operationLabel.grid(row=3, column = 2, padx=PADX, pady=PADY)
-    placeRow([drawButton, movePointButton,moveObjectButton,deleteButton,clearButton],4,0)
+    placeRow([movePointButton,moveObjectButton,scaleShapeButton,deleteButton,saveFigureButton],4,0)
     changeButtonColor(drawButton)
 
     # Other Tools
     otherToolsLabel.grid(row = 5, column = 2, padx=PADX,pady=PADY)
-    placeRow([achievementsOnButton,poincareButton,scaleShapeButton, saveFigureButton,openFigureLibraryButton],6,0)
+    placeRow([achievementsOnButton,poincareButton,openFigureLibraryButton,clearButton],6,0)
 
     # spacing and setup for labels
     TOOLBAR.grid_rowconfigure(8,minsize = 40) # ensures the space is kept for the labels

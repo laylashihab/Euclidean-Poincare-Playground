@@ -14,17 +14,17 @@ class Shape():
     __arcPlotLists = [] # stores both the arc and measurement plot
 
     # takes in a list of shape (line, point, shape, or circle) objects and an integer number of components
-    def __init__(self, components, arcPlotLists):
-        # breaks apart Shape components into their constituent parts and ensures order is preserved
-        for component in components:
-            if type(component) == Shape:
-                index = components.index(component)
-                components.remove(component)
-                toAdd = component.getComponents()
-                for component in toAdd:
-                    components.insert(index, component)
-                    index +=1
-        self.__components = components
+    def __init__(self, shape1, shape2, arcPlotLists):
+        finalComponents = []
+        if type(shape1) == Shape:
+            finalComponents.extend(shape1.getComponents())
+        else:
+            finalComponents.append(shape1)
+        if type(shape2) == Shape:
+            finalComponents.extend(shape2.getComponents())
+        else:
+            finalComponents.append(shape2)
+        self.__components = finalComponents
         self.__arcPlotLists = arcPlotLists
 
     # plots each part of the shape
@@ -103,19 +103,25 @@ class Shape():
                 currentStart = component.getStartPoint()
 
                 newStart = self.scaleFunc(currentStart,midpoint,scaleVal)
-                if (not newStart.equals(midpoint,epsilon=c.EPSILON)):
+                if newStart.equals(midpoint,epsilon=c.EPSILON):
+                    pass
+                else:
                     component.setStartPoint(newStart)
                 
                 # dealing with the endpoint 
                 currentEnd = component.getEndPoint()
                 newEnd = self.scaleFunc(currentEnd,midpoint,scaleVal)
-                if (not newEnd.equals(midpoint,epsilon=c.EPSILON)):
+                if newEnd.equals(midpoint,epsilon=c.EPSILON):
+                    pass
+                else:
                     component.setEndPoint(newEnd)
             elif type(component) == Circle:
                 currentCenter = component.getCenterPoint()
 
                 newCenter = self.scaleFunc(currentCenter,midpoint,scaleVal)
-                if (not newCenter.equals(midpoint,epsilon=c.EPSILON)):
+                if newCenter.equals(midpoint,epsilon=c.EPSILON):
+                    pass
+                else:
                     component.setCenterPoint(newCenter)
 
                 currentRadius = component.getRadius()
@@ -164,23 +170,30 @@ class Shape():
                 currentStart = component.getStartPoint()
 
                 newStart = self.scaleFunc(currentStart,midpoint,scaleVal)
-                if (not newStart.equals(midpoint,epsilon=c.EPSILON)):
+                if newStart.equals(midpoint,epsilon=c.EPSILON):
+                    pass
+                else:
                     component.setStartPoint(newStart)
                 
                 # dealing with the endpoint 
                 currentEnd = component.getEndPoint()
                 newEnd = self.scaleFunc(currentEnd,midpoint,scaleVal)
-                if (not newEnd.equals(midpoint,epsilon=c.EPSILON)):
+                if newEnd.equals(midpoint,epsilon=c.EPSILON):
+                    pass
+                else:
                     component.setEndPoint(newEnd)
             elif type(component) == Circle:
                 currentCenter = component.getCenterPoint()
 
                 newCenter = self.scaleFunc(currentCenter,midpoint,scaleVal)
-                if (not newCenter.equals(midpoint,epsilon=c.EPSILON)):
+                if newCenter.equals(midpoint,epsilon=c.EPSILON):
+                    pass
+                else:
                     component.setCenterPoint(newCenter)
 
                 currentRadius = component.getRadius()
                 newRadius = currentRadius * scaleVal
+                component.setRadius(newRadius)
                 component.setRadius(newRadius)
 
             if poincare == True:
@@ -203,12 +216,24 @@ class Shape():
     # sets the end point of the last figure drawn
     def setEndPoint(self, endPoint):
         component = self.__components[-1]
-        if type(component) != Point:
-            component.setEndPoint(endPoint)
+        component.setEndPoint(endPoint)
 
+    # sets the final component in components list as the component containing the given point
+    def setLastComponent(self,point):
+        for component in self.__components:
+            if component.containsPoint(point):
+                newComponentsList = self.__components[:]
+                newComponentsList.remove(component)
+                newComponentsList.append(component)
+                self.__components = newComponentsList
+                return
+    
     # gets the last drawn point of the figure
     def getEndPoint(self):
         return self.__components[-1].getEndPoint()
+    
+    def getPoincare(self):
+        return self.__components[-1].getPoincare()
 
     # moves the entire shape by some deltaX and deltaY by moving each component
     def moveShape(self, deltaX,deltaY):
@@ -315,7 +340,7 @@ class Shape():
             l1 = pair[0].getLength()
             l2 = pair[1].getLength()
             minLine = min(l1,l2)
-            radius = min(minLine/2,EventHandlers.plotbounds / 2)
+            radius = min(minLine/2,EventHandlers.plotBounds / 2)
 
             # find start and end angles based on the lines
             angle_start = pair[0].getTerminalAngle(point) % 360

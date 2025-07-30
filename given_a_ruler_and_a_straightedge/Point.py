@@ -67,9 +67,9 @@ class Point:
 
     __pointSize = c.DEFAULTPOINTSIZE
     epsilon = c.EPSILON
-    
+    __poincare = False
 
-    def __init__(self, x = 0, y=0):
+    def __init__(self, x = 0, y=0, poincare = False):
         """
         Parameters
         ----------
@@ -77,11 +77,21 @@ class Point:
             The X value of the Point
         y : float
             The Y value of the Point
+        poincare : boolean
+            True if the points are in poincare mode
         """
         self.__x = x
         self.__y = y
+        self.__poincare
 
     def setEpsilon(newEpsilon):
+        """ Sets the epsilon (acceptable error) value of the Point class
+        Parameters
+        ----------
+        newEpsilon : float
+            The new epsilon (acceptable error) value of the Point class.
+        """
+
         Point.epsilon = newEpsilon
 
     def setX(self, x):
@@ -103,6 +113,9 @@ class Point:
             the new y coordinate of the Point
         """
         self.__y = y
+
+    def getPoincare(self):
+        return self.__poincare
         
     def setPointSize(self,newPointSize):
         """ Sets the Point's size for it to appear as when plotted
@@ -115,6 +128,13 @@ class Point:
         self.__pointSize = newPointSize
 
     def getPointSize(self):
+        """ provides the Point's size to appear when plotted
+
+        Returns
+        ----------
+        float
+            the Point's size value
+        """
         return self.__pointSize
     
     def equals(self, otherPoint,epsilon = epsilon):
@@ -140,30 +160,21 @@ class Point:
             return False
     
     def convertToPoincare(self):
+        """ Maps the Euclidean Point value to a position in the Poincare disk. Sets the X and Y values to match
+        """
         newX,newY = poincareDisk.euclideanToPoincareFunc(self.getX(), self.getY())
         self.setX(newX)
         self.setY(newY)
+        self.__poincare = True
 
     def convertToEuclidean(self):
+        """ Maps the Poincare Disc Point value to a position in the Euclidean plane. Sets the X and Y values to match
+        """
         newX,newY = poincareDisk.poincareToEuclideanFunc(self.getX(), self.getY())
         self.setX(newX)
         self.setY(newY)
+        self.__poincare = False
 
-    # given the two endpoints and radius of the disc, returns the radius and center points of the Euclidean circle connecting them
-    def findConnectingCircle(self, otherPoint, radius):
-        x0 = self.getX()
-        y0 = self.getY()
-        x1 = otherPoint.getX()
-        y1 = otherPoint.getY()
-        numX = y0 * (x1**2 + y1**2 + radius**2)-y1 * (x0**2 + y0**2 + radius**2)
-        numY = x1 * (x0**2 + y0**2 + radius**2)-x0 * (x1**2 + y1**2 + radius**2)
-        denom = 2 * ( (x1 * y0) - (x0 * y1))
-        centerX = numX/denom
-        centerY = numY/denom
-        r = math.sqrt(centerX**2 + centerY ** 2 - radius**2)
-        return r,centerX,centerY
-
-    # checks if the x and y values of a point match
     def exactEquals(self,otherPoint):
         """ Checks if the Point is exactly equal to another point in X and Y value
         Parameters
@@ -183,15 +194,45 @@ class Point:
         return False
 
     def containsPoint(self, point):
+        """ Checks if the Point contains a given point (checks if they are equal)
+
+        Parameters
+        ----------
+        point : Point
+            the point to compare the Point object to
+
+        Returns
+        ---------
+        boolean
+            True when the points are equal to within a certain epsilon, False otherwise
+        """
         if self.equals(point):
             return True
         return False
 
     def getPoint(self,point):
+        """ If the Point contains another given point, provides the exact value of the Point object
+        
+        Parameters
+        ----------
+        otherPoint : Point
+            the point to compare the Point object to
+
+        Returns
+        ---------
+        self if the Point object contains the given point
+"""
         if self.containsPoint(point):
             return self
     
     def setEndPoint(self, point):
+        """ Sets the Point's x and y values to match the given point
+
+        Parameters
+        ----------
+        point: Point
+            the point to get X and Y values from
+        """
         self.setX(point.getX())
         self.setY(point.getY())
 
@@ -210,7 +251,7 @@ class Point:
         return math.sqrt(((self.getX()-otherPoint.getX()))**2+(self.getY()-otherPoint.getY())**2)
 
     def plotShape(self, plot, linewidth = c.THINLINE, poincare = False):
-        """ Plots the point 
+        """ Plots the point in the Euclidean Plane
 
         Parameters
         ----------
@@ -228,6 +269,21 @@ class Point:
         return self.__plot
 
     def plotShapePoincare(self,plot,linewidth=c.THINLINE):
+        """ Plots the point in the Poincare Disc (same procedure as plotting regularly
+
+        Parameters
+        ----------
+        plot : obj
+            the plot to place the Point object in
+        linewidth : int, optional
+            the width of a plotted line: DOES NOT APPLY HERE
+
+        Returns
+        ---------
+        obj
+            An object containing the plot (stored to remove the Point from the plot)
+        """
+
         self.__plot = plot.scatter(self.__x,self.__y, color="blue", s=self.__pointSize)
         return self.__plot
 
@@ -266,6 +322,15 @@ class Point:
         self.setY(self.getY() + deltaY)
 
     def moveShapePoincare(self,deltaX=0,deltaY=0):
+        """ moves the Point to a new location where the X and Y value are altered by given amounts. The changes are made the points Euclidean values
+
+        Parameters
+        ----------
+        deltaX : float
+            the value to be added to the Point's current X value
+        deltaY : float
+            the value to be added to the Point's current Y value
+        """
         x,y = poincareDisk.poincareToEuclideanFunc(self.getX(), self.getY())
 
         x += deltaX
@@ -318,4 +383,6 @@ class Point:
         print(string)
 
     def hideMetrics(self):
+        """ hides the metrics associated with the Point object. Note: there cannot be metrics associated with a point object
+        """
         pass

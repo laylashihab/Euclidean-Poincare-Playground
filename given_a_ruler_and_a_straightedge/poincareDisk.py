@@ -67,6 +67,8 @@ def findConnectingCircle(x0,y0,x1,y1, radius = 1):
     numX = y0 * (x1**2 + y1**2 + radius**2)-y1 * (x0**2 + y0**2 + radius**2)
     numY = x1 * (x0**2 + y0**2 + radius**2)-x0 * (x1**2 + y1**2 + radius**2)
     denom = 2 * ( (x1 * y0) - (x0 * y1))
+    if denom == 0:
+        return np.inf, np.inf,np.inf
     centerX = numX/denom
     centerY = numY/denom
     r = math.sqrt(centerX**2 + centerY ** 2 - radius**2)

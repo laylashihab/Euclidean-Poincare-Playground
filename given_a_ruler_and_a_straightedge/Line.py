@@ -23,8 +23,8 @@ class Line:
     __poincare = False
 
 
-    def __init__(self):
-        pass
+    def __init__(self, poincare = False):
+        self.__poincare = poincare
 
     # plots the line in the given plot 
     def plotShape(self, plot,linewidth = c.THINLINE, poincare = False):
@@ -32,9 +32,6 @@ class Line:
         if poincare == True:
             self.plotShapePoincare(plot, linewidth=linewidth)
             return
-        # ensures the current points are euclidean
-        if self.__poincare == True:
-            self.convertToEuclidean()
         if self.__endPoint != None:
             x_data = np.linspace(self.__startPoint.getX(), self.__endPoint.getX(), 100)
             y_data = np.linspace(self.__startPoint.getY(), self.__endPoint.getY(),100)
@@ -45,30 +42,38 @@ class Line:
             self.__startPointPlot = self.__startPoint.plotShape(plot,linewidth)
 
     def plotShapePoincare(self,plot,linewidth=c.THINLINE):
-        if self.__poincare == False:
-            self.convertToPoincare()
         if self.__endPoint != None:
-            r,Xc,Yc = self.getEndPoint().findConnectingCircle(self.getStartPoint(), radius = 1)
-            angle1 = np.atan2(self.getEndPoint().getY() - Yc, self.getEndPoint().getX() - Xc)
-            angle2 = np.atan2(self.getStartPoint().getY() - Yc, self.getStartPoint().getX() - Xc) 
-            
-            # calculate ccw and cw sweep
-            sweep1 = (angle2 - angle1) % (2 * np.pi)
-            sweep2 = (angle1 - angle2) % (2 * np.pi)
-
-            # select the smallest sweep
-            if sweep1 < sweep2:
-                start = angle1
-                sweep = sweep1
+            x0 = self.getEndPoint().getX()
+            x1 = self.getStartPoint().getX()
+            y0 = self.getEndPoint().getY()
+            y1 = self.getStartPoint().getY()
+            r,Xc,Yc = poincareDisk.findConnectingCircle(x0,y0,x1,y1)
+            if r == np.inf:
+                # if the radius is infinite, plot a straight line
+                x_data = np.linspace(x0,x1,100)
+                y_data = np.linspace(y0,y1,100)
+                self.__line, = plot.plot(x_data,y_data,color = "black", lw= linewidth)
             else:
-                start = angle2
-                sweep = sweep2
+                angle1 = np.atan2(self.getEndPoint().getY() - Yc, self.getEndPoint().getX() - Xc)
+                angle2 = np.atan2(self.getStartPoint().getY() - Yc, self.getStartPoint().getX() - Xc) 
+                
+                # calculate ccw and cw sweep
+                sweep1 = (angle2 - angle1) % (2 * np.pi)
+                sweep2 = (angle1 - angle2) % (2 * np.pi)
 
-            # plot the arc
-            angles = np.linspace(start,start+sweep,100)
-            arc_x = Xc + (r * np.cos(angles))
-            arc_y = Yc + (r * np.sin(angles))
-            self.__line, = plot.plot(arc_x,arc_y, color = "black", lw= linewidth)
+                # select the smallest sweep
+                if sweep1 < sweep2:
+                    start = angle1
+                    sweep = sweep1
+                else:
+                    start = angle2
+                    sweep = sweep2
+
+                # plot the arc
+                angles = np.linspace(start,start+sweep,100)
+                arc_x = Xc + (r * np.cos(angles))
+                arc_y = Yc + (r * np.sin(angles))
+                self.__line, = plot.plot(arc_x,arc_y, color = "black", lw= linewidth)
 
             #plots endpoints
             self.__endPointPlot = self.__endPoint.plotShape(plot,linewidth)
@@ -285,6 +290,9 @@ class Line:
     def isClosedFigure(self):
         return False
     
+    def getPoincare(self):
+        return self.__poincare
+    
     # checks if either endpoint equals a given point
     # if so, forces the endPoint to be the given point (line itself doesn't change)
     def containsPoint(self, point):
@@ -315,7 +323,6 @@ class Line:
         if (self.containsPoint(point)):
             return self.getEndPoint()
 
-    
     # returns the euclidean distance between two endpoints using Euclid's fifth postulate (Pythagorean thm)
     def getLength(self):
         return math.sqrt(((self.getStartPoint().getX()-self.getEndPoint().getX()))**2+(self.getStartPoint().getY()-self.getEndPoint().getY())**2)

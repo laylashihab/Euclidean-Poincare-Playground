@@ -23,17 +23,14 @@ class Circle:
     
     __poincare = False # boolean flag for if points are poincare versions
 
-    def __init__(self):
-        pass
+    def __init__(self, poincare = False):
+        self.__poincare = poincare
 
     # plots the circle and center point in a given plot and updates canvas
     def plotShape(self, plot, linewidth = c.THINLINE, poincare = False):
         if poincare == True:
             self.plotShapePoincare(plot, linewidth=linewidth)
-            return
-        if self.__poincare == True:
-            self.convertToEuclidean()
-            
+            return            
         if self.__centerPoint != None:
             self.__circle = patches.Circle((self.__centerPoint.getX(), self.__centerPoint.getY()), radius=self.__radius, edgecolor='black', facecolor = 'None', linewidth= linewidth)
 
@@ -42,10 +39,6 @@ class Circle:
             self.__centerPointPlot = self.__centerPoint.plotShape(plot,linewidth)
 
     def plotShapePoincare(self,plot,linewidth=c.THINLINE):
-        # ensure the points got converted to poincare
-        if self.__poincare == False:
-            self.convertToPoincare()
-
         if self.__centerPoint != None:
             r = self.getRadius()
             x0 = self.getCenterPoint().getX()
@@ -66,8 +59,8 @@ class Circle:
             # fills the array when the inputs are inside the unit circle
             Z[~mask] = F[~mask] / G[~mask] - r
 
-            self.__circle = plot.contour(X,Y,Z,[0], colors="black",linewidth=linewidth)
-            self.__centerPointPlot = self.__centerPoint.plotShape(plot,linewidth)
+            self.__circle = plot.contour(X,Y,Z,[0], colors="black")
+            self.__centerPointPlot = self.__centerPoint.plotShape(plot)
 
     def convertToPoincare(self):
         self.getCenterPoint().convertToPoincare()
@@ -165,6 +158,9 @@ class Circle:
     
     def isClosedFigure(self):
         return True
+    
+    def getPoincare(self):
+        return self.__poincare
     
     # checks if a given point is the center point
     # if so, marks that the center will be move (radius will not be adjusted)
