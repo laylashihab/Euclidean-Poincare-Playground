@@ -15,6 +15,9 @@ Class dealing with frame details
 Includes setting up the frame and adjusting the frame as users interact with it (such as changing buttons)
 """
 
+# TODO: make it so that saving figures that are off the regular canvas are still visible
+# TODO: add rotation buttons
+
 # updates button colors
 def changeButtonColor(button):
     # None is passed through when there is no shape type selected, removes all coloration from that shape
@@ -290,6 +293,21 @@ def openFigureLibrary():
     frame.pack()
     canvas.draw()
 
+def togglePoincare():
+    global poincareOn
+    poincareOn = not poincareOn
+
+    if poincareOn == True:
+        poincareButton.config(text = "Euclidean Plane")
+        showAnglesButton.grid_remove()
+        showMetricsButton.grid_remove()
+    else:
+        poincareButton.config(text = "Poincare Disc")
+        showAnglesButton.grid()
+        showMetricsButton.grid()
+
+    poincareDisk.run(poincareOn)
+
 # styles all buttons and labels
 def styleButton(button, normalizeSize = True):
     button.config(fg=c.buttonTextCol)
@@ -335,6 +353,7 @@ figureLibraryOpen = False
 savedFiguresList =[]
 anglesOn = False
 metricsOn = False
+poincareOn = False
 
 def setUp(Main):
     # constants
@@ -407,7 +426,7 @@ def setUp(Main):
     scaleShapeButton = tk.Button(TOOLBAR,command=lambda: [changeToolMode(c.SCALE)],text="Scale")
     saveFigureButton = tk.Button(TOOLBAR, command= lambda: [changeToolMode(c.SELECT),changeButtonColor(saveFigureButton)], text = "Save Figure")
     openFigureLibraryButton = tk.Button(TOOLBAR, command= lambda:[openFigureLibrary()], text = "Open Figure Library")
-    poincareButton = tk.Button(TOOLBAR,command=lambda: [poincareDisk.run()],text = "Poincare Disc")
+    poincareButton = tk.Button(TOOLBAR,command=lambda: [togglePoincare()],text = "Poincare Disc")
     achievementsOnButton = tk.Button(TOOLBAR, command = lambda: [achievementsOnOff(Main)],text = "Achievements On")
 
     # sliders

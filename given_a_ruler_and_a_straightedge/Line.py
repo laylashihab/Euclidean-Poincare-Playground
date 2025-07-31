@@ -92,14 +92,16 @@ class Line:
         figure.plotShape(plot,c.THINLINE)
 
     def convertToPoincare(self):
-        self.getEndPoint().convertToPoincare()
-        self.getStartPoint().convertToPoincare()
-        self.__poincare = True
+        if self.__poincare == False:
+            self.getEndPoint().convertToPoincare()
+            self.getStartPoint().convertToPoincare()
+            self.__poincare = True
 
     def convertToEuclidean(self):
-        self.getEndPoint().convertToEuclidean()
-        self.getStartPoint().convertToEuclidean()
-        self.__poincare = False
+        if self.__poincare == True:
+            self.getEndPoint().convertToEuclidean()
+            self.getStartPoint().convertToEuclidean()
+            self.__poincare = False
 
     def scale(self,scaleVal,plot, poincare = False):
         if poincare == True:
@@ -243,7 +245,7 @@ class Line:
         self.setEndPoint(newEnd)
         self.setStartPoint(newStart)
 
-    # takes a euclidean x and y to move 
+    # if the points are in poincare mode, moves the points by a specified x and y amount
     def moveShapePoincare(self,deltaX=0,deltaY=0):
         self.getStartPoint().moveShapePoincare(deltaX,deltaY)
         self.getEndPoint().moveShapePoincare(deltaX,deltaY)

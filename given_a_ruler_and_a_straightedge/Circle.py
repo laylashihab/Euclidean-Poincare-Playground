@@ -63,12 +63,14 @@ class Circle:
             self.__centerPointPlot = self.__centerPoint.plotShape(plot)
 
     def convertToPoincare(self):
-        self.getCenterPoint().convertToPoincare()
-        self.__poincare = True
+        if self.__poincare == False:
+            self.getCenterPoint().convertToPoincare()
+            self.__poincare = True
 
     def convertToEuclidean(self):
-        self.getCenterPoint().convertToEuclidean()
-        self.__poincare = False
+        if self.__poincare == True:
+            self.getCenterPoint().convertToEuclidean()
+            self.__poincare = False
 
     #plots the line on a scaled canvas
     def plotShapeScaledPlotsize(self,plot,oldPlotSize, newPlotSize):

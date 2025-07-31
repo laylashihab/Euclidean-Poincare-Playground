@@ -237,8 +237,16 @@ class Shape():
 
     # moves the entire shape by some deltaX and deltaY by moving each component
     def moveShape(self, deltaX,deltaY):
+        pointList = set()
         for component in self.__components:
-            component.moveShape(deltaX,deltaY)
+            if type(component) == Line:
+                pointList.add(component.getStartPoint())
+                pointList.add(component.getEndPoint())
+            else:
+                pointList.add(component.getCenterPoint())
+        
+        for point in pointList:
+            point.moveShape(deltaX,deltaY)
 
     def moveShapePoincare(self, deltaX=0,deltaY=0):
         for component in self.__components:
@@ -422,7 +430,7 @@ class Shape():
             if numLines >= 2:
                 return True
         return False
-
+    
     def print(self):
         print("Components: " + str(self.getNumComponents()) + "\tNum Arc Plots: " + str(len(self.__arcPlotLists)))
         for component in self.__components:

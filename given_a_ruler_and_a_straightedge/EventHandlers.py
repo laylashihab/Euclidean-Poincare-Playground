@@ -31,9 +31,10 @@ def click_handler(event):
     for shape in shapeList:
         if shape.containsPoint(currentPoint):
             # hides angles and metrics
-            if (type(currentShape) == Shape): 
-                currentShape.hideAngles()
-            currentShape.hideMetrics()
+            if currentShape != None:
+                if (type(currentShape) == Shape): 
+                    currentShape.hideAngles()
+                currentShape.hideMetrics()
 
             match toolMode:
                 case c.MOVEPOINT:
@@ -48,7 +49,6 @@ def click_handler(event):
                     return
                 case c.MOVEOBJECT:
                     currentShape = shape
-                    CANVAS.draw()
                     return
 
                 case c.DRAW:
@@ -146,17 +146,17 @@ def drag_handler(event):
                 currentShape.removeShape()
                 currentShape.setEndPoint(currentPoint)
                 currentShape.plotShape(PLOT, poincare=poincareMode)
-            CANVAS.draw()
 
         case c.MOVEPOINT:
             currentShape.removeShape()
+
+            if poincareMode == True:
+                currentPoint.setPoincare(True)
 
             currentShape.movePoint(pointToMove=movePoint, newPoint=currentPoint)
             movePoint = currentPoint #movepoint represents the point that will be moving/moved
 
             currentShape.plotShape(PLOT, poincare=poincareMode)
-
-            CANVAS.draw()
 
         # moves the entire shape
         case c.MOVEOBJECT:
@@ -165,7 +165,7 @@ def drag_handler(event):
             currentShape.moveShape(deltaX, deltaY)
             currentShape.removeShape()
             currentShape.plotShape(PLOT, poincare=poincareMode)
-            CANVAS.draw()
+    CANVAS.draw()
 
 def unclick_handler(event):
     global currentPoint,currentShape,mouseDown,toolMode,shapeType
@@ -199,13 +199,19 @@ def unclick_handler(event):
                     break
             else:
                 # checks if a shape is being attached to itself
-                if (currentShape.containsPoint(currentPoint)):
+                if type(currentShape) == Shape:
+                    point = currentShape.getPoint(currentPoint)
+                    for component in currentShape.getComponents():
+                        if component.containsPoint(currentPoint):
+                            component.setEndPoint(point)
+                elif (currentShape.containsPoint(currentPoint)):
                     currentShape.setEndPoint(currentShape.getPoint(currentPoint))
                     # plots the "snapped" position
-                    currentShape.removeShape()
-                    currentShape.plotShape(PLOT, poincare=poincareMode)
+                    
+                currentShape.removeShape()
+                currentShape.plotShape(PLOT, poincare=poincareMode)
 
-                    break
+                break
 
     # if a line was drawn with no length, replaces it with a point
     if type(currentShape) == Line and currentShape.getLength() == 0:
@@ -259,6 +265,10 @@ def unclick_handler(event):
 def clearCurrentShape():
     global currentShape
     currentShape = None
+
+def getShapeList():
+    global shapeList
+    return shapeList
 
 def slider_click(event):
     if currentShape == None:

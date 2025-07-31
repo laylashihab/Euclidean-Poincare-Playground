@@ -8,6 +8,7 @@ import math
 import numpy as np
 
 # TODO link references and citations
+# TODO ensure that when moving lines in poincare mode, the distances are being appropriately updated
 
 boundary = None
 
@@ -50,13 +51,11 @@ def findPQPrime(Px,Py, Qx,Qy):
 def findHyperbolicDistance(P,Q):
     #https://math.stackexchange.com/questions/3910376/how-to-determine-distance-between-two-points-in-poincare
     pPrime, qPrime = findPQPrime(P.getX(),P.getY(),Q.getX(),Q.getY())
-    
 
     PQprime = P.getDistance(qPrime)
     QPprime = Q.getDistance(pPrime)
     PPprime = P.getDistance(pPrime)
     QQprime = Q.getDistance(qPrime)
-
 
     distance = np.log((PQprime * QPprime)/(PPprime * QQprime))
 
@@ -74,22 +73,10 @@ def findConnectingCircle(x0,y0,x1,y1, radius = 1):
     r = math.sqrt(centerX**2 + centerY ** 2 - radius**2)
     return r,centerX,centerY
     
-def run():
-    poincareButton = FrameSetUp.poincareButton
-    showAnglesButton = FrameSetUp.showAnglesButton
-    showMetricsButton = FrameSetUp.showMetricsButton
-    if poincareButton.cget("text") == "Poincare Disc":
-        # transforms to poincare disc
-        poincareButton.config(text = "Euclidean Plane")
-        showAnglesButton.grid_remove()
-        showMetricsButton.grid_remove()
-                
+def run(poincareOn):
+    if poincareOn:    
         euclideanToPoincare()
     else:
-        poincareButton.config(text = "Poincare Disc")
-        showAnglesButton.grid()
-        showMetricsButton.grid()
-
         poincareToEuclidean()
 
 def drawBoundary():
@@ -113,7 +100,7 @@ def euclideanToPoincare():
     FrameSetUp.dataDisplay.update()
 
     # finds mapping of each point into poincare disc
-    for shape in EventHandlers.shapeList:
+    for shape in EventHandlers.getShapeList():
         shape.hideMetrics()
         if type(shape) == Shape:
             shape.hideAngles()
@@ -145,12 +132,12 @@ def poincareToEuclidean():
     EventHandlers.PLOT.set_ylim(- plotBounds + EventHandlers.yBoundDelta,plotBounds + EventHandlers.yBoundDelta)
     Point.Point.setEpsilon(c.EPSILON)
 
-    if FrameSetUp.showAnglesButton.cget("text") == "Hide Angles":
+    if FrameSetUp.anglesOn:
         for shape in EventHandlers.shapeList:
             if (type(shape) == Shape):
                 shape.showAngles(EventHandlers.PLOT)
     
-    if FrameSetUp.showMetricsButton.cget("text") == "Hide Metrics":
+    if FrameSetUp.metricsOn:
         for shape in EventHandlers.shapeList:
             shape.showMetrics(EventHandlers.PLOT)
 

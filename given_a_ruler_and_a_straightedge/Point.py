@@ -114,6 +114,9 @@ class Point:
         """
         self.__y = y
 
+    def setPoincare(self, poincare):
+        self.__poincare = poincare
+
     def getPoincare(self):
         return self.__poincare
         
@@ -162,18 +165,26 @@ class Point:
     def convertToPoincare(self):
         """ Maps the Euclidean Point value to a position in the Poincare disk. Sets the X and Y values to match
         """
-        newX,newY = poincareDisk.euclideanToPoincareFunc(self.getX(), self.getY())
-        self.setX(newX)
-        self.setY(newY)
-        self.__poincare = True
+        if self.__poincare == False:
+            newX,newY = poincareDisk.euclideanToPoincareFunc(self.getX(), self.getY())
+            self.setX(newX)
+            self.setY(newY)
+            self.__poincare = True
 
     def convertToEuclidean(self):
         """ Maps the Poincare Disc Point value to a position in the Euclidean plane. Sets the X and Y values to match
         """
-        newX,newY = poincareDisk.poincareToEuclideanFunc(self.getX(), self.getY())
-        self.setX(newX)
-        self.setY(newY)
-        self.__poincare = False
+        if self.__poincare == True:
+            newX,newY = poincareDisk.poincareToEuclideanFunc(self.getX(), self.getY())
+            self.setX(newX)
+            self.setY(newY)
+            self.__poincare = False
+            print("DID convert")
+            self.print()
+
+        else:
+            print("didn't conver")
+            self.print()
 
     def exactEquals(self,otherPoint):
         """ Checks if the Point is exactly equal to another point in X and Y value
@@ -322,7 +333,7 @@ class Point:
         self.setY(self.getY() + deltaY)
 
     def moveShapePoincare(self,deltaX=0,deltaY=0):
-        """ moves the Point to a new location where the X and Y value are altered by given amounts. The changes are made the points Euclidean values
+        """ moves the poincare Point to a new poincare location where the X and Y value are altered by given euclidean amounts. The changes are made to the points Euclidean values
 
         Parameters
         ----------
