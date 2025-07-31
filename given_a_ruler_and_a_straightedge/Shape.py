@@ -414,6 +414,15 @@ class Shape():
     def getArcPlotLists(self):
         return self.__arcPlotLists
     
+    def hasAngle(self):
+        numLines = 0
+        for component in self.__components:
+            if type(component) == Line:
+                numLines += 1
+            if numLines >= 2:
+                return True
+        return False
+
     def print(self):
         print("Components: " + str(self.getNumComponents()) + "\tNum Arc Plots: " + str(len(self.__arcPlotLists)))
         for component in self.__components:

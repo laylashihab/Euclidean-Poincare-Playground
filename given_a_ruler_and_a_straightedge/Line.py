@@ -251,7 +251,11 @@ class Line:
     def showMetrics(self,plot):
         textX = (self.getEndPoint().getX() + self.getStartPoint().getX())/ 2
         textY = (self.getEndPoint().getY() + self.getStartPoint().getY())/ 2
-        lengthText = plot.text(textX, textY, round(self.getLength(),3), fontsize=10, color='red', rotation = self.getTerminalAngle(self.getStartPoint()), horizontalalignment = 'center',verticalalignment = 'top')
+        angle = self.getTerminalAngle(self.getStartPoint())
+        # ensures angles are right way up
+        while angle > 90 and angle < 270:
+            angle -= 180
+        lengthText = plot.text(textX, textY, round(self.getLength(),3), fontsize=10, color='red', rotation = angle, horizontalalignment = 'center',verticalalignment = 'top')
 
         # store the plots
         self.__measurementText.append(lengthText)

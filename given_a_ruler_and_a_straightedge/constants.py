@@ -70,6 +70,7 @@ fontWeightTitle = "bold"
 fontFamilyButton = "Arial"
 fontSizeButton = 9
 fontWeightButton = "normal"
+instructionsSize = 14
 
 # canvas settings
 PLOTSIZE = 400

@@ -30,13 +30,15 @@ def click_handler(event):
     # checks if the point where the user clicked is a point in a shape
     for shape in shapeList:
         if shape.containsPoint(currentPoint):
+            # hides angles and metrics
+            if (type(currentShape) == Shape): 
+                currentShape.hideAngles()
+            currentShape.hideMetrics()
+
             match toolMode:
                 case c.MOVEPOINT:
-                    currentShape = shape
 
-                    if (type(currentShape) == Shape): 
-                        currentShape.hideAngles()
-                    currentShape.hideMetrics()
+                    currentShape = shape
                     
                     CANVAS.draw()
 
@@ -46,15 +48,10 @@ def click_handler(event):
                     return
                 case c.MOVEOBJECT:
                     currentShape = shape
-                    if (type(currentShape) == Shape): 
-                        currentShape.hideAngles()
-                    currentShape.hideMetrics()
                     CANVAS.draw()
                     return
 
                 case c.DRAW:
-                    # if drawing from a point, remove the point since the endpoint of the new shape will replace it
-
                     point = shape.getPoint(currentPoint)
                     new = newBasicShape(point)
                     
@@ -67,11 +64,6 @@ def click_handler(event):
                         shape.removeShape()
                         currentShape = newShape(shape, new)
                     
-                    # hides angles and metrics
-                    if (type(currentShape) == Shape): 
-                        currentShape.hideAngles()
-                    currentShape.hideMetrics()
-
                     currentShape.plotShape(PLOT, poincare=poincareMode)
                     CANVAS.draw()
 
@@ -225,36 +217,44 @@ def unclick_handler(event):
         FrameSetUp.changeShape(c.POINT)
         currentShape = point
 
+    # updates data display
+    updateDataDisplay()
+
+    # various achievements
+    if MAIN.achievementsOn:
+        # creating shape achievements
+        if type(currentShape) == Point.Point and c.ACHIEVEMENTSDICT["createPoint"].isComplete() == False:
+            c.ACHIEVEMENTSDICT["createPoint"].showAchievement()
+        elif type(currentShape) == Circle and c.ACHIEVEMENTSDICT["createCircle"].isComplete() == False:
+            c.ACHIEVEMENTSDICT["createCircle"].showAchievement()
+        elif  type(currentShape) == Line and c.ACHIEVEMENTSDICT["createLine"].isComplete() == False:
+                c.ACHIEVEMENTSDICT["createLine"].showAchievement()
+
+        if type(currentShape) == Shape:
+            # angle achievements
+            if c.ACHIEVEMENTSDICT["createAngle"].isComplete() == False and currentShape.hasAngle() == True:
+                    c.ACHIEVEMENTSDICT["createAngle"].showAchievement()
+
+            if (c.ACHIEVEMENTSDICT["createAcuteAngle"].isComplete() == False or c.ACHIEVEMENTSDICT["createObtuseAngle"].isComplete() == False 
+                or c.ACHIEVEMENTSDICT["createRightAngle"].isComplete() == False):
+                angles = currentShape.showAngles(PLOT)
+                currentShape.hideAngles()
+                for angle in angles:
+                    if c.ACHIEVEMENTSDICT["createAcuteAngle"].isComplete() == False and angle < 90:
+                        c.ACHIEVEMENTSDICT["createAcuteAngle"].showAchievement()
+                    elif c.ACHIEVEMENTSDICT["createRightAngle"].isComplete() == False and angle == 90:
+                        c.ACHIEVEMENTSDICT["createRightAngle"].showAchievement()
+                    elif c.ACHIEVEMENTSDICT["createObtuseAngle"].isComplete() == False and angle > 90:
+                        c.ACHIEVEMENTSDICT["createObtuseAngle"].showAchievement()
+
     # ensures angles and metrics are shown that must be displayed
-    if (type(currentShape) == Shape and FrameSetUp.showAnglesButton.cget("text") == "Hide Angles"):
+    if (type(currentShape) == Shape and FrameSetUp.anglesOn):
         currentShape.showAngles(PLOT)
-    if (currentShape != None and FrameSetUp.showMetricsButton.cget("text") == "Hide Metrics"):
+    if (currentShape != None and FrameSetUp.metricsOn):
         currentShape.showMetrics(PLOT)
 
     # updates the canvas
     CANVAS.draw()
-    # updates data display
-    updateDataDisplay()
-
-    # achievements for creating a circle or line
-    if (MAIN.achievementsOn and c.ACHIEVEMENTSDICT["createCircle"].isComplete() == False and type(currentShape) == Circle):
-        c.ACHIEVEMENTSDICT["createCircle"].showAchievement()
-    elif (MAIN.achievementsOn and c.ACHIEVEMENTSDICT["createLine"].isComplete() == False and type(currentShape) == Line):
-        c.ACHIEVEMENTSDICT["createLine"].showAchievement()
-
-    # various types of angle achievements
-    if MAIN.achievementsOn and type(currentShape) == Shape:
-        if (c.ACHIEVEMENTSDICT["createAcuteAngle"].isComplete() == False or c.ACHIEVEMENTSDICT["createObtuseAngle"].isComplete() == False 
-            or c.ACHIEVEMENTSDICT["createRightAngle"].isComplete() == False):
-            angles = currentShape.showAngles(PLOT)
-            currentShape.hideAngles()
-            for angle in angles:
-                if c.ACHIEVEMENTSDICT["createAcuteAngle"].isComplete() == False and angle < 90:
-                    c.ACHIEVEMENTSDICT["createAcuteAngle"].showAchievement()
-                elif c.ACHIEVEMENTSDICT["createRightAngle"].isComplete() == False and angle == 90:
-                    c.ACHIEVEMENTSDICT["createRightAngle"].showAchievement()
-                elif c.ACHIEVEMENTSDICT["createObtuseAngle"].isComplete() == False and angle > 90:
-                    c.ACHIEVEMENTSDICT["createObtuseAngle"].showAchievement()
 
 def clearCurrentShape():
     global currentShape
@@ -319,8 +319,6 @@ def updateDataDisplay():
         FrameSetUp.dataDisplay.config(text=currentShape.measure())
         FrameSetUp.dataDisplay.update()
 
-
-
 # initializes a new Basic shape (Point, Line, Circle)
 # for points, creates a new point object
 # for lines and circles, sets the endpoint and startpoint to the given start point 
@@ -329,11 +327,6 @@ def newBasicShape(startPoint):
 
     # creates a new point
     if (shapeType == c.POINT):
-
-        # achievement for creating a point
-        if (c.ACHIEVEMENTSDICT["createPoint"].isComplete() == False and MAIN.achievementsOn):
-            c.ACHIEVEMENTSDICT["createPoint"].showAchievement()
-
         shape = copy.deepcopy(startPoint)
         shape.plotShape(PLOT, poincare=poincareMode)
         shapeList.append(shape)
@@ -349,10 +342,6 @@ def newBasicShape(startPoint):
 # creates a new Shape type shape with two Shape objects
 def newShape(oldShape, newShape):
     global shapeList
-    # create Angle achievement
-    if (c.ACHIEVEMENTSDICT["createAngle"].isComplete() == False and type(newShape) == Line and type(oldShape) == Line and MAIN.achievementsOn):
-        c.ACHIEVEMENTSDICT["createAngle"].showAchievement()
-
     # checks if a shape is a point
     if type(oldShape) == Point.Point:
         shapeList.remove(oldShape)

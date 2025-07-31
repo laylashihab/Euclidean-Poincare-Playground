@@ -111,9 +111,9 @@ def changeToolMode(newTool):
 def achievementsOnOff(Main):
     Main.achievementsOn = not Main.achievementsOn
     if (Main.achievementsOn == True):
-        achievementsOnButton.config(text="Turn Achievements Off")
+        achievementsOnButton.config(text="Achievements Off")
     else:
-        achievementsOnButton.config(text="Turn Achievements On")
+        achievementsOnButton.config(text="Achievements On")
 
 # clears the plot
 def clear():
@@ -147,7 +147,10 @@ def clear():
     CANVAS.draw()
 
 def showAngles():
-    if showAnglesButton.cget("text") == "Show Angles":
+    global anglesOn
+    # flips whether or not angles should be on
+    anglesOn = not anglesOn
+    if anglesOn:
         for shape in EventHandlers.shapeList:
             if (type(shape) == Shape):
                 shape.showAngles(PLOT)
@@ -160,7 +163,9 @@ def showAngles():
     CANVAS.draw()
 
 def showMetrics():
-    if (showMetricsButton.cget("text") == "Show Metrics"):
+    global metricsOn
+    metricsOn = not metricsOn
+    if metricsOn:
         for shape in EventHandlers.shapeList:
             shape.showMetrics(PLOT)
         showMetricsButton.config(text = "Hide Metrics")
@@ -207,7 +212,6 @@ def removeFigure(figure):
 
     LIBRARYROOT.destroy()
     openFigureLibrary()
-
 
 def openFigureLibrary():
     global savedFiguresList, LIBRARYROOT, figureLibraryOpen
@@ -299,8 +303,9 @@ def styleLabel(label, font):
     label.config(font = font)
 
 def defineFonts():
-    global labelFont,otherTextFont,titleFont,buttonFont
+    global labelFont,otherTextFont,titleFont,buttonFont,instructionsFont
     labelFont = font.Font(family=c.fontFamilyLabels,size = c.fontSizeLabels, weight=c.fontWeightLabels)
+    instructionsFont = font.Font(family=c.fontFamilyLabels,size=c.instructionsSize, weight=c.fontWeightLabels)
     otherTextFont = font.Font(family = c.fontFamilyOtherText, size = c.fontSizeOtherText, weight=c.fontWeightOtherText)
     titleFont = font.Font(family=c.fontFamilyTitle,size=c.fontSizeTitle,weight=c.fontWeightTitle)
     buttonFont = font.Font(family=c.fontFamilyButton,size=c.fontSizeButton,weight=c.fontWeightButton)
@@ -328,6 +333,8 @@ poincareButton = None
 selectObjectLabel,objectSavedLabel,scaleLabel = None, None,None
 figureLibraryOpen = False
 savedFiguresList =[]
+anglesOn = False
+metricsOn = False
 
 def setUp(Main):
     # constants
@@ -347,7 +354,7 @@ def setUp(Main):
     global zoomLabel,zoomSlider
     global poincareButton
     global selectObjectLabel,objectSavedLabel,scaleLabel
-    global labelFont,otherTextFont,titleFont,buttonFont
+    global labelFont,otherTextFont,titleFont,buttonFont,instructionsFont
 
     # creating the root TKinter component
     ROOT = tk.Tk()
@@ -383,7 +390,7 @@ def setUp(Main):
     selectObjectLabel = tk.Label(TOOLBAR, text = "Click on an object")
     objectSavedLabel = tk.Label(TOOLBAR, text = "Figure Saved!")
     dataDisplay = tk.Label(EXTRATOOLS, text="")
-    instructionsLabel = tk.Label(EXTRATOOLS, text="Use Arrow Keys to navigate canvas")
+    canvasInstructionsLabel = tk.Label(EXTRATOOLS, text="Use Arrow Keys to navigate canvas")
 
     # Shape Buttons
     pointButton = tk.Button(TOOLBAR, command=lambda: [changeShape(c.POINT)], text = "Point")
@@ -391,26 +398,26 @@ def setUp(Main):
     circleButton = tk.Button(TOOLBAR, command =lambda: [changeShape(c.CIRCLE)], text = "Circle")
     
     # Basic Operation Buttons
-    clearButton = tk.Button(TOOLBAR,command=lambda:[clear()],text = "Clear")
     movePointButton = tk.Button(TOOLBAR,command =lambda: [changeToolMode(c.MOVEPOINT),changeButtonColor(movePointButton)],text = "Move Point")
     deleteButton = tk.Button(TOOLBAR,command =lambda: [changeToolMode(c.DELETE),changeButtonColor(deleteButton)], text = "Delete Object")
     moveObjectButton = tk.Button(TOOLBAR,command =lambda: [changeToolMode(c.MOVEOBJECT),changeButtonColor(moveObjectButton)],text = "Move Object")
     drawButton = tk.Button(TOOLBAR, command = lambda:[changeToolMode(c.DRAW),changeButtonColor(drawButton)],text = "Draw")
     
-    # scale buttons
+    # additional operations
     scaleShapeButton = tk.Button(TOOLBAR,command=lambda: [changeToolMode(c.SCALE)],text="Scale")
     saveFigureButton = tk.Button(TOOLBAR, command= lambda: [changeToolMode(c.SELECT),changeButtonColor(saveFigureButton)], text = "Save Figure")
     openFigureLibraryButton = tk.Button(TOOLBAR, command= lambda:[openFigureLibrary()], text = "Open Figure Library")
     poincareButton = tk.Button(TOOLBAR,command=lambda: [poincareDisk.run()],text = "Poincare Disc")
-    achievementsOnButton = tk.Button(TOOLBAR, command = lambda: [achievementsOnOff(Main)],text = "Achievements")
+    achievementsOnButton = tk.Button(TOOLBAR, command = lambda: [achievementsOnOff(Main)],text = "Achievements On")
 
     # sliders
     scaleSlider = tk.Scale(CANVASBAR, from_=1, to=200, orient=tk.VERTICAL, resolution=1,width=20, length = 200)
     zoomSlider = tk.Scale(CANVASBAR, from_=1, to =200, orient=tk.VERTICAL, resolution = 1, width=20,length = 200)
 
-    # Measurements Buttons
+    # Extra tools
     showAnglesButton = tk.Button(EXTRATOOLS, command= lambda: [showAngles()], text = "Show Angles")
     showMetricsButton = tk.Button(EXTRATOOLS, command = lambda: [showMetrics()],text = "Show Metrics")
+    clearButton = tk.Button(EXTRATOOLS,command=lambda:[clear()],text = "Clear")
 
     # lists containing buttons that will have coloration
     shapeButtonList = [pointButton,lineButton,circleButton]
@@ -422,7 +429,8 @@ def setUp(Main):
     
     # lists containing all label components
     labels = [shapeLabel,operationLabel,zoomLabel,scaleLabel,otherToolsLabel]
-    otherText = [dataDisplay,objectSavedLabel,selectObjectLabel, instructionsLabel]
+    otherText = [dataDisplay,objectSavedLabel,selectObjectLabel,canvasInstructionsLabel]
+    instructions = [selectObjectLabel,objectSavedLabel]
     titles = [descriptLabel]
 
     # sets up fonts
@@ -436,11 +444,13 @@ def setUp(Main):
         styleLabel(label, otherTextFont)
     for label in titles:
         styleLabel(label,titleFont)
+    for label in instructions:
+        styleLabel(label, instructionsFont)
 
-    def placeRow(list, row, startCol):
+    def placeRow(list, row, startCol, padx= PADX, pady=PADY):
         col = startCol
         for item in list:
-            item.grid(row=row, column=col,padx=PADX,pady=PADY)
+            item.grid(row=row, column=col,padx=padx,pady=pady)
             col+=1
 
     TOOLBAR.grid_columnconfigure([0,1,2,3,4],minsize = c.frameWidth/5) # ensures the space is kept for the labels
@@ -456,7 +466,7 @@ def setUp(Main):
 
     # Other Tools
     otherToolsLabel.grid(row = 5, column = 2, padx=PADX,pady=PADY)
-    placeRow([achievementsOnButton,poincareButton,openFigureLibraryButton,clearButton],6,0)
+    placeRow([achievementsOnButton,poincareButton,openFigureLibraryButton],6,0)
 
     # spacing and setup for labels
     TOOLBAR.grid_rowconfigure(8,minsize = 40) # ensures the space is kept for the labels
@@ -478,10 +488,9 @@ def setUp(Main):
 
     # places datadisplay and show angles/metrics buttons 
     EXTRATOOLS.grid_rowconfigure(1,minsize = 60) # ensures the space is kept for the labels
-    instructionsLabel.grid(row=0,column=1,columnspan=3)
+    canvasInstructionsLabel.grid(row=0,column=1,columnspan=3)
     dataDisplay.grid(row = 1, column=1, columnspan=2,padx=PADX)
-    showAnglesButton.grid(row=2,column=0,columnspan=2,padx=10,pady=PADY)
-    showMetricsButton.grid(row=2,column=2,columnspan=2,padx=10,pady=PADY)
+    placeRow([showAnglesButton,showMetricsButton,clearButton],2,0, padx=10)
 
     # places all root objects
     descriptLabel.grid(row=0, padx=PADX, pady=PADY)
