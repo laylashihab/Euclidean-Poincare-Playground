@@ -190,7 +190,7 @@ def unclick_handler(event):
                     deltaX = currentShape.getEndPoint().getX()-point.getX()
                     deltaY = currentShape.getEndPoint().getY()-point.getY()
                     shape.moveShape(deltaX,deltaY)
-                    currentShape = newShape(currentShape, shape)
+                    currentShape = newShape(shape,currentShape)
 
                     # plots the "snapped" position
                     currentShape.removeShape()

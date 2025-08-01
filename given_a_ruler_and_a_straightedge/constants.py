@@ -19,7 +19,6 @@ SHAPE = 3
 """
 All definitions come from a translation of Euclid's Elements
 source:
-http://aleph0.clarku.edu/~djoyce/elements/bookI/bookI.html
 """
 ACHIEVEMENTSDICT = {}
 ACHIEVEMENTSDICT["createPoint"] = Achievement("Define a Point", "A point is that which has no part.")

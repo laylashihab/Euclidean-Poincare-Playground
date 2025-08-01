@@ -7,7 +7,6 @@ from Shape import *
 import math
 import numpy as np
 
-# TODO link references and citations
 # TODO ensure that when moving lines in poincare mode, the distances are being appropriately updated
 
 boundary = None
