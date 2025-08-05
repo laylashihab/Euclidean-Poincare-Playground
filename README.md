@@ -32,15 +32,15 @@ All constants for the project are managed in constants.py
 The achievements class, Achievements.py defines how achievements can be interacted with. Specific achievements are set up in constants.py.
 
 ## Installation Instructions
-$ git clone Euclidean-Poincare-Playground
+$ git clone [Euclidean-Poincare-Playground](https://github.com/laylashihab/Euclidean-Poincare-Playground.git)
 
 $ pip install -r requirements.txt
 
 $ python Main.py
 
 ## Credits and acknowledgements
-- Translation of Euclid's Elements: http://aleph0.clarku.edu/~djoyce/elements/bookI/bookI.html 
-- Hyperbolic Distance Metric Derivation:  https://xnought.github.io/files/poincare-disk-distance-function.pdf
+- Translation of [Euclid's Elements](http://aleph0.clarku.edu/~djoyce/elements/bookI/bookI.html)
+- Hyperbolic Distance Metric Derivation from [Poincare Disk Distance Function](https://xnought.github.io/files/poincare-disk-distance-function.pdf)
 
 The structure of the project and much of the inspiration for the available tools are derived from pre-existing geometric tools such as Desmos and GeoGebra.
 
