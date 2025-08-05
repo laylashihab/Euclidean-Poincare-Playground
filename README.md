@@ -34,6 +34,8 @@ The achievements class, Achievements.py defines how achievements can be interact
 ## Installation Instructions
 $ git clone https://github.com/laylashihab/Euclidean-Poincare-Playground.git
 
+$ cd Euclidean-Poincare-Playground
+
 $ pip install -r requirements.txt
 
 $ python Main.py
