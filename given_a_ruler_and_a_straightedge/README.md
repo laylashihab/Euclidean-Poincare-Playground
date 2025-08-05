@@ -4,7 +4,7 @@ Given a Ruler and a Straightedge.
 An interactive geometry tool to visualize the interaction of shapes in a Euclidean plane and in the Poincare Disc.
 
 ## Why it's made
-Inspired by the work of the ancient Greeks, this project served as a way to strip geometry back to its very basics. Euclid's Elements focussed on defining geometric objects and setting out 5 axioms of mathematics. These axioms were assumptions that provided a basis for all other mathematical definitions and theories to be constructed atop of. In the modern era, children in grade school learn and use these ideas. The geometric assumptions people commonly make give no credit to the axioms from which they are derived. This project was born from a goal to better understand the interaction of basic geometric objects and the axioms they are built from. The first four axioms in Elements boil down to the idea that it is possible to construct shapes using a ruler/straightedge of infinite length and a compass that can produce any radius. This inspired the basic shapes available to the user: points, circles, and lines. The fifth axiom, however, stirred much mathematical debate as it does not hold true in all types of geometry. This axiom motivated the inclusion of the Poincare Disc - a model of hyperbolic geometry. 
+Inspired by the work of the ancient Egyptians, this project served as a way to strip geometry back to its very basics. Euclid's Elements focussed on defining geometric objects and setting out 5 axioms of mathematics. These axioms were assumptions that provided a basis for all other mathematical definitions and theories to be constructed atop of. In the modern era, children in grade school learn and use these ideas. The geometric assumptions people commonly make give no credit to the axioms from which they are derived. This project was born from a goal to better understand the interaction of basic geometric objects and the axioms they are built from. The first four axioms in Elements boil down to the idea that it is possible to construct shapes using a ruler/straightedge of infinite length and a compass that can produce any radius. This inspired the basic shapes available to the user: points, circles, and lines. The fifth axiom, however, stirred much mathematical debate as it does not hold true in all types of geometry. This axiom motivated the inclusion of the Poincare Disc - a model of hyperbolic geometry. 
 
 The Poincare Disc was included to serve as an interactive tool to understand how hyperbolic geometry differs from a Euclidean one. While it is only a model, restricted especially in its angle preservations, it does provide insights to how shapes in different geometries interact in a unique and unintuitive manner.
 
@@ -33,12 +33,14 @@ The achievements class, Achievements.py defines how achievements can be interact
 
 ## Installation Instructions
 Clone the repo:         $ git clone ____
+
 Install dependencies:   $ pip install -r requirements.txt
+
 Run:                    $ python Main.py
 
 ## Credits and acknowledgements
-Translation of Euclid's Elements: http://aleph0.clarku.edu/~djoyce/elements/bookI/bookI.html 
-Hyperbolic Distance Metric Derivation:  https://xnought.github.io/files/poincare-disk-distance-function.pdf
+- Translation of Euclid's Elements: http://aleph0.clarku.edu/~djoyce/elements/bookI/bookI.html 
+- Hyperbolic Distance Metric Derivation:  https://xnought.github.io/files/poincare-disk-distance-function.pdf
 
 The structure of the project and much of the inspiration for the available tools are derived from pre-existing geometric tools such as Desmos and GeoGebra.
 
