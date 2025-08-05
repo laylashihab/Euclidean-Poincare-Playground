@@ -32,11 +32,11 @@ All constants for the project are managed in constants.py
 The achievements class, Achievements.py defines how achievements can be interacted with. Specific achievements are set up in constants.py.
 
 ## Installation Instructions
-Clone the repo:         $ git clone ____
+Clone the repo: &emsp;&emsp; $ git clone ____
 
-Install dependencies:   $ pip install -r requirements.txt
+Install dependencies: &emsp;  $ pip install -r requirements.txt
 
-Run:                    $ python Main.py
+Run:          &emsp;&emsp;          $ python Main.py
 
 ## Credits and acknowledgements
 - Translation of Euclid's Elements: http://aleph0.clarku.edu/~djoyce/elements/bookI/bookI.html 
