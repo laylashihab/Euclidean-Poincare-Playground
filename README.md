@@ -32,7 +32,7 @@ All constants for the project are managed in constants.py
 The achievements class, Achievements.py defines how achievements can be interacted with. Specific achievements are set up in constants.py.
 
 ## Installation Instructions
-$ git clone [Euclidean-Poincare-Playground](https://github.com/laylashihab/Euclidean-Poincare-Playground.git)
+$ git clone https://github.com/laylashihab/Euclidean-Poincare-Playground.git
 
 $ pip install -r requirements.txt
 
