@@ -32,7 +32,6 @@ def poincareToEuclideanFunc(Xp,Yp):
 def findPQPrime(Px,Py, Qx,Qy):
     r,Cx,Cy = findConnectingCircle(Px,Py,Qx,Qy)
 
-    # https://math.stackexchange.com/questions/256100/how-can-i-find-the-points-at-which-two-circles-intersect
     d = np.sqrt((Cx)**2+(Cy)**2)
     l = (1 - (r**2) + d**2)/ (2 * d)
     h = np.sqrt(1-l**2)
@@ -48,7 +47,6 @@ def findPQPrime(Px,Py, Qx,Qy):
     return pPrime, qPrime
 
 def findHyperbolicDistance(P,Q):
-    #https://math.stackexchange.com/questions/3910376/how-to-determine-distance-between-two-points-in-poincare
     pPrime, qPrime = findPQPrime(P.getX(),P.getY(),Q.getX(),Q.getY())
 
     PQprime = P.getDistance(qPrime)

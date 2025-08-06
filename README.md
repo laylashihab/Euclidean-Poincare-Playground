@@ -34,8 +34,6 @@ The achievements class, Achievements.py defines how achievements can be interact
 ## Installation Instructions
 $ git clone https://github.com/laylashihab/Euclidean-Poincare-Playground.git
 
-$ cd Euclidean-Poincare-Playground
-
 $ pip install -r requirements.txt
 
 $ python Main.py
@@ -43,10 +41,14 @@ $ python Main.py
 ## Credits and acknowledgements
 - Translation of [Euclid's Elements](http://aleph0.clarku.edu/~djoyce/elements/bookI/bookI.html)
 - Hyperbolic Distance Metric Derivation from [Poincare Disk Distance Function](https://xnought.github.io/files/poincare-disk-distance-function.pdf)
+- Hyperbolic Distance [Math Stack Exchange](https://math.stackexchange.com/questions/3910376/how-to-determine-distance-between-two-points-in-poincare)
+- Find Circle Intersection [Math Stack Exchange](https://math.stackexchange.com/questions/256100/how-can-i-find-the-points-at-which-two-circles-intersect)
 
 The structure of the project and much of the inspiration for the available tools are derived from pre-existing geometric tools such as Desmos and GeoGebra.
 
 ## Known Issues and Bugs
  - Moving Line objects in the Poincare mode will not be an accurate representation of moving the points within the space. The distance between the points will not visibly change as it should when one point is dragged towards the edge. The shape should change in a similar manner to how Circle objects are altered as they approach the edge of the disk. 
  - When connecting a figure back to itself, the most recently drawn line should shift to a "snapped" position, however other lines do sometimes move instead.
+ - Selecting Poincare circles will not become bold, but they are still selected.
+ - Moving Shapes in Poincare mode will allow for points to move outside of the circle; only checks that the point the user clicks on is inside the circle
 

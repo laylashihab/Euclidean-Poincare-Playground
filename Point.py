@@ -179,12 +179,6 @@ class Point:
             self.setX(newX)
             self.setY(newY)
             self.__poincare = False
-            print("DID convert")
-            self.print()
-
-        else:
-            print("didn't conver")
-            self.print()
 
     def exactEquals(self,otherPoint):
         """ Checks if the Point is exactly equal to another point in X and Y value
