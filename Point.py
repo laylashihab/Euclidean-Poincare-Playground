@@ -28,6 +28,12 @@ class Point:
     setY(y)
         sets the Y value of the Point
 
+    setPoincare(poincare)
+        sets the boolean value of if the point is in poincare mode
+
+    getPoincare()
+        gets the boolean value of if the point is in poincare mode
+
     setPointSize(newPointSize)
         sets the size the point will appear when plotted
 
@@ -115,9 +121,18 @@ class Point:
         self.__y = y
 
     def setPoincare(self, poincare):
+        """ sets the boolean value of if the point is in poincare mode
+
+        Parameters
+        ----------
+        poincare : boolean
+            true if the point is in poincare mode, false otherwise
+        """
         self.__poincare = poincare
 
     def getPoincare(self):
+        """ gets the boolean value of if the point is in poincare mode
+        """
         return self.__poincare
         
     def setPointSize(self,newPointSize):
@@ -226,7 +241,7 @@ class Point:
         Returns
         ---------
         self if the Point object contains the given point
-"""
+        """
         if self.containsPoint(point):
             return self
     
@@ -256,7 +271,7 @@ class Point:
         return math.sqrt(((self.getX()-otherPoint.getX()))**2+(self.getY()-otherPoint.getY())**2)
 
     def plotShape(self, plot, linewidth = c.THINLINE, poincare = False):
-        """ Plots the point in the Euclidean Plane
+        """ Plots the point in the Euclidean Plane if poincare is False
 
         Parameters
         ----------
@@ -264,14 +279,19 @@ class Point:
             the plot to place the Point object in
         linewidth : int, optional
             the width of a plotted line: DOES NOT APPLY HERE
+        poincare: boolean
+            whether or not the point is in poincare mode - used to check that the point is plotted correctly
 
         Returns
         ---------
         obj
             An object containing the plot (stored to remove the Point from the plot)
         """
-        self.__plot = plot.scatter(self.__x,self.__y, color="blue", s=self.__pointSize)
-        return self.__plot
+        if poincare == False:
+            self.__plot = plot.scatter(self.__x,self.__y, color="blue", s=self.__pointSize)
+            return self.__plot
+        else:
+            self.plotShapePoincare(plot,linewidth)
 
     def plotShapePoincare(self,plot,linewidth=c.THINLINE):
         """ Plots the point in the Poincare Disc (same procedure as plotting regularly
@@ -327,14 +347,15 @@ class Point:
         self.setY(self.getY() + deltaY)
 
     def moveShapePoincare(self,deltaX=0,deltaY=0):
-        """ moves the poincare Point to a new poincare location where the X and Y value are altered by given euclidean amounts. The changes are made to the points Euclidean values
+        """ moves the poincare Point to a new poincare location where the X and Y value are altered by given euclidean amounts. 
+        The changes are made to the points Euclidean values.
 
         Parameters
         ----------
         deltaX : float
-            the value to be added to the Point's current X value
+            the Euclidean horizontal distance for the shape to move
         deltaY : float
-            the value to be added to the Point's current Y value
+            the Euclidean vertical distance for the shape to move
         """
         x,y = poincareDisk.poincareToEuclideanFunc(self.getX(), self.getY())
 

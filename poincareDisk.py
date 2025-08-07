@@ -98,9 +98,10 @@ def euclideanToPoincare():
 
     # finds mapping of each point into poincare disc
     for shape in EventHandlers.getShapeList():
-        shape.hideMetrics()
         if type(shape) == Shape:
             shape.hideAngles()
+        elif type(shape) == Line or type(shape) == Shape:
+            shape.hideMetrics()
         shape.removeShape()
         shape.convertToPoincare()
         shape.plotShape(EventHandlers.PLOT,poincare=True)
@@ -136,6 +137,7 @@ def poincareToEuclidean():
     
     if FrameSetUp.metricsOn:
         for shape in EventHandlers.shapeList:
-            shape.showMetrics(EventHandlers.PLOT)
+            if type(shape) == Line or type(shape) == Shape:
+                shape.showMetrics(EventHandlers.PLOT)
 
     EventHandlers.CANVAS.draw()

@@ -34,7 +34,8 @@ def click_handler(event):
             if currentShape != None:
                 if (type(currentShape) == Shape): 
                     currentShape.hideAngles()
-                currentShape.hideMetrics()
+                if (type(currentShape) == Line) or type(currentShape) == Shape:
+                    currentShape.hideMetrics()
 
             match toolMode:
                 case c.MOVEPOINT:
@@ -256,7 +257,7 @@ def unclick_handler(event):
     # ensures angles and metrics are shown that must be displayed
     if (type(currentShape) == Shape and FrameSetUp.anglesOn):
         currentShape.showAngles(PLOT)
-    if (currentShape != None and FrameSetUp.metricsOn):
+    if (type(currentShape) == Line or type(currentShape) == Shape) and FrameSetUp.metricsOn:
         currentShape.showMetrics(PLOT)
 
     # updates the canvas
@@ -280,9 +281,10 @@ def slider_click(event):
     CANVAS.draw()
 
     # turns off metrics and angles
-    currentShape.hideMetrics()
     if type(currentShape) == Shape:
         currentShape.hideAngles()
+    if type(currentShape) == Line or type(currentShape) == Shape:
+        currentShape.hideMetrics()
 
 def slider_drag(event):
     if currentShape == None:
@@ -313,7 +315,7 @@ def slider_unclick(event):
     # ensures angles and metrics are shown that must be displayed
     if (type(currentShape) == Shape and FrameSetUp.showAnglesButton.cget("text") == "Hide Angles"):
         currentShape.showAngles(PLOT)
-    if (currentShape != None and FrameSetUp.showMetricsButton.cget("text") == "Hide Metrics"):
+    if ((type(currentShape) == Line or type(currentShape) == Shape) and FrameSetUp.showMetricsButton.cget("text") == "Hide Metrics"):
         currentShape.showMetrics(PLOT)
 
     # updates the canvas

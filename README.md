@@ -46,9 +46,40 @@ $ python Main.py
 
 The structure of the project and much of the inspiration for the available tools are derived from pre-existing geometric tools such as Desmos and GeoGebra.
 
+## How to Use
+Select one of the three shape types in the top of the window to draw the selected shape. To draw a point, select "Point" and click on the canvas where you would like the point. To draw a line, select "Line" and click and drag the mouse on the canvas. To draw a circle, click to draw the center point and drag to set the radius. 
+
+The "Move Point" button allows the user to click on a plotted point and drag it to a new location. Only that point will move. Lines/circles will adjust accordingly.
+
+The "Move Object" button allows the user to click on a plotted point from a shape and drag it to a new location. The entire shape containing point will move.
+
+The "Scale" button will trigger a slider to pop up to the left of the window. The user must click on an shape. That shape will become bold and the user can scale the shape using the slider.
+
+The "Delete Object" button allows the user to click on any shape and that shape will be deleted from the canvas.
+
+The "Save Figure" button allows the user to click on any shape to save that shape. 
+
+The "Achievements On/Off" button allows the user to switch achievements feature on or off. When a user completes an achievement, a pop-up will describe their achievement. All achievements are based on definitions from Euclid's Elements.
+
+The "Poincare Disc" button will transform the current Euclidean plane into the poincare disc model. All points are mapped to a new location within the disc and shapes are drawn in accordance with the model. To return from the model back to the Euclidean plane, the button will change its text to read "Euclidean Plane"
+
+The "Open Figure Library" button will open a new window featuring any shapes that have been saved. The user has the option to delete such shapes from the list or add the shapes to the canvas.
+
+The "Zoom" slider allows the user to zoom in and out of the canvas. No shapes are altered in this interaction.
+
+The user may use the arrow keys on their keyboard at any time to navigate left or right on canvas. In the Poincare model, the user navigates to the left and right of the model, rather than the plane in which the model is embedded.
+
+The "Show/Hide Angles" Button will show the value of any angles that have been drawn in the canvas.
+
+The "Show/Hide Metrics" Button will show any length values on lines that have been drawn in the canvas.
+
+The "Clear" button will clear all drawn shapes from the canvas.
+
+NOTE: to select any shape, the user must click on one of its points
+
 ## Known Issues and Bugs
  - Moving Line objects in the Poincare mode will not be an accurate representation of moving the points within the space. The distance between the points will not visibly change as it should when one point is dragged towards the edge. The shape should change in a similar manner to how Circle objects are altered as they approach the edge of the disk. 
  - When connecting a figure back to itself, the most recently drawn line should shift to a "snapped" position, however other lines do sometimes move instead.
- - Selecting Poincare circles will not become bold, but they are still selected.
  - Moving Shapes in Poincare mode will allow for points to move outside of the circle; only checks that the point the user clicks on is inside the circle
+ - Objects on or close to the boundary in Poincare mode will not be properly mapped during a conversion back to Euclidean mode.
 

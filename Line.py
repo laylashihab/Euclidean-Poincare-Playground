@@ -10,24 +10,147 @@ Class to create Euclidean Line objects
 
 lines are defined by a start and an end point
 """
+
 class Line:
-    # instance variables
-    __line = None
+    """A class used to represent a Line object defined a start Point and end Point
+
+    Attributes
+    ----------
+    __startPoint : Point
+        the starting point of the line
+    __endPoint : Point
+        the ending point of the line - if the line is being adjusted, this point will move.
+    __startPointPlot : obj
+        the plotted startPoint object in the graph
+    __endPointPlot : obj
+        the plotted endPoint object in the graph
+    __line: obj
+        the plotted line object in the graph
+    __measurementText: obj 
+        the plotted measurement descriptor for the line in the graph
+    __poincare: boolean
+        boolean determining whether the line is in poincare mode or not
+
+    Methods
+    -------
+    plotShape(plot,linewidth = c.THINLINE, poincare = False)
+        Plots the endpoints and line in the given plot
+
+    plotShapePoincare(plot,linewidth=c.THINLINE)
+        Plots the endpoints and line in the given plot. Draws a hyperbolic line between two endpoints
+
+    plotShapeScaledPlotsize(plot,oldPlotSize, newPlotSize)
+        Plots the endpoints and Euclidean line in the given plot, adjusting the pointsize based on the old/new plot sizes
+
+    convertToPoincare()
+        Converts the start and end points of the line to their poincare mapping, sets poincare boolean to True
+
+    convertToEuclidean()
+        Converts the start and end points of the line to their Euclidean mapping, sets poincare boolean to False
+
+    scale(scaleVal,plot, poincare = False)
+        Scales the entire shape by the scaleVal AND plots the new scaled value AND converts the points back to their original values after plotting
+
+    confirmScaleSize(scaleVal,plot, poincare = False)
+        Scales the entire shape by the scaleVal AND plots the new scaled value
+
+    removeShape()
+        removes the endpoint, startpoint, and line plots from the canvas. Also hides the metrics of the line
+
+    moveShape(deltaX,deltaY)
+        moves both start and end points by the given delta amounts
+
+    moveShapePoincare(deltaX=0,deltaY=0)
+        moves both start and end points by the given delta amounts
+
+    showMetrics(plot)
+        creates, places, and plots text in the center of the line displaying the length of the line
+
+    hideMetrics()
+        removes any measurement displays
+
+    movePoint(pointToMove, newPoint)
+        Sets a given point to a new point
+
+    setStartPoint(startPoint)
+        Sets the start point of the line to a new point 
+
+    setEndPoint(endpoint)
+        Sets the end point of the line to a new point
+
+    getStartPoint()
+        Returns the Line's start point
+
+    setEndPoint(endpoint)
+        Returns the Line's end point
+
+    getShape()
+        Returns the line plot of the object
+
+    getPoincare()
+        Returns the Line's poincare value
+
+    containsPoint(point)
+        Determines if the line contains the given point (the given point can be off by an epsilon value associated with the Point class)
+
+    exactContainsPoint(point)
+        Determines if the line contains the given EXACT point (no epsilon allowance)
+
+    getPoint(point)
+        Finds the exact Point that is found with .containsPoint(point)
+
+    getLength()
+        Finds the Euclidean distance between the start and end points using the Pythagorean thm
+
+    getSlope(reference)
+        Finds the Euclidean slope of the line
+
+    getTerminalAngle(point)
+        Finds the angle (in degrees) between the line and a horizontal line
+
+    measure()
+        Returns a string of details about the line including its length and slope
+
+    print()
+        Prints information about the line including the line's memory address in addition to details about the start and end point
+    """
+
+    # stores the start and endpoints
     __startPoint = None
     __endPoint = None
 
+    # stores the plots of the points and line and measurement label
     __endPointPlot = None
     __startPointPlot = None
+    __line = None
+    __measurementText = None 
 
-    __measurementText = []
+    # boolean determining whether the line is in poincare mode or not
     __poincare = False
 
-
     def __init__(self, poincare = False):
+        """
+        Parameters
+        ----------
+        poincare : boolean
+            True if the points are in poincare mode
+        """
         self.__poincare = poincare
 
-    # plots the line in the given plot 
     def plotShape(self, plot,linewidth = c.THINLINE, poincare = False):
+        """ Plots the endpoints and line in the given plot
+        When poincare is false, draws a euclidean line between the two endpoints
+
+        Parameters
+        ----------
+        plot : obj
+            the plot to draw the shape in 
+        linewidth: int, optional
+            width of the line connecting the two points
+        poincare: boolean, optional
+            whether or not the Line is in poincare mode - used to ensure correct type of plotting 
+        """
+
         # checks if the shape must be drawn in poincare style
         if poincare == True:
             self.plotShapePoincare(plot, linewidth=linewidth)
@@ -42,6 +165,16 @@ class Line:
             self.__startPointPlot = self.__startPoint.plotShape(plot,linewidth)
 
     def plotShapePoincare(self,plot,linewidth=c.THINLINE):
+        """ Plots the endpoints and line in the given plot. Draws a hyperbolic line between two endpoints
+
+        Parameters
+        ----------
+        plot : obj
+            the plot to draw the shape in 
+        linewidth: int, optional
+            width of the line connecting the two points
+        """
+
         if self.__endPoint != None:
             x0 = self.getEndPoint().getX()
             x1 = self.getStartPoint().getX()
@@ -81,6 +214,18 @@ class Line:
 
     #plots the line on a scaled canvas
     def plotShapeScaledPlotsize(self,plot,oldPlotSize, newPlotSize):
+        """ Plots the endpoints and Euclidean line in the given plot, adjusting the pointsize based on the old/new plot sizes 
+
+        Parameters
+        ----------
+        plot : obj
+            the plot to draw the shape in 
+        oldPlotSize: int
+            size of the old plot
+        newPltSize: int
+            size of the new plot
+        """
+
         # calculates scalefactor
         scaleFactor = newPlotSize / oldPlotSize
 
@@ -92,18 +237,37 @@ class Line:
         figure.plotShape(plot,c.THINLINE)
 
     def convertToPoincare(self):
+        """ Converts the start and end points of the line to their poincare mapping, sets poincare boolean to True
+        """
         if self.__poincare == False:
             self.getEndPoint().convertToPoincare()
             self.getStartPoint().convertToPoincare()
             self.__poincare = True
 
     def convertToEuclidean(self):
+        """ Converts the start and end points of the line to their Euclidean mapping, sets poincare boolean to False
+        """
+
         if self.__poincare == True:
             self.getEndPoint().convertToEuclidean()
             self.getStartPoint().convertToEuclidean()
             self.__poincare = False
 
     def scale(self,scaleVal,plot, poincare = False):
+        """ Scales the entire shape by the scaleVal AND plots the new scaled shape AND converts the points back to their original values after plotting.
+        The scaled change is NOT permanent (original point values are restored). This is done to ensure that when dragging the slider, the shape is being 
+        scaled based on its original length, not the already scaled length. 
+
+        Parameters
+        ----------
+        scaleVal : float
+            The value by which to scale the length of the shape
+        plot: obj
+            the plot for the shape to appear in
+        poincare: boolean, optional
+            whether or not the object is in poincare mode
+        """
+
         if poincare == True:
             self.convertToEuclidean()
 
@@ -166,6 +330,18 @@ class Line:
             self.convertToPoincare()
 
     def confirmScaleSize(self,scaleVal,plot, poincare = False):
+        """ Scales the entire shape by the scaleVal AND plots the new scaled value.
+        The scaled change IS permanent. To be called when a scaling is complete (the user is no longer adjusting the scale size).
+
+        Parameters
+        ----------
+        scaleVal : float
+            The value by which to scale the length of the shape
+        plot: obj
+            the plot for the shape to appear in
+        poincare: boolean, optional
+            whether or not the object is in poincare mode
+        """
         if poincare == True:
             self.convertToEuclidean()
 
@@ -227,8 +403,9 @@ class Line:
 
         self.plotShape(plot,c.THICKLINE, poincare=poincare)
             
-    # removes the endpoints and lines associated with the plotted line
     def removeShape(self):
+        """ removes the endpoint, startpoint, and line plots from the canvas. Also hides the metrics of the line.
+        """
         if self.__line != None:
             # removes line and endPoint
             self.__line.remove()
@@ -238,19 +415,39 @@ class Line:
 
         self.hideMetrics()
 
-    # moves the entire line by a given amount
     def moveShape(self, deltaX,deltaY):
-        newStart = Point.Point(self.getStartPoint().getX() + deltaX, self.getStartPoint().getY() + deltaY)
-        newEnd = Point.Point(self.getEndPoint().getX() + deltaX, self.getEndPoint().getY() + deltaY)
-        self.setEndPoint(newEnd)
-        self.setStartPoint(newStart)
+        """ moves both start and end points by the given delta amounts. 
 
-    # if the points are in poincare mode, moves the points by a specified x and y amount
+        Parameters
+        ----------
+        deltaX : float
+            the Euclidean horizontal distance for the shape to move
+        deltaY: float
+            the Euclidean vertical distance for the shape to move
+        """
+        if self.__poincare == False:
+            newStart = Point.Point(self.getStartPoint().getX() + deltaX, self.getStartPoint().getY() + deltaY)
+            newEnd = Point.Point(self.getEndPoint().getX() + deltaX, self.getEndPoint().getY() + deltaY)
+            self.setEndPoint(newEnd)
+            self.setStartPoint(newStart)
+
     def moveShapePoincare(self,deltaX=0,deltaY=0):
+        """ moves both start and end points by the given delta amounts. 
+
+        Parameters
+        ----------
+        deltaX : float, optional
+            the Euclidean horizontal distance for the shape to move
+        deltaY: float, optional
+            the Euclidean vertical distance for the shape to move
+        """
+
         self.getStartPoint().moveShapePoincare(deltaX,deltaY)
         self.getEndPoint().moveShapePoincare(deltaX,deltaY)
 
     def showMetrics(self,plot):
+        """ creates, places, and plots text in the center of the line displaying the length of the line
+        """
         textX = (self.getEndPoint().getX() + self.getStartPoint().getX())/ 2
         textY = (self.getEndPoint().getY() + self.getStartPoint().getY())/ 2
         angle = self.getTerminalAngle(self.getStartPoint())
@@ -260,16 +457,27 @@ class Line:
         lengthText = plot.text(textX, textY, round(self.getLength(),3), fontsize=10, color='red', rotation = angle, horizontalalignment = 'center',verticalalignment = 'top')
 
         # store the plots
-        self.__measurementText.append(lengthText)
+        self.__measurementText = lengthText
 
     def hideMetrics(self):
-        for measurement in self.__measurementText:
-            measurement.remove()
+        """ removes any measurement displays
+        """
+        if self.__measurementText != None:
+            self.__measurementText.remove()
 
-        self.__measurementText = []
+        self.__measurementText = None
 
-    # moves the given point to a new location
     def movePoint(self,pointToMove, newPoint):
+        """ Sets a given point within the shape to a new point
+
+        Parameters
+        ----------
+        pointToMove : Point
+            the point within the shape to move
+        newPoint : Point
+            the point to set as the new point, replacing pointToMove
+
+        """
         if self.getEndPoint().exactEquals(pointToMove):
             self.setEndPoint(newPoint)
         elif self.getStartPoint().exactEquals(pointToMove):
@@ -277,31 +485,82 @@ class Line:
         else:
             print("Error: given point is not in shape")
 
-    # mutators and accessors
     def setStartPoint(self, startPoint):
+        """ Sets the start point of the line to a new point
+
+        Parameters
+        ----------
+        startPoint : Point
+            the new start point
+        """
         self.__startPoint = startPoint
 
-    def setEndPoint(self, endpoint):
-        self.__endPoint = endpoint
+    def setEndPoint(self, endPoint):
+        """ Sets the end point of the line to a new point
+
+        Parameters
+        ----------
+        endPoint : Point
+            the new end point
+        """
+        self.__endPoint = endPoint
     
     def getStartPoint(self):
+        """ Returns the Line's start point
+        
+        Returns
+        ----------
+        Point
+            the start point of the line
+
+        """
         return self.__startPoint
     
     def getEndPoint(self):
+        """ Returns the Line's end point
+        
+        Returns
+        ----------
+        Point
+            the end point of the line
+        """
+
         return self.__endPoint
     
     def getShape(self):
+        """ Returns the line plot of the object
+
+        Returns
+        ----------
+        obj
+            the line plot 
+        """
         return self.__line
-        
-    def isClosedFigure(self):
-        return False
-    
+            
     def getPoincare(self):
+        """ Returns the Line's poincare value
+
+        Returns
+        ----------
+        boolean
+            whether or not the line is in poincare mode 
+        """
         return self.__poincare
     
-    # checks if either endpoint equals a given point
-    # if so, forces the endPoint to be the given point (line itself doesn't change)
     def containsPoint(self, point):
+        """ Determines if the line contains the given point (the given point can be off by an epsilon value associated with the Point class)
+        If the line DOES contain the point, the point is forced to be the endpoint (line itself doesn't change)
+
+        Parameters 
+        ----------
+        point : Point
+            the point to check if the Line contains
+
+        Returns
+        ----------
+        boolean
+            whether or not the given point is found within the line
+        """
         if point == None:
             return False
         if point.equals(self.__startPoint):
@@ -315,8 +574,20 @@ class Line:
         else:
             return False
         
-    # checks if the exact given point is contained in the figure
     def exactContainsPoint(self,point):
+        """ Determines if the line contains the given EXACT point (no epsilon allowance)
+        start/endpoints do NOT change
+
+        Parameters 
+        ----------
+        point : Point
+            the point to check if the Line contains
+
+        Returns
+        ----------
+        boolean
+            whether or not the given point is found within the line
+        """
         if (self.getStartPoint().getX() == point.getX() and self.getStartPoint().getY() == point.getY()):
             return True
         elif (self.getEndPoint().getX() == point.getX() and self.getEndPoint().getY() == point.getY()):
@@ -324,17 +595,53 @@ class Line:
         else:
             return False
         
-    # returns the exact point on the shape that is very close to the given point
     def getPoint(self,point):
+        """ Finds the exact Point that is found with self.containsPoint(point)
+
+        essentially removes the epsilon value associated with a contained point for smoother joining of shapes
+
+        Parameters 
+        ----------
+        point : Point
+            the point used to find the exact Line point
+
+        Returns
+        ----------
+        Point
+            the point contained in the Line that is within an epsilon value of the given point
+        """
         if (self.containsPoint(point)):
             return self.getEndPoint()
 
-    # returns the euclidean distance between two endpoints using Euclid's fifth postulate (Pythagorean thm)
     def getLength(self):
+        """ Finds the Euclidean distance between the start and end points using the Pythagorean thm
+
+        Returns
+        ----------
+        float
+            the Euclidean distance between the start and end points
+        """
+
         return math.sqrt(((self.getStartPoint().getX()-self.getEndPoint().getX()))**2+(self.getStartPoint().getY()-self.getEndPoint().getY())**2)
             
-    # returns the components of the slope of the line
     def getSlope(self, reference):
+        """ Finds the Euclidean slope of the line
+
+        Parameters
+        ----------
+        reference: Point
+            the point of reference for which to find the slope (helps determine positive or negative)
+            usually the line's start point
+
+        Returns
+        ----------
+        tuple
+            dx : float 
+                the x component of the slope of the line
+            dy : float
+                the y component of the slope of the line
+        """
+
         if (self.getEndPoint() == None or self.getStartPoint() == None):
             return 0
         if (self.getStartPoint().equals(reference)):
@@ -343,6 +650,7 @@ class Line:
         elif (self.getEndPoint().equals(reference)):
             firstPoint = self.getEndPoint()
             secondPoint = self.getStartPoint()
+
         # ensures the slope is calculated correctly by having the first point as the point with the smallest x value
         elif (self.getStartPoint().getX() < self.getEndPoint().getX()):
             firstPoint = self.getStartPoint()
@@ -355,15 +663,27 @@ class Line:
         dy = (secondPoint.getY() - firstPoint.getY())
         return dx,dy
     
-    # returns the angle betweeen the line the terminal angle
     def getTerminalAngle(self,point):
+        """ Finds the angle (in degrees) between the line and a horizontal line 
+
+        Returns
+        ----------
+        float
+            the angle in degrees
+        """
         dx,dy = self.getSlope(point)
         angle = math.atan2(dy,dx)
         angle_deg = math.degrees(angle) % 360
         return angle_deg
     
-    # returns details about the line
     def measure(self):
+        """ Returns a string of details about the line including its length and slope
+
+        Returns
+        ----------
+        String
+            a string containing details about the line
+        """
         dx,dy = self.getSlope(self.getStartPoint())
         if dx ==0:
             dx = 0.00000001
@@ -371,6 +691,9 @@ class Line:
         return returnString
     
     def print(self):
+        """ Prints information about the line including the line's memory address in addition to details about the start and end point 
+        """
+
         string = "Line: " + str(self)
         string += "\n\t Start Point: " + str(self.getStartPoint())
         string += "\n\t End Point: " + str(self.getEndPoint())

@@ -170,11 +170,14 @@ def showMetrics():
     metricsOn = not metricsOn
     if metricsOn:
         for shape in EventHandlers.shapeList:
-            shape.showMetrics(PLOT)
+            if (type(shape) == Line or type(shape) == Shape):
+                shape.showMetrics(PLOT)
         showMetricsButton.config(text = "Hide Metrics")
     else:
         for shape in EventHandlers.shapeList:
-            shape.hideMetrics()
+            if (type(shape) == Line or type(shape) == Shape):
+                shape.hideMetrics()
+
 
         showMetricsButton.config(text = "Show Metrics")
     CANVAS.draw()
