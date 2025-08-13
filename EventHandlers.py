@@ -24,7 +24,9 @@ def click_handler(event):
     global shapeList,currentPoint,currentShape,mouseDown,movePoint,selectedShape
 
     currentPoint =Point.Point(event.xdata, event.ydata)
-    
+    if poincareMode == True:
+        currentPoint.setPoincare(True)
+
     mouseDown = True
 
     # checks if the point where the user clicked is a point in a shape
@@ -42,14 +44,13 @@ def click_handler(event):
 
                     currentShape = shape
                     
-                    CANVAS.draw()
-
                     # sets the point to move as the exact point from the figure
                     movePoint = shape.getPoint(currentPoint)
 
                     return
                 case c.MOVEOBJECT:
                     currentShape = shape
+                    movePoint = shape.getPoint(currentPoint)
                     return
 
                 case c.DRAW:
@@ -133,6 +134,9 @@ def drag_handler(event):
     lastPoint = copy.deepcopy(currentPoint)
     currentPoint =Point.Point(event.xdata, event.ydata)
 
+    if poincareMode == True:
+        currentPoint.setPoincare(True)
+
     match toolMode:
         case c.DRAW:
             # if the user is trying to draw a point but drags instead, creates a line
@@ -163,7 +167,13 @@ def drag_handler(event):
         case c.MOVEOBJECT:
             deltaX = currentPoint.getX() - lastPoint.getX()
             deltaY = currentPoint.getY() - lastPoint.getY()
-            currentShape.moveShape(deltaX, deltaY)
+
+            if poincareMode == False:
+                currentShape.moveShape(deltaX, deltaY)
+            else:
+                currentShape.moveShapePoincare(primaryPoint=movePoint, newPrimaryPoint=currentPoint)
+                movePoint = currentPoint
+
             currentShape.removeShape()
             currentShape.plotShape(PLOT, poincare=poincareMode)
     CANVAS.draw()

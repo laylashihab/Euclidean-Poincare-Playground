@@ -78,8 +78,10 @@ The "Clear" button will clear all drawn shapes from the canvas.
 NOTE: to select any shape, the user must click on one of its points
 
 ## Known Issues and Bugs
- - Moving Line objects in the Poincare mode will not be an accurate representation of moving the points within the space. The distance between the points will not visibly change as it should when one point is dragged towards the edge. The shape should change in a similar manner to how Circle objects are altered as they approach the edge of the disk. 
  - When connecting a figure back to itself, the most recently drawn line should shift to a "snapped" position, however other lines do sometimes move instead.
- - Moving Shapes in Poincare mode will allow for points to move outside of the circle; only checks that the point the user clicks on is inside the circle
- - Objects on or close to the boundary in Poincare mode will not be properly mapped during a conversion back to Euclidean mode.
 
+## Fixed Bugs and Issues
+ - Circle center points near boundary do not properly map between Euclidean and Poincare mode (Fixed 8/13/25)
+ - Moving Line objects in the Poincare mode will not be an accurate representation of moving the points within the space. The distance between the points will not visibly change as it should when one point is dragged towards the edge. The shape should change in a similar manner to how Circle objects are altered as they approach the edge of the disk. (Fixed 8/13/25)
+ - Moving Shapes in Poincare mode will allow for points to move outside of the circle; only checks that the point the user clicks on is inside the circle (Fixed 8/13/25)
+ - Objects on or close to the boundary in Poincare mode will not be properly mapped during a conversion back to Euclidean mode. (Fixed 8/13/25)

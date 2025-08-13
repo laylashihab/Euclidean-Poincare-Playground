@@ -12,6 +12,7 @@ import EventHandlers
 class Shape():
     __components = []
     __arcPlotLists = [] # stores both the arc and measurement plot
+    __poincare = False # boolean determining if the shape is in poincare mode or not
 
     # takes in a list of shape (line, point, shape, or circle) objects and an integer number of components
     def __init__(self, shape1, shape2, arcPlotLists):
@@ -45,9 +46,13 @@ class Shape():
         for component in self.__components:
             component.convertToPoincare()
 
+        self.__poincare == True
+
     def convertToEuclidean(self):
         for component in self.__components:
             component.convertToEuclidean()
+
+        self.__poincare == False
 
     def scaleFunc(self,point,midpoint,scaleVal):
             # finds the distance the startpoint must move
@@ -217,6 +222,8 @@ class Shape():
     def setEndPoint(self, endPoint):
         component = self.__components[-1]
         component.setEndPoint(endPoint)
+        if self.__poincare == True:
+            endPoint.setPoincare(True)
 
     # sets the final component in components list as the component containing the given point
     def setLastComponent(self,point):
@@ -237,6 +244,32 @@ class Shape():
 
     # moves the entire shape by some deltaX and deltaY by moving each component
     def moveShape(self, deltaX,deltaY):
+        pointList = self.getAllPoints()
+        
+        for point in pointList:
+            point.moveShape(deltaX,deltaY)
+
+    # moves the shape a distance specified by two points from the Poincare model
+    # performs all calculations and transformations in euclidean mode, then converts to poincare mode.
+    def moveShapePoincare(self, primaryPoint, newPrimaryPoint):
+        # finds the distance to move each point
+        primaryPoint.convertToEuclidean()
+        newPrimaryPoint.convertToEuclidean()
+        deltaX = newPrimaryPoint.getX() - primaryPoint.getX()
+        deltaY = newPrimaryPoint.getY() - primaryPoint.getY()
+        primaryPoint.convertToPoincare()
+        newPrimaryPoint.convertToPoincare()
+
+        # compiles a list of unique points in the shape (avoids transforming the same shape twice)
+        pointList = self.getAllPoints()
+
+        for point in pointList:
+            point.convertToEuclidean()
+            point.moveShape(deltaX,deltaY)
+            point.convertToPoincare()
+        
+    # gets a list of all unique points in the shape
+    def getAllPoints(self):
         pointList = set()
         for component in self.__components:
             if type(component) == Line:
@@ -244,13 +277,8 @@ class Shape():
                 pointList.add(component.getEndPoint())
             else:
                 pointList.add(component.getCenterPoint())
-        
-        for point in pointList:
-            point.moveShape(deltaX,deltaY)
 
-    def moveShapePoincare(self, deltaX=0,deltaY=0):
-        for component in self.__components:
-            component.moveShapePoincare(deltaX,deltaY)
+        return pointList
 
     # moves a particular point in the shape and updates the components that use that point 
     def movePoint(self, pointToMove, newPoint):
@@ -401,7 +429,7 @@ class Shape():
 
     def hideMetrics(self):
         for component in self.__components:
-            if type(component) != Point:
+            if type(component) == Line:
                 component.hideMetrics()
             
     # provides data about the shape

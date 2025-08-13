@@ -68,8 +68,8 @@ class Circle:
     moveShape(deltaX, deltaY)
         moves centerpoint by the given delta amounts
 
-    moveShapePoincare(deltaX=0,deltaY=0)
-        moves centerpoint by the given delta amounts
+    moveShapePoincare(primaryPoint,newPrimaryPoint)
+        moves center point to a new location
 
     movePoint(pointToMove, newPoint)
         Sets a given point within the shape to a new point
@@ -303,19 +303,21 @@ class Circle:
         deltaY: float
             the Euclidean vertical distance for the shape to move
         """
-        self.__centerPoint =Point.Point(self.getCenterPoint().getX()+deltaX, self.getCenterPoint().getY() + deltaY)
+        if self.__poincare == False:
+            self.__centerPoint =Point.Point(self.getCenterPoint().getX()+deltaX, self.getCenterPoint().getY() + deltaY)
     
-    def moveShapePoincare(self,deltaX=0,deltaY=0):
-        """ moves centerpoint by the given delta amounts. 
+    def moveShapePoincare(self, primaryPoint, newPrimaryPoint):
+        """ moves center point to a new location. 
 
         Parameters
         ----------
-        deltaX : float
-            the Euclidean horizontal distance for the shape to move
-        deltaY: float
-            the Euclidean vertical distance for the shape to move
+        primaryPoint : Point
+            the point to move (should be center point)
+        newPrimaryPoint: Point
+            new location for center point to move
         """
-        self.getCenterPoint().moveShapePoincare(deltaX,deltaY)
+        if primaryPoint.exactEquals(self.getCenterPoint()):
+            self.getCenterPoint().movePoint(pointToMove=primaryPoint,newPoint=newPrimaryPoint)
 
     def movePoint(self, pointToMove, newPoint):
         """ Sets a given point within the shape to a new point
@@ -327,11 +329,18 @@ class Circle:
         newPoint : Point
             the point to set as the new point, replacing pointToMove
 
+        Returns
+        ----------
+        boolean
+            True when the center point can be moved and stays within the boundaries, False otherwise
         """
+        
         if self.__centerPoint.exactEquals(pointToMove):
-            self.setCenterPoint(newPoint)
+            bool = self.getCenterPoint().movePoint(pointToMove,newPoint)
+            return bool
         else:
             print("Error: given point is not in shape")
+            return False
 
     def setStartPoint(self, centerPoint):
         """ Sets the 'start point' / center point of the line to a new point.
@@ -341,7 +350,7 @@ class Circle:
         centerPoint : Point
             the new center point
         """
-        self.__centerPoint = centerPoint
+        self.setCenterPoint(centerPoint)
 
     def setCenterPoint(self, centerPoint):
         """ Sets the center point of the line to a new point
@@ -353,6 +362,8 @@ class Circle:
         """
 
         self.__centerPoint = centerPoint
+        if self.__poincare:
+            centerPoint.setPoincare(True)
     
     def setEndPoint(self, endPoint):
         """ If the radius is already set, sets the center point as the new point. 
@@ -368,7 +379,7 @@ class Circle:
 
         # if setting radius for first time, set radius. Else move the center point
         if (self.__radiusSet):
-            self.__centerPoint = endPoint
+            self.setCenterPoint(endPoint)
         else:
             self.__radius = math.sqrt(((self.__centerPoint.getX()-endPoint.getX()))**2+(self.__centerPoint.getY()-endPoint.getY())**2)
 

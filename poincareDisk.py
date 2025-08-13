@@ -67,7 +67,10 @@ def findConnectingCircle(x0,y0,x1,y1, radius = 1):
         return np.inf, np.inf,np.inf
     centerX = numX/denom
     centerY = numY/denom
-    r = math.sqrt(centerX**2 + centerY ** 2 - radius**2)
+    d = centerX**2 + centerY ** 2 - radius**2
+    if d < 0:
+        return 0,x0,y0
+    r = math.sqrt(d)
     return r,centerX,centerY
     
 def run(poincareOn):

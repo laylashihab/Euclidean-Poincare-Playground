@@ -329,9 +329,27 @@ class Point:
             the current point that must be moved: DOES NOT APPLY HERE (used by other shape objects)
         newPoint : Point
             the point specifing the new X and Y location of the Point
+
+        Returns
+        ----------
+        boolean
+            True when the point can move and remain in bounds, False otherwise
         """
-        self.setX(newPoint.getX())
-        self.setY(newPoint.getY())
+
+        # ensures the point remains in poincare boundary
+        if self.__poincare == True:
+            if newPoint.getX()**2 + newPoint.getY()**2 < 1 :
+                self.setX(newPoint.getX())
+                self.setY(newPoint.getY())
+                return True
+            
+            return False
+        else:
+            self.setX(newPoint.getX())
+            self.setY(newPoint.getY())
+            return True
+
+
 
     def moveShape(self,deltaX,deltaY):
         """ moves the Point to a new location where the X and Y value are altered by given amounts
@@ -346,25 +364,6 @@ class Point:
         self.setX(self.getX() + deltaX)
         self.setY(self.getY() + deltaY)
 
-    def moveShapePoincare(self,deltaX=0,deltaY=0):
-        """ moves the poincare Point to a new poincare location where the X and Y value are altered by given euclidean amounts. 
-        The changes are made to the points Euclidean values.
-
-        Parameters
-        ----------
-        deltaX : float
-            the Euclidean horizontal distance for the shape to move
-        deltaY : float
-            the Euclidean vertical distance for the shape to move
-        """
-        x,y = poincareDisk.poincareToEuclideanFunc(self.getX(), self.getY())
-
-        x += deltaX
-        y += deltaY
-
-        x,y = poincareDisk.euclideanToPoincareFunc(x,y)
-        self.setX(x)
-        self.setY(y)
 
     def getX(self):
         """ provides the Point's current X value

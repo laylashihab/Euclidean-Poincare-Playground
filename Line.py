@@ -60,8 +60,8 @@ class Line:
     moveShape(deltaX,deltaY)
         moves both start and end points by the given delta amounts
 
-    moveShapePoincare(deltaX=0,deltaY=0)
-        moves both start and end points by the given delta amounts
+    moveShapePoincare(primaryPoint,newPrimaryPoint)
+        moves line to a new location. The primary point is moved to a new location, the other endpoint the same distance
 
     showMetrics(plot)
         creates, places, and plots text in the center of the line displaying the length of the line
@@ -425,25 +425,11 @@ class Line:
         deltaY: float
             the Euclidean vertical distance for the shape to move
         """
-        if self.__poincare == False:
-            newStart = Point.Point(self.getStartPoint().getX() + deltaX, self.getStartPoint().getY() + deltaY)
-            newEnd = Point.Point(self.getEndPoint().getX() + deltaX, self.getEndPoint().getY() + deltaY)
-            self.setEndPoint(newEnd)
-            self.setStartPoint(newStart)
+        newStart = Point.Point(self.getStartPoint().getX() + deltaX, self.getStartPoint().getY() + deltaY)
+        newEnd = Point.Point(self.getEndPoint().getX() + deltaX, self.getEndPoint().getY() + deltaY)
+        self.setEndPoint(newEnd)
+        self.setStartPoint(newStart)
 
-    def moveShapePoincare(self,deltaX=0,deltaY=0):
-        """ moves both start and end points by the given delta amounts. 
-
-        Parameters
-        ----------
-        deltaX : float, optional
-            the Euclidean horizontal distance for the shape to move
-        deltaY: float, optional
-            the Euclidean vertical distance for the shape to move
-        """
-
-        self.getStartPoint().moveShapePoincare(deltaX,deltaY)
-        self.getEndPoint().moveShapePoincare(deltaX,deltaY)
 
     def showMetrics(self,plot):
         """ creates, places, and plots text in the center of the line displaying the length of the line
@@ -477,13 +463,47 @@ class Line:
         newPoint : Point
             the point to set as the new point, replacing pointToMove
 
+        Returns
+        ----------
+        boolean
+            True when pointToMove can be moved and stays within the boundaries, False otherwise
         """
         if self.getEndPoint().exactEquals(pointToMove):
-            self.setEndPoint(newPoint)
+            bool = self.getEndPoint().movePoint(pointToMove,newPoint)
         elif self.getStartPoint().exactEquals(pointToMove):
-            self.setStartPoint(newPoint)
+            bool = self.getStartPoint().movePoint(pointToMove,newPoint)
         else:
             print("Error: given point is not in shape")
+            bool = False
+        return bool
+
+    def moveShapePoincare(self, primaryPoint, newPrimaryPoint):
+        """ moves line to a new location. Calculates Euclidean distance to move, performs transformations in Euclidean mode, then converts to Poincare
+
+        Parameters
+        ----------
+        primaryPoint : Point
+            the point to move 
+        newPrimaryPoint: Point
+            new location for center point to move
+        """
+
+        # finds the EUCLIDEAN distance the point was moved
+        primaryPoint.convertToEuclidean()
+        newPrimaryPoint.convertToEuclidean()
+        deltaX = newPrimaryPoint.getX() - primaryPoint.getX()
+        deltaY = newPrimaryPoint.getY() - primaryPoint.getY()
+        primaryPoint.convertToPoincare()
+        newPrimaryPoint.convertToPoincare()
+
+        # moves points
+        self.getEndPoint().convertToEuclidean()
+        self.getStartPoint().convertToEuclidean()
+        self.getEndPoint().moveShape(deltaX,deltaY)
+        self.getStartPoint().moveShape(deltaX,deltaY)
+        self.getEndPoint().convertToPoincare()
+        self.getStartPoint().convertToPoincare()
+
 
     def setStartPoint(self, startPoint):
         """ Sets the start point of the line to a new point
@@ -493,6 +513,10 @@ class Line:
         startPoint : Point
             the new start point
         """
+        if self.__poincare == True:
+            startPoint.setPoincare(True)
+
+
         self.__startPoint = startPoint
 
     def setEndPoint(self, endPoint):
@@ -503,6 +527,9 @@ class Line:
         endPoint : Point
             the new end point
         """
+        if self.__poincare == True:
+            endPoint.setPoincare(True)
+
         self.__endPoint = endPoint
     
     def getStartPoint(self):
@@ -515,6 +542,7 @@ class Line:
 
         """
         return self.__startPoint
+    
     
     def getEndPoint(self):
         """ Returns the Line's end point
@@ -614,7 +642,7 @@ class Line:
             return self.getEndPoint()
 
     def getLength(self):
-        """ Finds the Euclidean distance between the start and end points using the Pythagorean thm
+        """ Finds the Euclidean distance between the start and end points using the Pythagorean thm. DOES NOT CONVERT POINTS FOR CALCULATION
 
         Returns
         ----------
