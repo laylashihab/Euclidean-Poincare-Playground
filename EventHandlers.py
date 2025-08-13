@@ -217,7 +217,6 @@ def unclick_handler(event):
                             component.setEndPoint(point)
                 elif (currentShape.containsPoint(currentPoint)):
                     currentShape.setEndPoint(currentShape.getPoint(currentPoint))
-                    # plots the "snapped" position
                     
                 currentShape.removeShape()
                 currentShape.plotShape(PLOT, poincare=poincareMode)

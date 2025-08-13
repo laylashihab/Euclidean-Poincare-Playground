@@ -327,7 +327,9 @@ class Shape():
     # gets the exact point of a point in the shape if the point is contained with the shape (removes the epsilon value)
     # used for smoother combining of shapes
     def getPoint(self,point):
-        for component in self.__components:
+        # checks through components in reverse order
+        for i in range(len(self.__components) - 1, -1, -1):
+            component = self.__components[i]
             p =component.getPoint(point)
             if (p != None):
                 return p
