@@ -1,6 +1,8 @@
 import math
 import constants as c
 import poincareDisk
+import copy 
+
 """"
 Class to define a point in a graph
 Points are defined by an x and y value
@@ -292,6 +294,16 @@ class Point:
             return self.__plot
         else:
             self.plotShapePoincare(plot,linewidth)
+
+    def plotShapeScaledPlotsize(self,plot,oldPlotSize, newPlotSize):
+        # calculates scalefactor
+        scaleFactor = newPlotSize / oldPlotSize
+
+        # ensures that the shape is not mutated
+        figure = copy.deepcopy(self)
+
+        figure.setPointSize(c.DEFAULTPOINTSIZE*scaleFactor)
+        figure.plotShape(plot,c.THINLINE)
 
     def plotShapePoincare(self,plot,linewidth=c.THINLINE):
         """ Plots the point in the Poincare Disc (same procedure as plotting regularly

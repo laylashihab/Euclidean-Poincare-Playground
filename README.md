@@ -46,6 +46,10 @@ $ python Main.py
 
 The structure of the project and much of the inspiration for the available tools are derived from pre-existing geometric tools such as Desmos and GeoGebra.
 
+Many thanks to my excellent bug testers who were instructed to break the project:
+Annabelle Kim
+Yasmin Shihab
+
 ## How to Use
 Select one of the three shape types in the top of the window to draw the selected shape. To draw a point, select "Point" and click on the canvas where you would like the point. To draw a line, select "Line" and click and drag the mouse on the canvas. To draw a circle, click to draw the center point and drag to set the radius. 
 
@@ -78,8 +82,33 @@ The "Clear" button will clear all drawn shapes from the canvas.
 NOTE: to select any shape, the user must click on one of its points
 
 ## Known Issues and Bugs
-- still searching! 
-- if you find any bugs or issues, please let me know at laylashihab60@gmail.com
+
+if you find any bugs or issues, please let me know at laylashihab60@gmail.com
+
+- Scaling issues:
+    - scaling inconsistencies for circles
+    - points cannot be scaled
+    - scaling a shape too small leads to inconsistent behavior
+    - scaling multi-shape objects in Poincare mode is a jumble
+    - duplicate angle plots when scaling
+    - after scaling in poincare mode, angles and metrics will be shown when they are not supposed to
+    - points that are close together because they were drawn in poincare mode will not scale 
+
+- points don't snap into place when added to shape
+- changing tool should deselect shapes
+- moving point onto pre-existing shape throws 'Point' object has no attribute 'getEndPoint'. Did you mean: 'setEndPoint'
+- canvas navigation in Poincare mode depends on old version of moveShapePoincare method
+- duplicate angle plots when moving objects
+- AttributeError: 'Circle' object has no attribute 'showMetrics'
+- angle plots disappear entirely after moving object
+- AttributeError: 'Point' object has no attribute 'moveShapePoincare'. Did you mean: 'plotShapePoincare'?
+- unable to remove line object when saving ???
+- duplicate objects showing up in figure library after saves
+- shape objects not combining/ snapping properly
+- shape/line objects snap to circle object centers when creating the circle and the currentpoint (to create the radius) hits the lines endpoint
+- drawing circles in poincare, endpoint should match currentpoint
+
+TODO: delete "Error: given point is not in shape"
 
 ## Fixed Bugs and Issues
  - Circle center points near boundary do not properly map between Euclidean and Poincare mode (Fixed 8/13/25)
