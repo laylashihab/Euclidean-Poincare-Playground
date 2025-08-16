@@ -15,6 +15,7 @@ Series of functions to deal with mouseEvents
 
 # function to deal with user clicking.
 def click_handler(event):
+    # ensures the user is clicking in the axes
     if (not event.inaxes):
         return
     # ensures that the user isn't clicking outside the circle
@@ -23,36 +24,25 @@ def click_handler(event):
 
     global shapeList,currentPoint,currentShape,mouseDown,movePoint,selectedShape
 
-    currentPoint =Point.Point(event.xdata, event.ydata)
-    if poincareMode == True:
-        currentPoint.setPoincare(True)
+    currentPoint =Point.Point(event.xdata, event.ydata,poincare=poincareMode)
 
     mouseDown = True
+
 
     # checks if the point where the user clicked is a point in a shape
     for shape in shapeList:
         if shape.containsPoint(currentPoint):
-            # hides angles and metrics
-            if currentShape != None:
-                if (type(currentShape) == Shape): 
-                    currentShape.hideAngles()
-                if (type(currentShape) == Line) or type(currentShape) == Shape:
-                    currentShape.hideMetrics()
 
             match toolMode:
-                case c.MOVEPOINT:
+                case c.MOVEPOINT | c.MOVEOBJECT:
 
                     currentShape = shape
                     
                     # sets the point to move as the exact point from the figure
                     movePoint = shape.getPoint(currentPoint)
 
+                    hideAnglesMetrics()
                     return
-                case c.MOVEOBJECT:
-                    currentShape = shape
-                    movePoint = shape.getPoint(currentPoint)
-                    return
-
                 case c.DRAW:
                     point = shape.getPoint(currentPoint)
                     new = newBasicShape(point)
@@ -69,6 +59,7 @@ def click_handler(event):
                     currentShape.plotShape(PLOT, poincare=poincareMode)
                     CANVAS.draw()
 
+                    hideAnglesMetrics()
                     return
                 case c.DELETE:
                     shape.removeShape()
@@ -79,7 +70,8 @@ def click_handler(event):
 
                     # updates data display
                     updateDataDisplay()
-                    
+
+                    hideAnglesMetrics()
                     return
                 
                 case c.SELECT:
@@ -96,6 +88,7 @@ def click_handler(event):
 
                     FrameSetUp.saveFigure(shape)
 
+                    hideAnglesMetrics()
                     return
                 case c.SCALE:
                     # ensures any previously selected shape is plotted with thin lines
@@ -113,13 +106,24 @@ def click_handler(event):
                         currentShape.plotShape(PLOT,linewidth=c.THICKLINE, poincare=poincareMode)
                         CANVAS.draw()
 
+                    hideAnglesMetrics()
                     return
-                
+
+  
     # if the user is clicking on a clear space of the CANVAS
     if (toolMode == c.DRAW):
         currentShape = newBasicShape(currentPoint)
     else:
         currentShape = None
+
+def hideAnglesMetrics():
+    # hides angles and metrics
+    if currentShape != None:
+        if (type(currentShape) == Shape): 
+            currentShape.hideAngles()
+        if (type(currentShape) == Line) or type(currentShape) == Shape:
+            currentShape.hideMetrics()
+
 
 def drag_handler(event):
     global shapeType,currentShape,currentPoint,shapeList,toolMode,movePoint
@@ -131,11 +135,8 @@ def drag_handler(event):
     if poincareMode == True and (event.xdata**2 + event.ydata** 2 > 1):
         return
 
-    lastPoint = copy.deepcopy(currentPoint)
-    currentPoint =Point.Point(event.xdata, event.ydata)
-
-    if poincareMode == True:
-        currentPoint.setPoincare(True)
+    lastPoint = copy.deepcopy(currentPoint) 
+    currentPoint =Point.Point(event.xdata, event.ydata,poincare=poincareMode)
 
     match toolMode:
         case c.DRAW:
@@ -187,15 +188,19 @@ def unclick_handler(event):
     
     currentPoint =Point.Point(event.xdata, event.ydata)
 
-    if (toolMode != c.SELECT and toolMode != c.SCALE):
+    # ensures that when drawing circles, the cursor is not considered as a point (since it only sets the radius) 
+    if type(currentShape) == Circle and currentShape.getRadiusSet() == False:
+        pass
+    # snapping points when combing things
+    elif (toolMode != c.SELECT and toolMode != c.SCALE):
         # checks if user is connecting the figure to another figure
         for shape in shapeList:
             # changes the last component of the shape to the currentPoint
             if type(currentShape) == Shape:
                 currentShape.setLastComponent(currentPoint)
-
+            
+            # checks if two different shapes are being combined
             if (shape != currentShape):
-                # checks if two different shapes are being combined
                 if shape.containsPoint(currentPoint):
                     point = shape.getPoint(currentPoint)
                     deltaX = currentShape.getEndPoint().getX()-point.getX()
@@ -210,21 +215,25 @@ def unclick_handler(event):
                     break
             else:
                 # checks if a shape is being attached to itself
-                if type(currentShape) == Shape:
-                    point = currentShape.getPoint(currentPoint)
-                    for component in currentShape.getComponents():
-                        if component.containsPoint(currentPoint):
-                            component.setEndPoint(point)
-                elif (currentShape.containsPoint(currentPoint)):
-                    currentShape.setEndPoint(currentShape.getPoint(currentPoint))
-                    
-                currentShape.removeShape()
-                currentShape.plotShape(PLOT, poincare=poincareMode)
+                if (currentShape.containsPoint(currentPoint)):
+                    if type(currentShape) == Shape:
+                        point = currentShape.getPoint(currentPoint)
+                        #currentShape.getComponents()[-1].setEndPoint(point)
+                        components = currentShape.getComponents()
+                        for i in range(len(components)-1,-1,-1):
+                            component = components[i]
+                            if component.containsPoint(currentPoint):
+                                component.setEndPoint(point)
 
-                break
+                        currentShape.removeShape()
+                        currentShape.plotShape(PLOT, poincare=poincareMode)
+                        break
+
 
     # if a line was drawn with no length, replaces it with a point
-    if type(currentShape) == Line and currentShape.getLength() == 0:
+    # if a circle is drawn with no radius, replaces it with a point
+
+    if (type(currentShape) == Line and currentShape.getLength() == 0) or (type(currentShape) == Circle and currentShape.getRadius() == 0):
         point = currentShape.getEndPoint()
         shapeList.append(point)
         shapeList.remove(currentShape)
@@ -299,7 +308,7 @@ def slider_drag(event):
     if currentShape == None:
         return 
 
-    if (type(currentShape) != Point):
+    if (type(currentShape) != Point.Point):
         value = FrameSetUp.scaleSlider.get()
         value = float(value) / 100
         currentShape.scale(value, PLOT, poincare=poincareMode)
@@ -313,10 +322,10 @@ def slider_unclick(event):
 
         return 
     
-    scaleVal = float(FrameSetUp.scaleSlider.get()) / 100
-    currentShape.confirmScaleSize(scaleVal,PLOT, poincare=poincareMode)
-    
-    CANVAS.draw()
+    if (type(currentShape) != Point.Point):
+        scaleVal = float(FrameSetUp.scaleSlider.get()) / 100
+        currentShape.confirmScaleSize(scaleVal,PLOT, poincare=poincareMode)
+        CANVAS.draw()
 
     # ensures the scale slider is hidden
     FrameSetUp.scaleSlider.set(100)
@@ -372,22 +381,15 @@ def newShape(oldShape, newShape):
         shapeList.remove(newShape)
         newShape.removeShape()
         return oldShape
-    
+            
     #removes old shapes from shape list
     if (newShape in shapeList):
         shapeList.remove(newShape)
     if (oldShape in shapeList):
         shapeList.remove(oldShape)
 
-    # gathers all arcplots
-    arcPlots = []
-    if (type(newShape) == Shape):
-        arcPlots.extend(newShape.getArcPlotLists())
-    if (type(oldShape) == Shape):
-        arcPlots.extend(oldShape.getArcPlotLists())
-
     # creates new shape object
-    newlyCreatedShape = Shape(oldShape,newShape, arcPlots)
+    newlyCreatedShape = Shape(oldShape,newShape)
     shapeList.append(newlyCreatedShape)
     return newlyCreatedShape
 
@@ -403,6 +405,7 @@ def zoom_drag(event):
         PLOT.set_ylim(- scaleVal,scaleVal)
     CANVAS.draw()
 
+# moves the canvas to the left
 def move_left(event):
     global xBoundDelta
     scaleVal = 100 / FrameSetUp.zoomSlider.get() 
@@ -414,10 +417,13 @@ def move_left(event):
     else:
         for shape in shapeList:
             shape.removeShape()
-            shape.moveShapePoincare(deltaX=c.POINCAREDELTA)
+            shape.convertToEuclidean()
+            shape.moveShape(deltaX=c.POINCAREDELTA, deltaY=0)
+            shape.convertToPoincare()
             shape.plotShapePoincare(PLOT)
     CANVAS.draw()
 
+# moves the canvas to the right
 def move_right(event):
     global xBoundDelta
     scaleVal = 100 / FrameSetUp.zoomSlider.get() 
@@ -429,11 +435,14 @@ def move_right(event):
     else:
         for shape in shapeList:
             shape.removeShape()
-            shape.moveShapePoincare(deltaX=-c.POINCAREDELTA)
+            shape.convertToEuclidean()
+            shape.moveShape(deltaX=-c.POINCAREDELTA,deltaY=0)
+            shape.convertToPoincare()
             shape.plotShapePoincare(PLOT)
 
     CANVAS.draw()
 
+# moves the canvas up
 def move_up(event):
     global yBoundDelta
     scaleVal = 100 / FrameSetUp.zoomSlider.get() 
@@ -445,11 +454,14 @@ def move_up(event):
     else:
         for shape in shapeList:
             shape.removeShape()
-            shape.moveShapePoincare(deltaY=-c.POINCAREDELTA)
+            shape.convertToEuclidean()
+            shape.moveShape(deltaX=0, deltaY=-c.POINCAREDELTA)
+            shape.convertToPoincare()
             shape.plotShapePoincare(PLOT)
 
     CANVAS.draw()
 
+# moves the canvas down
 def move_down(event):
     global yBoundDelta
     scaleVal = 100 / FrameSetUp.zoomSlider.get() 
@@ -461,7 +473,9 @@ def move_down(event):
     else:
         for shape in shapeList:
             shape.removeShape()
-            shape.moveShapePoincare(deltaY=c.POINCAREDELTA)
+            shape.convertToEuclidean()
+            shape.moveShape(deltaX=0, deltaY=c.POINCAREDELTA)
+            shape.convertToPoincare()
             shape.plotShapePoincare(PLOT)
 
     CANVAS.draw()

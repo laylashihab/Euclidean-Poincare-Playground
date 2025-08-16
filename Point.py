@@ -90,7 +90,7 @@ class Point:
         """
         self.__x = x
         self.__y = y
-        self.__poincare
+        self.__poincare = poincare
 
     def setEpsilon(newEpsilon):
         """ Sets the epsilon (acceptable error) value of the Point class
@@ -228,7 +228,7 @@ class Point:
         boolean
             True when the points are equal to within a certain epsilon, False otherwise
         """
-        if self.equals(point):
+        if point.equals(self):
             return True
         return False
 
@@ -244,8 +244,11 @@ class Point:
         ---------
         self if the Point object contains the given point
         """
-        if self.containsPoint(point):
+        if self.equals(point):
             return self
+    
+    def getEndPoint(self):
+        return self
     
     def setEndPoint(self, point):
         """ Sets the Point's x and y values to match the given point
@@ -289,8 +292,14 @@ class Point:
         obj
             An object containing the plot (stored to remove the Point from the plot)
         """
+        
+        pointsize = self.getPointSize()
+        if linewidth == c.THICKLINE:
+            self.setPointSize(c.BOLDPOINTSIZE)
+
         if poincare == False:
             self.__plot = plot.scatter(self.__x,self.__y, color="blue", s=self.__pointSize)
+            self.setPointSize(pointsize)
             return self.__plot
         else:
             self.plotShapePoincare(plot,linewidth)
@@ -376,6 +385,18 @@ class Point:
         self.setX(self.getX() + deltaX)
         self.setY(self.getY() + deltaY)
 
+    def moveShapePoincare(self, primaryPoint, newPrimaryPoint):
+        """ moves Point to a new location. 
+
+        Parameters
+        ----------
+        primaryPoint : Point
+            the point to move (self)
+        newPrimaryPoint: Point
+            new location for point to move t0
+        """
+        if primaryPoint.exactEquals(self):
+            self.movePoint(pointToMove=primaryPoint,newPoint=newPrimaryPoint)
 
     def getX(self):
         """ provides the Point's current X value

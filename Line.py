@@ -253,6 +253,37 @@ class Line:
             self.getStartPoint().convertToEuclidean()
             self.__poincare = False
 
+    # scales the distance between the original given point and the midpoint based on the scaleVal, returns the new point
+    def scaleFunc(self,point,midpoint,scaleVal):
+            # finds the distance the startpoint must move
+            curDistanceToMid = point.getDistance(midpoint)
+            newDistance = curDistanceToMid * scaleVal
+
+            # finds the angle of the line connecting the midpoint to point
+            dx = (point.getX() - midpoint.getX())
+            if dx == 0:
+                return point
+
+            dy = (point.getY() - midpoint.getY())
+            angle = math.atan(dx/dy)   
+            
+            if dy*dx < 0 :
+                angle *= -1
+
+            # finds the new point of point using the angle
+            deltaX = (newDistance-curDistanceToMid) * math.sin(angle)
+
+            if (point.getX() > midpoint.getX()):
+                deltaX *= -1
+
+            newX = point.getX() - deltaX
+            newY = point.getY() + ((dy/dx)) * (newX-point.getX())
+
+            # sets the new startpoint
+            newPoint = Point.Point(newX,newY)
+
+            return newPoint
+
     def scale(self,scaleVal,plot, poincare = False):
         """ Scales the entire shape by the scaleVal AND plots the new scaled shape AND converts the points back to their original values after plotting.
         The scaled change is NOT permanent (original point values are restored). This is done to ensure that when dragging the slider, the shape is being 
@@ -271,63 +302,32 @@ class Line:
         if poincare == True:
             self.convertToEuclidean()
 
-        dx,dy = self.getSlope(self.getStartPoint())
-        if (dx != 0):
-            slope = dy/dx
-        else:
-            slope = np.inf
         oldStart = self.getStartPoint()
         oldEnd = self.getEndPoint()
 
-        # determines which point is on the left
-        if (oldStart.getX() < oldEnd.getX()):
-            leftPoint = oldStart
-            rightPoint = oldEnd
-        else:
-            leftPoint = oldEnd
-            rightPoint = oldStart
+        midX = (oldStart.getX() + oldEnd.getX() ) /2 
+        midY = (oldStart.getY() + oldEnd.getY() ) /2 
+        midpoint = Point.Point(midX,midY)
 
-        # determines the new length
-        oldLength = self.getLength()
-        newLength = oldLength * scaleVal
+        newStart = self.scaleFunc(oldStart,midpoint,scaleVal)
+        newEnd = self.scaleFunc(oldEnd,midpoint,scaleVal)
 
-        # determines how much to add to either side of the line
-        halfLength = (newLength - oldLength)/2
-
-        if slope < 0:
-            halfLength *= -1
-
-        # finds the angle
-        angle = math.atan(dx/dy)     
-        deltaX = halfLength * math.sin(angle)
-
-        newLeftX = leftPoint.getX() - deltaX
-        newLeftY = leftPoint.getY() + (slope * (newLeftX-leftPoint.getX()))
-
-        newRightX = rightPoint.getX() + deltaX
-        newRightY = rightPoint.getY() + (slope * (newRightX-rightPoint.getX()))
-
-        newLeft = Point.Point(newLeftX,newLeftY)
-
-        newRight = Point.Point(newRightX,newRightY)
-
-        # ensures the points aren't flipping sides
-        if newLeft.getX() >= newRight.getX():
-            return
-        
         self.removeShape()
-        self.setStartPoint(newLeft)
-        self.setEndPoint(newRight)
+        self.setStartPoint(newStart)
+        self.setEndPoint(newEnd)
 
         if poincare == True:
             self.convertToPoincare()
 
         self.plotShape(plot,c.THICKLINE, poincare=poincare)
+
+        # reverts shape back
+        oldStart.convertToPoincare()
+        oldEnd.convertToPoincare()
+
         self.setStartPoint(oldStart)
         self.setEndPoint(oldEnd)
 
-        if poincare == True:
-            self.convertToPoincare()
 
     def confirmScaleSize(self,scaleVal,plot, poincare = False):
         """ Scales the entire shape by the scaleVal AND plots the new scaled value.
@@ -345,63 +345,25 @@ class Line:
         if poincare == True:
             self.convertToEuclidean()
 
-        dx,dy = self.getSlope(self.getStartPoint())
-        if (dx != 0):
-            slope = dy/dx
-        else:
-            slope = np.inf
         oldStart = self.getStartPoint()
         oldEnd = self.getEndPoint()
 
-        # determines which point is on the left
-        if (oldStart.getX() < oldEnd.getX()):
-            leftPoint = oldStart
-            rightPoint = oldEnd
-        else:
-            leftPoint = oldEnd
-            rightPoint = oldStart
+        midX = (oldStart.getX() + oldEnd.getX() ) /2 
+        midY = (oldStart.getY() + oldEnd.getY() ) /2 
+        midpoint = Point.Point(midX,midY)
 
-        # determines the new length
-        oldLength = self.getLength()
-        newLength = oldLength * scaleVal
-
-        # determines how much to add to either side of the line
-        halfLength = (newLength - oldLength)/2
-
-        if slope < 0:
-            halfLength *= -1
-
-        # finds the angle
-        angle = math.atan(dx/dy)     
-        deltaX = halfLength * math.sin(angle)
-
-        newLeftX = leftPoint.getX() - deltaX
-        newLeftY = leftPoint.getY() + (slope * (newLeftX-leftPoint.getX()))
-
-        newRightX = rightPoint.getX() + deltaX
-        newRightY = rightPoint.getY() + (slope * (newRightX-rightPoint.getX()))
-
-        newLeft = Point.Point(newLeftX,newLeftY)
-
-        newRight = Point.Point(newRightX,newRightY)
-
-        # ensures the points aren't flipping sides
-        if newLeft.getX() >= newRight.getX():
-            return
+        newStart = self.scaleFunc(oldStart,midpoint,scaleVal)
+        newEnd = self.scaleFunc(oldEnd,midpoint,scaleVal)
 
         self.removeShape()
-        # ensures start and end points are not altered in relative position
-        if oldStart.getX() < oldEnd.getX():
-            self.setStartPoint(newLeft)
-            self.setEndPoint(newRight)
-        else:
-            self.setStartPoint(newRight)
-            self.setEndPoint(newLeft)
-            
+        self.setStartPoint(newStart)
+        self.setEndPoint(newEnd)
+
         if poincare == True:
             self.convertToPoincare()
 
         self.plotShape(plot,c.THICKLINE, poincare=poincare)
+
             
     def removeShape(self):
         """ removes the endpoint, startpoint, and line plots from the canvas. Also hides the metrics of the line.
@@ -473,7 +435,6 @@ class Line:
         elif self.getStartPoint().exactEquals(pointToMove):
             bool = self.getStartPoint().movePoint(pointToMove,newPoint)
         else:
-            print("Error: given point is not in shape")
             bool = False
         return bool
 

@@ -85,30 +85,10 @@ NOTE: to select any shape, the user must click on one of its points
 
 if you find any bugs or issues, please let me know at laylashihab60@gmail.com
 
-- Scaling issues:
-    - scaling inconsistencies for circles
-    - points cannot be scaled
-    - scaling a shape too small leads to inconsistent behavior
-    - scaling multi-shape objects in Poincare mode is a jumble
-    - duplicate angle plots when scaling
-    - after scaling in poincare mode, angles and metrics will be shown when they are not supposed to
-    - points that are close together because they were drawn in poincare mode will not scale 
-
-- points don't snap into place when added to shape
-- changing tool should deselect shapes
-- moving point onto pre-existing shape throws 'Point' object has no attribute 'getEndPoint'. Did you mean: 'setEndPoint'
-- canvas navigation in Poincare mode depends on old version of moveShapePoincare method
-- duplicate angle plots when moving objects
-- AttributeError: 'Circle' object has no attribute 'showMetrics'
-- angle plots disappear entirely after moving object
-- AttributeError: 'Point' object has no attribute 'moveShapePoincare'. Did you mean: 'plotShapePoincare'?
-- unable to remove line object when saving ???
-- duplicate objects showing up in figure library after saves
-- shape objects not combining/ snapping properly
-- shape/line objects snap to circle object centers when creating the circle and the currentpoint (to create the radius) hits the lines endpoint
-- drawing circles in poincare, endpoint should match currentpoint
-
-TODO: delete "Error: given point is not in shape"
+- when connecting shapes, sometimes an already fully drawn line will shift to make the points snap
+- when scaling shapes, making the shape too small will collapse it to a single point
+- when scaling shapes, after switching to another shape, angle plots gone
+- when scaling shapes in Poincare mode, there will be an initial jump
 
 ## Fixed Bugs and Issues
  - Circle center points near boundary do not properly map between Euclidean and Poincare mode (Fixed 8/13/25)
@@ -116,3 +96,20 @@ TODO: delete "Error: given point is not in shape"
  - Moving Shapes in Poincare mode will allow for points to move outside of the circle; only checks that the point the user clicks on is inside the circle (Fixed 8/13/25)
  - Objects on or close to the boundary in Poincare mode will not be properly mapped during a conversion back to Euclidean mode. (Fixed 8/13/25) 
  - When connecting a figure back to itself, the most recently drawn line should shift to a "snapped" position, however other lines do sometimes move instead. (Fixed 8/13/25)
+- points don't snap into place when added to shape (Fixed 8/14/25)
+- changing tool should deselect shapes (Fixed 8/14/25)
+- canvas navigation in Poincare mode depends on old version of moveShapePoincare method (Fixed 8/14/25)
+- shapes with circle objects cannot use showMetrics method (Fixed 8/14/25)
+- duplicate angle plots when moving objects  (Fixed 8/14/25)
+- cannot move point in poincare mode (Fixed 8/15/25)
+- shape/line objects snap to circle object centers when creating the circle and the currentpoint (to create the radius) hits the lines endpoint (Fixed 8/15/25)
+- drawing circles in poincare, endpoint should match currentpoint (Fixed 8/15/25)
+- duplicate objects showing up in figure library after saves (Fixed 8/15/25)
+
+- Scaling issues:
+    - points cannot be scaled (Fixed 8/15/25)
+    - scaling a shape too small leads to inconsistent behavior (Fixed 8/15/25)
+    - scaling multi-shape objects in Poincare mode is a jumble (Fixed 8/15/25)
+    - duplicate angle plots when scaling (Fixed 8/15/25)
+    - after scaling in poincare mode, angles and metrics will be shown when they are not supposed to (Fixed 8/15/25)
+    - points that are close together because they were drawn in poincare mode will not scale (Fixed 8/15/25)

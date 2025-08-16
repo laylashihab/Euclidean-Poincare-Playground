@@ -13,9 +13,10 @@ class Shape():
     __components = []
     __arcPlotLists = [] # stores both the arc and measurement plot
     __poincare = False # boolean determining if the shape is in poincare mode or not
+    __original = None #variable to hold the original shape when scaling the object
 
-    # takes in a list of shape (line, point, shape, or circle) objects and an integer number of components
-    def __init__(self, shape1, shape2, arcPlotLists):
+    # takes two shape objects to combine
+    def __init__(self, shape1, shape2):
         finalComponents = []
         if type(shape1) == Shape:
             finalComponents.extend(shape1.getComponents())
@@ -26,7 +27,6 @@ class Shape():
         else:
             finalComponents.append(shape2)
         self.__components = finalComponents
-        self.__arcPlotLists = arcPlotLists
 
     # plots each part of the shape
     def plotShape(self,plot, linewidth = c.THINLINE,poincare=False):
@@ -54,6 +54,7 @@ class Shape():
 
         self.__poincare == False
 
+    # scales the distance between the original given point and the midpoint based on the scaleVal, returns the new point
     def scaleFunc(self,point,midpoint,scaleVal):
             # finds the distance the startpoint must move
             curDistanceToMid = point.getDistance(midpoint)
@@ -85,9 +86,19 @@ class Shape():
             return newPoint
 
     def scale(self,scaleVal,plot,poincare=False):
-        # finds the midpoint of the shape
+        if self.__original == None:
+            original = copy.deepcopy(self)
+            self.__original = original
+        else:
+            original = self.__original
+
+        # ensures that all transformations are completed in Euclidean plane
+        if poincare == True:
+            self.convertToEuclidean()
+
+        # finds the midpoint of the ORIGINAL shape
         points = set()
-        for component in self.getComponents():
+        for component in original.getComponents():
             points.add(component.getStartPoint())
             points.add(component.getEndPoint())
         numPoints = len(points)
@@ -99,62 +110,55 @@ class Shape():
 
         midpoint = Point.Point(xTotal/numPoints, yTotal/numPoints)
 
-        for component in self.getComponents():
-            if poincare == True:
-                component.convertToEuclidean()
+        for i in range(0, len(original.getComponents())):
+            originalComp = original.getComponents()[i]
+            newComp = self.getComponents()[i]
 
-            if type(component) == Line:
+            if type(originalComp) == Line:
                 # dealing with start point
-                currentStart = component.getStartPoint()
+                currentStart = originalComp.getStartPoint()
 
                 newStart = self.scaleFunc(currentStart,midpoint,scaleVal)
-                if newStart.equals(midpoint,epsilon=c.EPSILON):
-                    pass
-                else:
-                    component.setStartPoint(newStart)
+                newComp.setStartPoint(newStart)
                 
                 # dealing with the endpoint 
-                currentEnd = component.getEndPoint()
+                currentEnd = originalComp.getEndPoint()
                 newEnd = self.scaleFunc(currentEnd,midpoint,scaleVal)
-                if newEnd.equals(midpoint,epsilon=c.EPSILON):
-                    pass
-                else:
-                    component.setEndPoint(newEnd)
+                newComp.setEndPoint(newEnd)
+
             elif type(component) == Circle:
-                currentCenter = component.getCenterPoint()
+                currentCenter = originalComp.getCenterPoint()
 
                 newCenter = self.scaleFunc(currentCenter,midpoint,scaleVal)
-                if newCenter.equals(midpoint,epsilon=c.EPSILON):
-                    pass
-                else:
-                    component.setCenterPoint(newCenter)
+                newComp.setCenterPoint(newCenter)
 
-                currentRadius = component.getRadius()
+                currentRadius = originalComp.getRadius()
                 newRadius = currentRadius * scaleVal
-                component.setRadius(newRadius)
+                newComp.setRadius(newRadius)
 
-            if poincare == True:
-                component.convertToPoincare()
+        if poincare == True:
+            self.convertToPoincare()
 
-            # deals w plotting
-            component.removeShape()
-            component.plotShape(plot, linewidth= c.THICKLINE,poincare=poincare)
+        # deals w plotting
+        self.removeShape()
+        self.plotShape(plot, linewidth= c.THICKLINE,poincare=poincare)
 
-            # resets points
-            if type(component) == Line:
-                component.setStartPoint(currentStart)
-                component.setEndPoint(currentEnd)
-            else:
-                component.setCenterPoint(currentCenter)
-                component.setRadius(currentRadius)
-
-            if poincare == True:
-                component.convertToPoincare()
+        self = original
 
     def confirmScaleSize(self,scaleVal,plot,poincare = False):
-        # finds the midpoint of the shape
+        if self.__original == None:
+            original = copy.deepcopy(self)
+            self.__original = original
+        else:
+            original = self.__original
+
+        # ensures that all transformations are completed in Euclidean plane
+        if poincare == True:
+            self.convertToEuclidean()
+
+        # finds the midpoint of the ORIGINAL shape
         points = set()
-        for component in self.getComponents():
+        for component in original.getComponents():
             points.add(component.getStartPoint())
             points.add(component.getEndPoint())
         numPoints = len(points)
@@ -166,52 +170,47 @@ class Shape():
 
         midpoint = Point.Point(xTotal/numPoints, yTotal/numPoints)
 
-        for component in self.getComponents():
-            if poincare == True:
-                component.convertToEuclidean()
+        for i in range(0, len(original.getComponents())):
+            originalComp = original.getComponents()[i]
+            newComp = self.getComponents()[i]
 
-            if type(component) == Line:
+            if type(originalComp) == Line:
                 # dealing with start point
-                currentStart = component.getStartPoint()
+                currentStart = originalComp.getStartPoint()
 
                 newStart = self.scaleFunc(currentStart,midpoint,scaleVal)
-                if newStart.equals(midpoint,epsilon=c.EPSILON):
-                    pass
-                else:
-                    component.setStartPoint(newStart)
+                newComp.setStartPoint(newStart)
                 
                 # dealing with the endpoint 
-                currentEnd = component.getEndPoint()
+                currentEnd = originalComp.getEndPoint()
                 newEnd = self.scaleFunc(currentEnd,midpoint,scaleVal)
-                if newEnd.equals(midpoint,epsilon=c.EPSILON):
-                    pass
-                else:
-                    component.setEndPoint(newEnd)
+                newComp.setEndPoint(newEnd)
+
             elif type(component) == Circle:
-                currentCenter = component.getCenterPoint()
+                currentCenter = originalComp.getCenterPoint()
 
                 newCenter = self.scaleFunc(currentCenter,midpoint,scaleVal)
-                if newCenter.equals(midpoint,epsilon=c.EPSILON):
-                    pass
-                else:
-                    component.setCenterPoint(newCenter)
+                newComp.setCenterPoint(newCenter)
 
-                currentRadius = component.getRadius()
+                currentRadius = originalComp.getRadius()
                 newRadius = currentRadius * scaleVal
-                component.setRadius(newRadius)
-                component.setRadius(newRadius)
+                newComp.setRadius(newRadius)
 
-            if poincare == True:
-                component.convertToPoincare()
+        if poincare == True:
+            self.convertToPoincare()
 
-            # deals w plotting
-            component.removeShape()
-            component.plotShape(plot, linewidth= c.THICKLINE,poincare=poincare)
+        # deals w plotting
+        self.removeShape()
+        self.plotShape(plot, linewidth= c.THICKLINE,poincare=poincare)
+
+        self.__original = None
 
     # removes each part of the shape
     def removeShape(self):
         for component in self.__components:
             component.removeShape()
+        for arcplot in self.__arcPlotLists:
+            arcplot.remove()
 
         self.__arcPlotLists = []
 
@@ -427,7 +426,8 @@ class Shape():
 
     def showMetrics(self,plot):
         for component in self.__components:
-            component.showMetrics(plot)
+            if type(component) == Line:
+                component.showMetrics(plot)
 
     def hideMetrics(self):
         for component in self.__components:

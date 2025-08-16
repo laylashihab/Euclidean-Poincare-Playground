@@ -60,20 +60,21 @@ def changeShape(newShape):
 def changeToolMode(newTool):
     objectSavedLabel.grid_remove()
 
+    currentShape = EventHandlers.currentShape
+
     # ensures that any thick lines are cleared 
     if EventHandlers.toolMode == c.SELECT and newTool != c.SELECT:
         selectObjectLabel.grid_remove()
-        for shape in EventHandlers.shapeList:
-            shape.removeShape()
-            shape.plotShape(PLOT, poincare=EventHandlers.poincareMode)
-        CANVAS.draw()
+        if currentShape != None:
+            currentShape.removeShape()
+            currentShape.plotShape(PLOT, poincare=EventHandlers.poincareMode)
+            CANVAS.draw()
 
     # ensures that the scale bar is removed and line is thin again
     elif EventHandlers.toolMode == c.SCALE and newTool != c.SCALE:
         scaleSlider.grid_remove()
         selectObjectLabel.grid_remove()
         scaleLabel.grid_remove()
-        currentShape = EventHandlers.currentShape
         if currentShape != None:
             currentShape.removeShape()
             currentShape.plotShape(PLOT, poincare=EventHandlers.poincareMode)
@@ -211,16 +212,29 @@ def addFigure(figure):
     EventHandlers.currentShape = None
 
 def removeFigure(figure):
-    global savedFiguresList
-    global LIBRARYROOT
+    global savedFiguresList,itemFigureDict,scrollregion,LIBRARYROOT
+    if len(savedFiguresList) == 1:
+        # clears frame
+        for widget in LIBRARYROOT.winfo_children():
+            widget.destroy()
+
+        figureLibraryTitle = tk.Label(LIBRARYROOT, text="Saved Figures")
+        styleLabel(figureLibraryTitle,titleFont)
+        figureLibraryTitle.pack()
+
+        noFigures = tk.Label(LIBRARYROOT,text="No Figures Saved")
+        styleLabel(noFigures,labelFont)
+        noFigures.pack()
+        savedFiguresList = []
+        return
+
     if figure in savedFiguresList:
         savedFiguresList.remove(figure)
-
-    LIBRARYROOT.destroy()
-    openFigureLibrary()
+        itemFigureDict[figure].destroy()
+        scrollregion.update()
 
 def openFigureLibrary():
-    global savedFiguresList, LIBRARYROOT, figureLibraryOpen
+    global savedFiguresList, LIBRARYROOT, figureLibraryOpen, itemFigureDict,scrollregion
 
     # if the window is already open, close it and open a new one
     if LIBRARYROOT != None and LIBRARYROOT.winfo_exists():
@@ -286,15 +300,14 @@ def openFigureLibrary():
         b.grid(row = 0, column =2,padx=5, pady=PADY)
         b2.grid(row = 1, column = 2,padx=5, pady=PADY)
 
-
         # plots the shape in scale to the figure library plotsize
         figure.plotShapeScaledPlotsize(plot,oldPlotSize = c.PLOTSIZE, newPlotSize=plotsize)
             
         scrollregion.create_window(0, (num-1) * 175, window=item, anchor="nw")
-        num +=1
 
+        itemFigureDict[figure] = item 
+        num +=1
     frame.pack()
-    canvas.draw()
 
 def togglePoincare():
     global poincareOn
@@ -302,6 +315,11 @@ def togglePoincare():
 
     if poincareOn == True:
         poincareButton.config(text = "Euclidean Plane")
+        # toggles angles and metrics off
+        if anglesOn:
+            showAngles()
+        if metricsOn:
+            showMetrics()
         showAnglesButton.grid_remove()
         showMetricsButton.grid_remove()
     else:
@@ -354,13 +372,15 @@ poincareButton = None
 selectObjectLabel,objectSavedLabel,scaleLabel = None, None,None
 figureLibraryOpen = False
 savedFiguresList =[]
+itemFigureDict = {}
+scrollregion = None
 anglesOn = False
 metricsOn = False
 poincareOn = False
 
 def setUp(Main):
     # constants
-    global ROOT, LIBRARYROOT, FIGURES, PLOT, CANVAS, PADX, PADY, PLOTSIZE
+    global ROOT, FIGURES, PLOT, CANVAS, PADX, PADY, PLOTSIZE
     PADX=c.PADX
     PADY=c.PADY
     PLOTSIZE = c.PLOTSIZE

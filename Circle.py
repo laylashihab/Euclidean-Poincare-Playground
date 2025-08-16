@@ -339,7 +339,6 @@ class Circle:
             bool = self.getCenterPoint().movePoint(pointToMove,newPoint)
             return bool
         else:
-            print("Error: given point is not in shape")
             return False
 
     def setStartPoint(self, centerPoint):
@@ -381,7 +380,14 @@ class Circle:
         if (self.__radiusSet):
             self.setCenterPoint(endPoint)
         else:
-            self.__radius = math.sqrt(((self.__centerPoint.getX()-endPoint.getX()))**2+(self.__centerPoint.getY()-endPoint.getY())**2)
+            if self.__poincare == True:
+                # allows the radius to closer match the cursor
+                self.__centerPoint.convertToEuclidean()
+                endPoint.convertToEuclidean()
+                self.__radius = math.sqrt(((self.__centerPoint.getX()-endPoint.getX()))**2+(self.__centerPoint.getY()-endPoint.getY())**2)
+                self.__centerPoint.convertToPoincare()
+            else:
+                self.__radius = math.sqrt(((self.__centerPoint.getX()-endPoint.getX()))**2+(self.__centerPoint.getY()-endPoint.getY())**2)
 
     def setRadius(self,radius):
         """ Sets the radius of the circle
@@ -393,6 +399,9 @@ class Circle:
         """
         self.__radius = radius
 
+    def getRadiusSet(self):
+        return self.__radiusSet
+    
     def getCenterPoint(self):
         """ Returns the Circle's center point
         
