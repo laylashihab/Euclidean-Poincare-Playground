@@ -1,5 +1,5 @@
 ## Project Description
-Given a Ruler and a Straightedge.
+Euclidean Poincare Playground
 
 An interactive geometry tool to visualize the interaction of shapes in a Euclidean plane and in the Poincare Disc.
 
@@ -87,7 +87,7 @@ if you find any bugs or issues, please let me know at laylashihab60@gmail.com
 
 - when connecting shapes, sometimes an already fully drawn line will shift to make the points snap
 - when scaling shapes, making the shape too small will collapse it to a single point
-- when scaling shapes, after switching to another shape, angle plots gone
+- when scaling shapes, after switching to another shape, angle plots disappear
 - when scaling shapes in Poincare mode, there will be an initial jump
 
 ## Fixed Bugs and Issues
